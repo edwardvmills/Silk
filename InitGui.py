@@ -23,7 +23,7 @@ class Silk (Workbench):
 	def __init__(self):
 		self.__class__.Icon = FreeCAD.__path__[3] + "\Silk\Resources\Icons\Silk.svg"
 		self.__class__.MenuText = "Silk"
-		self.__class__.ToolTip = "NURBS Surface modeling tools focused on low degree and high continuity "
+		self.__class__.ToolTip = "NURBS Surface modeling tools focused on low degree and seam continuity "
 
 	def Initialize(self):
 		"This function is executed when FreeCAD starts"
