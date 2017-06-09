@@ -31,10 +31,13 @@ class ControlPoly4_segment():
 		Point_onCurve_0=selx[1].Object	# this is a resilient link to the underlying object
 		Point_onCurve_1=selx[2].Object	# this is a resilient link to the underlying object
 
-
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_segment")
 		AN.ControlPoly4_segment(a,NL_Curve, Point_onCurve_0, Point_onCurve_1)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (0.00,1.00,1.00)
+		a.ViewObject.PointSize = 4.00
+		a.ViewObject.PointColor = (0.00,0.00,1.00)
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

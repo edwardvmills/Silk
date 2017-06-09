@@ -30,6 +30,8 @@ class CubicSurface_44():
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicSurface_44")
 		AN.CubicSurface_44(a,poly)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.DisplayMode = u"Shaded"
+		a.ViewObject.ShapeColor = (0.33,0.67,1.00)
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

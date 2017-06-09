@@ -30,8 +30,12 @@ class CubicCurve_4():
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_4")
 		AN.CubicCurve_4(a,poly)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (1.00,0.67,0.00)
+		a.ViewObject.PointSize = 4.00
+		a.ViewObject.PointColor = (1.00,0.33,0.00)
 		FreeCAD.ActiveDocument.recompute()
-	
+		
 	def GetResources(self):
 		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\CubicCurve_4.svg', 'MenuText': 'CubicCurve_4', 'ToolTip': 'CubicCurve_4: \n creates a NURBS from a ControlPoly4 object (Cubic Bezier Curve)'}
 

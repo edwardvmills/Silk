@@ -40,6 +40,10 @@ class ControlGrid44():
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_4")
 			AN.ControlGrid44_4(a,poly0, poly1, poly2, poly3)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.67,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.33,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
 		if mode=='3sided':
@@ -47,8 +51,12 @@ class ControlGrid44():
 			poly1=Gui.Selection.getSelection()[1]
 			poly2=Gui.Selection.getSelection()[2]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_3")
-			AN.ControlGrid44_3(a,poly0, poly1, poly2)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			AN.ControlGrid44_3(a,poly0, poly1, poly2)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.67,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.33,1.00)
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

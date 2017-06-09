@@ -459,25 +459,25 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contain one
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlPoly4_Arc:	# made from a single sketch containing 1 arc object - need to rename. will now be used to convert the first element in the input sketch. arc, ellipse, parabola, line, etc.
+class ControlPoly4_FirstElement:	# made from the first element of a single sketch. tested for straight line, circular arc (less than 90 degrees), and elliptic arc.
 	def __init__(self, obj , sketch):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlPoly4_Arc class Init\n")
-		obj.addProperty("App::PropertyLink","Sketch","ControlPoly4_Arc","reference Sketch").Sketch = sketch
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly4_Arc","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly4_Arc","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly4_Arc","Weights").Weights = [1.0,1.0,1.0,1.0]
+		FreeCAD.Console.PrintMessage("\nControlPoly4_FirstElement class Init\n")
+		obj.addProperty("App::PropertyLink","Sketch","ControlPoly4_FirstElement","reference Sketch").Sketch = sketch
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly4_FirstElement","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly4_FirstElement","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly4_FirstElement","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.Proxy = self
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		# process the sketch arc...error check later
-		ArcNurbs=fp.Sketch.Shape.Edges[0].toNurbs().Edge1.Curve
-		ArcNurbs.increaseDegree(3)
-		p0=ArcNurbs.getPole(1)
-		p1=ArcNurbs.getPole(2)
-		p2=ArcNurbs.getPole(3)
-		p3=ArcNurbs.getPole(4)
+		# process the sketch...error check later
+		ElemNurbs=fp.Sketch.Shape.Edges[0].toNurbs().Edge1.Curve
+		ElemNurbs.increaseDegree(3)
+		p0=ElemNurbs.getPole(1)
+		p1=ElemNurbs.getPole(2)
+		p2=ElemNurbs.getPole(3)
+		p3=ElemNurbs.getPole(4)
 		# already to world?
 		#mat=fp.Sketch.Placement.toMatrix()
 		#p0=mat.multiply(p0s)
@@ -486,7 +486,7 @@ class ControlPoly4_Arc:	# made from a single sketch containing 1 arc object - ne
 		#p3=mat.multiply(p3s)
 		fp.Poles=[p0,p1,p2,p3]
 		# set the weights
-		fp.Weights = ArcNurbs.getWeights()
+		fp.Weights = ElemNurbs.getWeights()
 		# prepare the lines to draw the polyline
 		Leg0=Part.LineSegment(p0,p1)
 		Leg1=Part.LineSegment(p1,p2)
@@ -1644,7 +1644,8 @@ class CubicSurface_64:
 # The 3 legacy _surf functions used above want a list of 16 X [[x,y,z],w] as input,
 # but internally, they run two loops to break it back into 2D array form to feed into the actual BSplineSurface(). 
 # This is only because this was the first working example i found for BSplineSurface. This was fine for a long time.
-# To rotate grids easily, i need to rewrite all the code to stay in 2D array form at all times. 'all the code' means anything related to grid generators and nurbs surfaces.
+# To rotate grids easily, i need to rewrite all the code to stay in 2D array form at all times. 'all the code' means anything related to 
+# grid generators and nurbs surfaces.
 #
 # a BSplineSurface with u along x, v along y, looked at from the top returns the following poles list
 #

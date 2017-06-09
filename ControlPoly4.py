@@ -32,7 +32,7 @@ class ControlPoly4():
 			if sel[0].GeometryCount==3:
 				mode='3L'
 			else: #if sel[0].GeometryCount==1 or sel[0].GeometryCount==8:
-				mode='Arc'
+				mode='FirstElement'
 		elif len(sel)==2:
 			mode='2N'
 		print mode
@@ -41,13 +41,21 @@ class ControlPoly4():
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_3L")
 			AN.ControlPoly4_3L(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
-		if mode=='Arc':
+		if mode=='FirstElement':
 			sketch=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_Arc")
-			AN.ControlPoly4_Arc(a,sketch)
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_FirstElement")
+			AN.ControlPoly4_FirstElement(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
 		if mode=='2N':
@@ -56,6 +64,10 @@ class ControlPoly4():
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2N")
 			AN.ControlPoly4_2N(a,sketch0,sketch1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

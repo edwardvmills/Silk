@@ -27,13 +27,15 @@ import ArachNURBS as AN
 class Point_onCurve():
 	def Activated(self):
 		selx=Gui.Selection.getSelectionEx()[0]
-		NL_Curve=selx.Object			# this is a resilient link to the underlying object
+		NL_Curve=selx.Object					# this is a resilient link to the underlying object
 		Pick=selx.PickedPoints[0]				# this is the point where the curve was picked
-		u=NL_Curve.Shape.Curve.parameter(Pick)					# this is for an initial value
+		u=NL_Curve.Shape.Curve.parameter(Pick)	# picked point is used for an initial value
 
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve")
 		AN.Point_onCurve(a,NL_Curve, u)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.PointSize = 5.00
+		a.ViewObject.PointColor = (1.00,0.00,0.00)
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
