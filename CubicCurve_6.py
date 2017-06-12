@@ -30,6 +30,10 @@ class CubicCurve_6():
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_6")
 		AN.CubicCurve_6(a,poly)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (1.00,0.67,0.00)
+		a.ViewObject.PointSize = 2.00
+		a.ViewObject.PointColor = (1.00,1.00,0.00)		
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

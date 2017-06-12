@@ -34,21 +34,24 @@ class ControlPoly6():
 			except Exception: 
 				pass
 			try:
-				if sel[0].GeometryCount==5:
+				if sel[0].GeometryCount==5L:
 					mode='5L'
 			except Exception: 
 				pass
 			try:
-				if sel[0].GeometryCount==1:
+				if sel[0].GeometryCount!=5L:
 					#if isinstance(sel[0].Geometry[0], Part.ArcOfCircle):
-					mode='Arc'
+					mode='FirstElement'
 			except Exception: 
 				pass
 		if len(sel)==2:
 			if  sel[0].TypeId=='Sketcher::SketchObject' and sel[1].TypeId=='Sketcher::SketchObject':
 				mode='2N'
-			if sel[0].Shape.Curve.NbPoles==4 and sel[1].Shape.Curve.NbPoles==4:
-				mode='FilletBezier'
+			try:	
+				if sel[0].Shape.Curve.NbPoles==4 and sel[1].Shape.Curve.NbPoles==4:
+					mode='FilletBezier'
+			except Exception: 
+				pass		
 
 		print 'selection processed as ', mode, ' operation'
 
@@ -57,20 +60,32 @@ class ControlPoly6():
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_5L")
 			AN.ControlPoly6_5L(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
-		if mode=='Arc':
+		if mode=='FirstElement':
 			sketch=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_Arc")
-			AN.ControlPoly6_Arc(a,sketch)
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FirstElement")
+			AN.ControlPoly6_FirstElement(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
 		if mode=='Bezier':
 			bezier=Gui.Selection.getSelection()[0]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_Bezier")
-			AN.ControlPoly6_Arc(a,bezier)
+			AN.ControlPoly6_FirstElement(a,bezier)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
 		if mode=='2N':
@@ -79,6 +94,10 @@ class ControlPoly6():
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_2N")
 			AN.ControlPoly6_2N(a,sketch0,sketch1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
 		if mode=='FilletBezier':
@@ -87,6 +106,10 @@ class ControlPoly6():
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FilletBezier")
 			AN.ControlPoly6_FilletBezier(a,CubicCurve4_0,CubicCurve4_1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

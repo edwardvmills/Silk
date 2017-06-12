@@ -592,33 +592,33 @@ class ControlPoly6_2N:	# made from 2 node sketches. each node sketch contain 2 l
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlPoly6_Arc:	# made from a single sketch containing 1 arc object
+class ControlPoly6_FirstElement:	# made from the first element of a single sketch
 	def __init__(self, obj , sketch):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlPoly6_Arc class Init\n")
-		obj.addProperty("App::PropertyLink","Sketch","ControlPoly6_Arc","reference Sketch").Sketch = sketch
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly6_Arc","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly6_Arc","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly6_Arc","Weights").Weights = [1.0,1.0,1.0,1.0]
+		FreeCAD.Console.PrintMessage("\nControlPoly6_FirstElement class Init\n")
+		obj.addProperty("App::PropertyLink","Sketch","ControlPoly6_FirstElement","reference Sketch").Sketch = sketch
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly6_FirstElement","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly6_FirstElement","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly6_FirstElement","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.Proxy = self
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		# process the sketch arc...error check later
-		ArcNurbs=fp.Sketch.Shape.Edges[0].toNurbs().Edge1.Curve
-		ArcNurbs.increaseDegree(3)
-		start=ArcNurbs.FirstParameter
-		end=ArcNurbs.LastParameter
+		# process the sketch element...error check later
+		ElemNurbs=fp.Sketch.Shape.Edges[0].toNurbs().Edge1.Curve
+		ElemNurbs.increaseDegree(3)
+		start=ElemNurbs.FirstParameter
+		end=ElemNurbs.LastParameter
 		knot1=start+(end-start)/3.0
 		knot2=end-(end-start)/3.0
-		ArcNurbs.insertKnot(knot1)
-		ArcNurbs.insertKnot(knot2)
-		p0=ArcNurbs.getPole(1)
-		p1=ArcNurbs.getPole(2)
-		p2=ArcNurbs.getPole(3)
-		p3=ArcNurbs.getPole(4)
-		p4=ArcNurbs.getPole(5)
-		p5=ArcNurbs.getPole(6)
+		ElemNurbs.insertKnot(knot1)
+		ElemNurbs.insertKnot(knot2)
+		p0=ElemNurbs.getPole(1)
+		p1=ElemNurbs.getPole(2)
+		p2=ElemNurbs.getPole(3)
+		p3=ElemNurbs.getPole(4)
+		p4=ElemNurbs.getPole(5)
+		p5=ElemNurbs.getPole(6)
 		# already to world?
 		#mat=fp.Sketch.Placement.toMatrix()
 		#p0=mat.multiply(p0s)
@@ -627,7 +627,7 @@ class ControlPoly6_Arc:	# made from a single sketch containing 1 arc object
 		#p3=mat.multiply(p3s)
 		fp.Poles=[p0,p1,p2,p3,p4,p5]
 		# set the weights
-		fp.Weights = ArcNurbs.getWeights()
+		fp.Weights = ElemNurbs.getWeights()
 		# prepare the lines to draw the polyline
 		Leg0=Part.LineSegment(p0,p1)
 		Leg1=Part.LineSegment(p1,p2)

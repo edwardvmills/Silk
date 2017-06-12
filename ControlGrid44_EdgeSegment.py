@@ -28,10 +28,13 @@ class ControlGrid44_EdgeSegment():
 	def Activated(self):
 		surface=Gui.Selection.getSelection()[0]
 		curve=Gui.Selection.getSelection()[1]
-
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_EdgeSegment")
 		AN.ControlGrid44_EdgeSegment(a,surface,curve)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (0.67,1.00,1.00)
+		a.ViewObject.PointSize = 4.00
+		a.ViewObject.PointColor = (0.00,0.33,1.00)
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

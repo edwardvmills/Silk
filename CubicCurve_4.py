@@ -32,8 +32,8 @@ class CubicCurve_4():
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
 		a.ViewObject.LineColor = (1.00,0.67,0.00)
-		a.ViewObject.PointSize = 4.00
-		a.ViewObject.PointColor = (1.00,0.33,0.00)
+		a.ViewObject.PointSize = 2.00
+		a.ViewObject.PointColor = (1.00,1.00,0.00)
 		FreeCAD.ActiveDocument.recompute()
 		
 	def GetResources(self):

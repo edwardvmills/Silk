@@ -24,32 +24,17 @@ from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
 
-class ControlGrid66():
+class CubicSurface_66():
 	def Activated(self):
-		sel=Gui.Selection.getSelection()
-		if len(sel)==4:
-			mode='4sided'
-		elif len(sel)==3:
-			mode='3sided'
-
-		if mode=='4sided':
-			poly0=Gui.Selection.getSelection()[0]
-			poly1=Gui.Selection.getSelection()[1]
-			poly2=Gui.Selection.getSelection()[2]
-			poly3=Gui.Selection.getSelection()[3]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid66_4")
-			AN.ControlGrid66_4(a,poly0, poly1, poly2, poly3)
-			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
-			a.ViewObject.LineWidth = 1.00
-			a.ViewObject.LineColor = (0.67,1.00,1.00)
-			a.ViewObject.PointSize = 4.00
-			a.ViewObject.PointColor = (0.00,0.33,1.00)
-			FreeCAD.ActiveDocument.recompute()
-			
-		if mode=='3sided':
-			print 'triangle mode not implemented'
-			
+		poly=Gui.Selection.getSelection()[0]
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicSurface_66")
+		AN.CubicSurface_66(a,poly)
+		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.DisplayMode = u"Shaded"
+		a.ViewObject.ShapeColor = (0.33,0.67,1.00)
+		FreeCAD.ActiveDocument.recompute()
+	
 	def GetResources(self):
-		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\ControlGrid66.svg', 'MenuText': 'ControlGrid66', 'ToolTip': 'ControlGrid66'}
+		return {'Pixmap' : FreeCAD.__path__[3] + '\Silk\Resources\Icons\CubicSurface_66.svg', 'MenuText': 'CubicSurface_66', 'ToolTip': 'CubicSurface_66'}
 
-Gui.addCommand('ControlGrid66', ControlGrid66())
+Gui.addCommand('CubicSurface_66', CubicSurface_66())
