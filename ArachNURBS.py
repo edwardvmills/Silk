@@ -2842,15 +2842,15 @@ class SubGrid62Tri_2Surf64s:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 			
-class ControlGrid64_3_Grid44:
+class ControlGrid64_3_1Grid44:
 	def __init__(self, obj , ControlGrid44, Corner):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGrid64_3_Grid44 class Init\n")
-		obj.addProperty("App::PropertyLink","ControlGrid44","ControlGrid64_3_Grid44","Reference Bezier Surface").ControlGrid44 = ControlGrid44
-		obj.addProperty("App::PropertyFloat","Corner","ControlGrid64_3_Grid44","Corner blending curve").Corner = Corner
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_3_Grid44","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_3_Grid44","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_3_Grid44","Weights").Weights
+		FreeCAD.Console.PrintMessage("\nControlGrid64_3_1Grid44 class Init\n")
+		obj.addProperty("App::PropertyLink","ControlGrid44","ControlGrid64_3_1Grid44","Reference Bezier Surface").ControlGrid44 = ControlGrid44
+		obj.addProperty("App::PropertyFloat","Corner","ControlGrid64_3_1Grid44","Corner blending curve").Corner = Corner
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_3_1Grid44","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_3_1Grid44","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_3_1Grid44","Weights").Weights
 		obj.Proxy = self
 
 	def execute(self, fp):
@@ -3064,8 +3064,6 @@ class ControlGrid64_3_Grid44:
 		for i in range(12,18):
 			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
 		#Legs[27,28,29,30,31,32] used
-		
-		
 		
 		
 		fp.Legs=Legs
