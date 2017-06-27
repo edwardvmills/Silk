@@ -71,6 +71,7 @@ class ControlPoly4():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\ControlPoly4.svg', 'MenuText': 'ControlPoly4', 'ToolTip': 'ControlPoly4: \n Creates a 4 point control polygon from a variety of inputs'}
+		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\ControlPoly4.svg', 'MenuText': 'ControlPoly4',
+		'ToolTip': 'ControlPoly4: \n Creates a 4 point control polygon from a variety of inputs. \n -a sketch of three lines connected end to end \n -two sketches containing a circle and a line each \n -if a single sketch is selected that does not contain \n three elements, the first element is converted \n (this works for line, arc of circle, and arc of ellipse elements)'}
 
 Gui.addCommand('ControlPoly4', ControlPoly4())

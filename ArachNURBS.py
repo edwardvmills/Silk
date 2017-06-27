@@ -2278,17 +2278,17 @@ class SubGrid33_2Grid64s_old:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
-class SubGrid33_2Grid64s:
+class SubGrid33_2Grid64:
 	def __init__(self, obj , Grid_0, Grid_1):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nSubGrid33_2Grid64s class Init\n")
-		obj.addProperty("App::PropertyLink","Grid_0","SubGrid33_2Grid64s","first reference 6X4 grid").Grid_0 = Grid_0
-		obj.addProperty("App::PropertyLink","Grid_1","SubGrid33_2Grid64s","second reference 6X4 grid").Grid_1 = Grid_1
-		obj.addProperty("App::PropertyFloat","adjust_0","SubGrid33_2Grid64s","adjust along Grid_0").adjust_0 = 0
-		obj.addProperty("App::PropertyFloat","adjust_1","SubGrid33_2Grid64s","adjust along Grid_1").adjust_1 = 0
-		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid33_2Grid64s","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","SubGrid33_2Grid64s","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","SubGrid33_2Grid64s","Weights").Weights
+		FreeCAD.Console.PrintMessage("\nSubGrid33_2Grid64 class Init\n")
+		obj.addProperty("App::PropertyLink","Grid_0","SubGrid33_2Grid64","first reference 6X4 grid").Grid_0 = Grid_0
+		obj.addProperty("App::PropertyLink","Grid_1","SubGrid33_2Grid64","second reference 6X4 grid").Grid_1 = Grid_1
+		obj.addProperty("App::PropertyFloat","adjust_0","SubGrid33_2Grid64","adjust along Grid_0").adjust_0 = 0
+		obj.addProperty("App::PropertyFloat","adjust_1","SubGrid33_2Grid64","adjust along Grid_1").adjust_1 = 0
+		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid33_2Grid64","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","SubGrid33_2Grid64","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","SubGrid33_2Grid64","Weights").Weights
 	
 		obj.Proxy = self
 

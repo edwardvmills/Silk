@@ -16,7 +16,7 @@
    version="1.1"
    inkscape:version="0.91 r13725"
    sodipodi:docname="ControlGrid44_EdgeSegment.svg"
-   inkscape:export-filename="C:\Users\Edward Mills\Desktop\NURBSlib_EVM\icons\ControlGrid44_EdgeSegment.png"
+   inkscape:export-filename="C:\Users\Edward Mills\AppData\Roaming\FreeCAD\Mod\Silk\Resources\Icons\ControlGrid44_EdgeSegment.png"
    inkscape:export-xdpi="90"
    inkscape:export-ydpi="90">
   <defs
@@ -28,7 +28,7 @@
          offset="0"
          id="stop3838" />
       <stop
-         style="stop-color:#646464;stop-opacity:1"
+         style="stop-color:#c8c8c8;stop-opacity:1"
          offset="1"
          id="stop3840" />
     </linearGradient>
@@ -52,7 +52,7 @@
      inkscape:pageopacity="0.0"
      inkscape:pageshadow="2"
      inkscape:zoom="13.919664"
-     inkscape:cx="18.610374"
+     inkscape:cx="7.8701722"
      inkscape:cy="31.581155"
      inkscape:current-layer="layer1"
      showgrid="true"
@@ -60,7 +60,7 @@
      inkscape:grid-bbox="true"
      inkscape:window-width="1920"
      inkscape:window-height="1017"
-     inkscape:window-x="-8"
+     inkscape:window-x="1912"
      inkscape:window-y="-8"
      inkscape:window-maximized="1"
      inkscape:snap-global="true"
