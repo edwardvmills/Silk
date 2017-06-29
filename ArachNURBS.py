@@ -2,7 +2,9 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #    
-#    ArachNURBS is a library of functions and classes to manipulate NURBS curves, surfaces, and the associated control polygons and grids
+#    ArachNURBS is a library of functions and classes to manipulate NURBS curves, surfaces, and the associated control polygons and grids.
+#	 ArachNURBS is built on top FreeCAD's standard NURBS functions.
+#
 #
 #    This program is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -271,7 +273,7 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	return [poles,weights]
 
 	
-## direct functions currently unused in the Classes / unavailable through the Silk FreeCAD workbench:
+## direct functions currently unused in the Classes / unavailable through the Silk FreeCAD workbench (they are kept here because they were successfully used in the pre-parametric version of the tools):
 	
 def Cubic_Bezier_ddu(pole1, pole2):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
 	P1=Base.Vector(pole1)
@@ -395,7 +397,7 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contain one line (tangent), and one circle (endpoint) located at one end of the line.
+class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains one line (tangent), and one circle (endpoint) located at one end of the line.
 	def __init__(self, obj , sketch0, sketch1):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlPoly4_2N class Init\n")
@@ -459,7 +461,7 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contain one
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlPoly4_FirstElement:	# made from the first element of a single sketch. tested for straight line, circular arc (less than 90 degrees), and elliptic arc.
+class ControlPoly4_FirstElement:	# made from the first element of a single sketch. tested for straight line, circular arc (less than 90 degrees), and elliptic arc. the number of elements in the sketch should not be 3.
 	def __init__(self, obj , sketch):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlPoly4_FirstElement class Init\n")
@@ -1643,7 +1645,7 @@ class CubicSurface_64:
 # There a mess to clean up in re. passing the pole/weight list to FreeCAD. 
 # The 3 legacy _surf functions used above want a list of 16 X [[x,y,z],w] as input,
 # but internally, they run two loops to break it back into 2D array form to feed into the actual BSplineSurface(). 
-# This is only because this was the first working example i found for BSplineSurface. This was fine for a long time.
+# This is only because this was the first working example i found for BSplineSurface. This was fine for a long time. Not anymore
 # To rotate grids easily, i need to rewrite all the code to stay in 2D array form at all times. 'all the code' means anything related to 
 # grid generators and nurbs surfaces.
 #
@@ -2416,17 +2418,17 @@ class SubGrid33_2Grid64:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 		
-class ControlGrid66_4Subs_old:
+class ControlGrid66_4Sub_old:
 	def __init__(self, obj , SubGrid_0, SubGrid_1, SubGrid_2, SubGrid_3):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGrid66_4Subs class Init\n")
-		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Subs","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
-		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Subs","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
-		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Subs","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2	
-		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Subs","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3		
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Subs","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Subs","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Subs","Weights").Weights
+		FreeCAD.Console.PrintMessage("\nControlGrid66_4Sub class Init\n")
+		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Sub","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
+		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Sub","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
+		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2	
+		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3		
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Sub","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Sub","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Sub","Weights").Weights
 		obj.Proxy = self
 
 	def execute(self, fp):
@@ -2551,17 +2553,17 @@ class ControlGrid66_4Subs_old:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlGrid66_4Subs:
+class ControlGrid66_4Sub:
 	def __init__(self, obj , SubGrid_0, SubGrid_1, SubGrid_2, SubGrid_3):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGrid66_4Subs class Init\n")
-		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Subs","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
-		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Subs","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
-		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Subs","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2	
-		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Subs","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3		
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Subs","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Subs","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Subs","Weights").Weights
+		FreeCAD.Console.PrintMessage("\nControlGrid66_4Sub class Init\n")
+		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Sub","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
+		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Sub","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
+		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2	
+		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3		
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Sub","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Sub","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Sub","Weights").Weights
 		obj.Proxy = self
 
 	def execute(self, fp):

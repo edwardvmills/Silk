@@ -42,6 +42,6 @@ class SubGrid33_2Grid64():
 
 	def GetResources(self):
 		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\SubGrid33_2Grid64.svg', 'MenuText': 'SubGrid33_2Grid64',
-		'ToolTip': 'SubGrid33_2Grid64: \n Select two ControlGrid_64 objects meeting at a corner \n to generate a partial blend grid. \n this is intended for the case where the two ControlGrid_64 objects \n are blends grids which have segments of one common surface as inputs'}
+		'ToolTip': 'SubGrid33_2Grid64: \n Select two ControlGrid_64 objects meeting at a corner \n to generate a corner blend partial grid. \n this is intended for the case where the two ControlGrid_64 objects \n are blends grids which have segments of one common surface as inputs'}
 
 Gui.addCommand('SubGrid33_2Grid64', SubGrid33_2Grid64())
