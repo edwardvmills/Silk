@@ -2,7 +2,7 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #	
-#    Silk is the user interface of ArachNURBS. This implementation is a FreeCAD workbench.
+#    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
 #
 #    Silk is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,12 +17,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+
+# Locate Workbench Directory
+import os, Silk_dummy
+path_Silk = os.path.dirname(Silk_dummy.__file__)
+path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
 class ControlGrid64_2Grid44():
 	def Activated(self):
@@ -41,6 +45,6 @@ class ControlGrid64_2Grid44():
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\ControlGrid64_2Grid44.svg', 'MenuText': 'ControlGrid64_2Grid44', 'ToolTip': 'ControlGrid64_2Grid44: \n select two ControlGrid_44 objects that share an edge (forming a corner) to generate \n a grid that blends the corner. This new grid preserves the curvature of the input grids \n on the edges away from the corner'}
+		return {'Pixmap' :  path_Silk_icons + '\ControlGrid64_2Grid44.svg', 'MenuText': 'ControlGrid64_2Grid44', 'ToolTip': 'ControlGrid64_2Grid44: \n select two ControlGrid_44 objects that share an edge (forming a corner) to generate \n a grid that blends the corner. This new grid preserves the curvature of the input grids \n on the edges away from the corner'}
 
 Gui.addCommand('ControlGrid64_2Grid44', ControlGrid64_2Grid44())

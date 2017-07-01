@@ -20,7 +20,7 @@
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 #
 
-
+from __future__ import division # allows floating point division from integers
 import Part
 import FreeCAD
 from FreeCAD import Base
@@ -43,7 +43,7 @@ import numpy as np
 
 ####
 #### SECTION 1: DIRECT FUNCTIONS - NO PARAMETRIC LINKING BETWEEN OBJECTS
-#### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS (start around line 340)
+#### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS (start around line 364)
 ####
 
 ### SECTION 1: DIRECT FUNCTIONS - NO PARAMETRIC LINKING BETWEEN OBJECTS 
@@ -62,7 +62,7 @@ def equalVectors(vector0,vector1,tol):	# 3D point equality test
 	elif (vector1-vector0).Length <= tol:
 		return 0
 	
-def orient_a_to_b(polesa,polesb):	# polesa and polesb are lists of poles that share one endpoint. if needed, this function reorders a so that a.end = b.start or b.end b is never modified
+def orient_a_to_b(polesa,polesb):	# polesa and polesb are lists of poles that share one endpoint. if needed, this function reorders a so that a.end = b.start or b.end. b is never modified
 
 	if equalVectors(polesa[-1],polesb[0],0.000001):  # last point of first curve is first point of second curve
 		# curve 1 is oriented properly
@@ -357,7 +357,7 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 	return  isect_curve_surf
 
 
-#### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS - IN PROGRESS
+#### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS
 
 ### control polygons (+sketch to input)
 

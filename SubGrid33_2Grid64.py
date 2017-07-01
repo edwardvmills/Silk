@@ -2,7 +2,7 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #	
-#    Silk is the user interface of ArachNURBS. This implementation is a FreeCAD workbench.
+#    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
 #
 #    Silk is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,6 +24,11 @@ from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
 
+# Locate Workbench Directory
+import os, Silk_dummy
+path_Silk = os.path.dirname(Silk_dummy.__file__)
+path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+
 class SubGrid33_2Grid64():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
@@ -41,7 +46,7 @@ class SubGrid33_2Grid64():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\SubGrid33_2Grid64.svg', 'MenuText': 'SubGrid33_2Grid64',
+		return {'Pixmap' :  path_Silk_icons + '\SubGrid33_2Grid64.svg', 'MenuText': 'SubGrid33_2Grid64',
 		'ToolTip': 'SubGrid33_2Grid64: \n Select two ControlGrid_64 objects meeting at a corner \n to generate a corner blend partial grid. \n this is intended for the case where the two ControlGrid_64 objects \n are blends grids which have segments of one common surface as inputs'}
 
 Gui.addCommand('SubGrid33_2Grid64', SubGrid33_2Grid64())

@@ -3,7 +3,6 @@
 #    edwardvmills@gmail.com
 #	
 #    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
-#    Silk is the user interface of ArachNURBS.
 #
 #    Silk is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -18,11 +17,12 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
+import FreeCAD
 
 class Silk (Workbench):
 	
 	def __init__(self):
-		self.__class__.Icon = FreeCAD.__path__[3] + "\Silk\Resources\Icons\Silk.svg"
+		self.__class__.Icon = FreeCAD.getUserAppDataDir()+"Mod" + "/Silk/Resources/Icons/Silk.svg"
 		self.__class__.MenuText = "Silk"
 		self.__class__.ToolTip = "NURBS Surface modeling tools focused on low degree and seam continuity "
 

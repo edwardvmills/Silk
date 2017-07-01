@@ -2,7 +2,7 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #	
-#    Silk is the user interface of ArachNURBS. This implementation is a FreeCAD workbench.
+#    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
 #
 #    Silk is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -17,12 +17,16 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
 from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+
+# Locate Workbench Directory
+import os, Silk_dummy
+path_Silk = os.path.dirname(Silk_dummy.__file__)
+path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
 class CubicSurface_64():
 	def Activated(self):
@@ -35,6 +39,6 @@ class CubicSurface_64():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' : FreeCAD.__path__[3] + '\Silk\Resources\Icons\CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'CubicSurface_64'}
+		return {'Pixmap' :  path_Silk_icons + '\CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'CubicSurface_64'}
 
 Gui.addCommand('CubicSurface_64', CubicSurface_64())

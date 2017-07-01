@@ -2,7 +2,7 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #	
-#    Silk is the user interface of ArachNURBS. This implementation is a FreeCAD workbench.
+#    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
 #
 #    Silk is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -24,6 +24,11 @@ from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
 
+# Locate Workbench Directory
+import os, Silk_dummy
+path_Silk = os.path.dirname(Silk_dummy.__file__)
+path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+
 class Point_onCurve():
 	def Activated(self):
 		selx=Gui.Selection.getSelectionEx()[0]
@@ -39,6 +44,6 @@ class Point_onCurve():
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  FreeCAD.__path__[3] + '\Silk\Resources\Icons\Point_onCurve.svg', 'MenuText': 'Point_onCurve', 'ToolTip': 'Point_onCurve: \n Create a point on a curve.'}
+		return {'Pixmap' :  path_Silk_icons + '\Point_onCurve.svg', 'MenuText': 'Point_onCurve', 'ToolTip': 'Point_onCurve: \n Create a point on a curve.'}
 
 Gui.addCommand('Point_onCurve', Point_onCurve())
