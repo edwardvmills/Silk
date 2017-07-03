@@ -41,6 +41,6 @@ class CubicCurve_6():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\CubicCurve_6.svg', 'MenuText': 'CubicCurve_6', 'ToolTip': 'CubicCurve_6'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_6.svg', 'MenuText': 'CubicCurve_6', 'ToolTip': 'CubicCurve_6'}
 
 Gui.addCommand('CubicCurve_6', CubicCurve_6())
