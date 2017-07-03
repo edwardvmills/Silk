@@ -1,14 +1,11 @@
 # Silk
-NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench)
+NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench)
 
-![Best example of current state](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_01.png?raw=true)
-
-
-[FreeCAD](https://www.freecadweb.org/) is a parametric 3D modeler
-
-[How to install additional workbenches in FreeCAD](https://www.freecadweb.org/wiki/How_to_install_additional_workbenches)
+![Best example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_02.png?raw=true)
 
 Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
+
+[How to install additional workbenches in FreeCAD](https://www.freecadweb.org/wiki/How_to_install_additional_workbenches)
 
 Until documentation and tutorials are rewritten for Silk, [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) is the best source of information regarding the project. 
 The tutorials can still be followed, simply skip setup, color, and display mode instructions. All setup is handled by installing the workbench, and the object display properties have been to reasonable defaults.
