@@ -12,6 +12,8 @@ The tutorials can still be followed, simply skip setup, color, and display mode 
 
 All program files (.py, .pyc, .FCMacro) are offered under the terms of the [Gnu gpl-v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
+![gplv3](https://www.gnu.org/graphics/gplv3-127x51.png)
+
 Icon .svg files, icon .png files, demo models .FCStd files, and tutorial model .FCStd files are offered under the terms of CC-BY 4.0
 
 <a rel="license" href="http://creativecommons.org/licenses/by/4.0/"><img alt="Creative Commons License" style="border-width:0" src="https://i.creativecommons.org/l/by/4.0/88x31.png" /></a><br />This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by/4.0/">Creative Commons Attribution 4.0 International License</a>.
