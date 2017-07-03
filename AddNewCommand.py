@@ -32,6 +32,6 @@ class NewCommand():
 		PASTE THE CONTENTS OF A FUNCTIONAL FCMacro HERE
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\NewCommand.svg', 'MenuText': 'NewCommand', 'ToolTip': 'NewCommand'}
+		return {'Pixmap' :  path_Silk_icons + '/NewCommand.svg', 'MenuText': 'NewCommand', 'ToolTip': 'NewCommand'}
 
 Gui.addCommand('NewCommand', NewCommand())

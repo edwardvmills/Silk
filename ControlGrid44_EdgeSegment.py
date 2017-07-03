@@ -42,6 +42,6 @@ class ControlGrid44_EdgeSegment():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\ControlGrid44_EdgeSegment.svg', 'MenuText': 'ControlGrid44_EdgeSegment', 'ToolTip': 'ControlGrid44_EdgeSegment'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid44_EdgeSegment.svg', 'MenuText': 'ControlGrid44_EdgeSegment', 'ToolTip': 'ControlGrid44_EdgeSegment'}
 
 Gui.addCommand('ControlGrid44_EdgeSegment', ControlGrid44_EdgeSegment())

@@ -54,6 +54,6 @@ class ControlGrid66():
 			print 'triangle mode not implemented'
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\ControlGrid66.svg', 'MenuText': 'ControlGrid66', 'ToolTip': 'ControlGrid66'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66.svg', 'MenuText': 'ControlGrid66', 'ToolTip': 'ControlGrid66'}
 
 Gui.addCommand('ControlGrid66', ControlGrid66())

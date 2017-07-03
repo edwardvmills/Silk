@@ -117,6 +117,6 @@ class ControlPoly6():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\ControlPoly6.svg', 'MenuText': 'ControlPoly6', 'ToolTip': 'ControlPoly6'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlPoly6.svg', 'MenuText': 'ControlPoly6', 'ToolTip': 'ControlPoly6'}
 
 Gui.addCommand('ControlPoly6', ControlPoly6())

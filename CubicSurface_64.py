@@ -39,6 +39,6 @@ class CubicSurface_64():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'CubicSurface_64'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'CubicSurface_64'}
 
 Gui.addCommand('CubicSurface_64', CubicSurface_64())

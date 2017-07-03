@@ -46,7 +46,7 @@ class ControlGrid66_4Sub():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\ControlGrid66_4Sub.svg', 'MenuText': 'ControlGrid66_4Sub',
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66_4Sub.svg', 'MenuText': 'ControlGrid66_4Sub',
 		'ToolTip': 'ControlGrid66_4Sub: \n Select 4 related SubGrid33 objects in a CC loop to form a ControlGrid66 object'}
 
 Gui.addCommand('ControlGrid66_4Sub', ControlGrid66_4Sub())

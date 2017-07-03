@@ -54,6 +54,6 @@ class ControlGrid64():
 			print 'please select 4 control polygons forming a loop in the following order: 6P, 4P, 6P, 4P'
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\ControlGrid64.svg', 'MenuText': 'ControlGrid64', 'ToolTip': 'ControlGrid64'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64.svg', 'MenuText': 'ControlGrid64', 'ToolTip': 'ControlGrid64'}
 
 Gui.addCommand('ControlGrid64', ControlGrid64())

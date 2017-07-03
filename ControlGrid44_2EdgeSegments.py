@@ -43,6 +43,6 @@ class ControlGrid44_2EdgeSegments():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '\ControlGrid44_2EdgeSegments.svg', 'MenuText': 'ControlGrid44_2EdgeSegments', 'ToolTip': 'ControlGrid44_2EdgeSegments'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid44_2EdgeSegments.svg', 'MenuText': 'ControlGrid44_2EdgeSegments', 'ToolTip': 'ControlGrid44_2EdgeSegments'}
 
 Gui.addCommand('ControlGrid44_2EdgeSegments', ControlGrid44_2EdgeSegments())
