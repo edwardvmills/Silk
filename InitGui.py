@@ -47,6 +47,8 @@ class Silk (Workbench):
 		import ControlGrid64_3_1Grid44
 		import SubGrid33_2Grid64
 		import ControlGrid66_4Sub
+		import SubGrid63_Tri_2Surf64
+		import ControlGridTriple66_3Sub
 		self.list = ["ControlPoly4",
 					"CubicCurve_4", 
 					"Point_onCurve", 
@@ -64,7 +66,9 @@ class Silk (Workbench):
 					"ControlGrid64_2Grid44",
 					"ControlGrid64_3_1Grid44",
 					"SubGrid33_2Grid64",
-					"ControlGrid66_4Sub"] 
+					"ControlGrid66_4Sub",
+					"SubGrid63_Tri_2Surf64",
+					"ControlGridTriple66_3Sub"] 
 					# A list of command names created in the line above
 		
 		self.appendToolbar("Silk Commands",self.list) # creates a new toolbar with your commands

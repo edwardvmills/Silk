@@ -27,11 +27,22 @@ import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
-class AddNewCommand():
+class SubGrid63_Tri_2Surf64():
 	def Activated(self):
-		Past the Contents of a functioning FreeCAD macro here
+		sel=Gui.Selection.getSelection()
+		Surf_0=Gui.Selection.getSelection()[0] 
+		Surf_1=Gui.Selection.getSelection()[1]
+		
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid63_Tri_2Surf64")
+		AN.SubGrid63_Tri_2Surf64(a,Surf_0,Surf_1)
+		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (1.00,0.67,0.00)
+		a.ViewObject.PointSize = 2.00
+		a.ViewObject.PointColor = (1.00,1.00,0.00)		
+		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/AddNewCommand.svg', 'MenuText': 'AddNewCommand', 'ToolTip': 'AddNewCommand'}
+		return {'Pixmap' :  path_Silk_icons + '/SubGrid63_Tri_2Surf64.svg', 'MenuText': 'SubGrid63_Tri_2Surf64', 'ToolTip': 'SubGrid63_Tri_2Surf64'}
 
-Gui.addCommand('AddNewCommand', AddNewCommand())
+Gui.addCommand('SubGrid63_Tri_2Surf64', SubGrid63_Tri_2Surf64())
