@@ -3324,7 +3324,7 @@ class ControlGridTriple66_3Sub:
 		p2 = p2_raw + L1 * (p1-p0)
 		return p2
 		
-	def setDiagApprox(self, Sub_0, Sub_1, Sub_2, pinch):
+	def DiagApprox(self, Sub_0, Sub_1, Sub_2, pinch):
 		diag_0=Sub_0.Poles[5]
 		diag_1=Sub_0.Poles[11]		
 		## find opposing L1 ratios
@@ -3351,15 +3351,224 @@ class ControlGridTriple66_3Sub:
 		DiagApprox = [diag_Curve, diag_poly0, diag_poly1, diag_poly2, diag_poly3, diag_poly4]
 		return DiagApprox
 		
-	def execute(self, fp):
-		'''Do something when doing a recomputation, this method is mandatory'''		
-		Sub_0=fp.Sub_0
-		Sub_1=fp.Sub_1
-		Sub_2=fp.Sub_2
+	def DiagSplit(self, diag, portion):
+		diaghalf=diag
+		if portion == 0:
+			diaghalf.segment(0,0.5)
+			diaghalf.insertKnot(1.0/6.0)
+			p0=diaghalf.getPole(6)
+			p1=diaghalf.getPole(5)
+			p2=diaghalf.getPole(4)
+			p3=diaghalf.getPole(3)
+			p4=diaghalf.getPole(2)
+			p5=diaghalf.getPole(1)
+			
+		if portion ==1:
+			diaghalf.segment(0.5,1.0)
+			diaghalf.insertKnot(5.0/6.0)
+			p0=diaghalf.getPole(1)
+			p1=diaghalf.getPole(2)
+			p2=diaghalf.getPole(3)
+			p3=diaghalf.getPole(4)
+			p4=diaghalf.getPole(5)
+			p5=diaghalf.getPole(6)
+			
+		return [diaghalf, p0, p1, p2, p3, p4, p5]
 		
-		diag0 = self.setDiagApprox(Sub_0, Sub_1, Sub_2, 1)
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		
+		Poles_0 = fp.Sub_0.Poles		
+		Poles_1 = fp.Sub_1.Poles
+		Poles_2 = fp.Sub_2.Poles
+		
+		# now that we have all three subgrids that go into the triangle
+		# let's apply the L1 scale of the third row of control points from the subgrids
 
-		Legs = [diag0[0], diag0[1], diag0[2], diag0[3], diag0[4], diag0[5]]
+		# determine all 6 L1 scales. 2 for each subgrid
+		Sub0_uL1Scale = self.getL1Scale(Poles_0[12], Poles_0[13], Poles_0[14])
+		Sub0_vL1Scale = self.getL1Scale(Poles_0[2], Poles_0[8], Poles_0[14])
+
+		Sub1_uL1Scale = self.getL1Scale(Poles_0[12], Poles_0[13], Poles_0[14])
+		Sub1_vL1Scale = self.getL1Scale(Poles_0[2], Poles_0[8], Poles_0[14])
+		
+		Sub2_uL1Scale = self.getL1Scale(Poles_0[12], Poles_0[13], Poles_0[14])
+		Sub2_vL1Scale = self.getL1Scale(Poles_0[2], Poles_0[8], Poles_0[14])
+		
+		Sub_L1Scale = [[Sub0_uL1Scale, Sub0_vL1Scale],
+						[Sub1_uL1Scale, Sub1_vL1Scale],
+						[Sub2_uL1Scale, Sub2_vL1Scale]]
+		
+		# determine the average L1 scales along the edge where 2 subgrids meet
+		Mid_L1Scale = [ 0.5 * (Sub_L1Scale[0][1] + Sub_L1Scale[1][0]),
+						0.5 * (Sub_L1Scale[1][1] + Sub_L1Scale[2][0]),
+						0.5 * (Sub_L1Scale[0][0] + Sub_L1Scale[2][1])]
+						
+		# apply the L1 scale to the points on the third rows of the subgrid (they have their relative height set for curvature already)
+		
+		# as points along a common seam
+		Mid0_p2 = Poles_0[17] + Mid_L1Scale[0] * (Poles_0[11]-Poles_0[5])
+		Mid1_p2 = Poles_1[17] + Mid_L1Scale[1] * (Poles_1[11]-Poles_1[5])
+		Mid2_p2 = Poles_2[17] + Mid_L1Scale[2] * (Poles_2[11]-Poles_2[5])
+		
+		# set the points to the Pole grids
+		Poles_0[17] = Mid0_p2
+		Poles_0[32] = Mid2_p2
+		
+		Poles_1[17] = Mid1_p2
+		Poles_1[32] = Mid0_p2
+
+		Poles_2[17] = Mid2_p2
+		Poles_2[32] = Mid1_p2	
+		
+		Leg0_p1p2 = Part.LineSegment(Poles_0[11],Poles_0[17])
+		Leg1_p1p2 = Part.LineSegment(Poles_1[11],Poles_1[17])
+		Leg2_p1p2 = Part.LineSegment(Poles_2[11],Poles_2[17])
+
+		# set the L1 scale to the points on the third row, to either side of the subgrid seam. (they have their relative height set for curvature already)
+		# how to do this is not clear right now, there are a lot of potentially conflicting constraints
+		# for G1 along the seam inside the triangle, these points and the seam point need to align, and the legs need to be of equal length.
+		# to maintain G2 across the seams outside the triangle, these points can only be moved along the tangent.
+		
+		# first shot: apply the same L1 factor as was applied along the internal seam. 
+		# looks decent although not exact for G1. pretty much equal and aligned across the seam
+		
+		# seam 0
+		Poles_0[16] = Poles_0[16] + Mid_L1Scale[0] * (Poles_0[10]-Poles_0[4])
+		Poles_1[26] = Poles_1[26] + Mid_L1Scale[0] * (Poles_1[25]-Poles_1[24])
+			
+		Leg0_p10p16 = Part.LineSegment(Poles_0[10],Poles_0[16])
+		Leg0_p16p17 = Part.LineSegment(Poles_0[16],Poles_0[17])
+		Leg1_p25p26 = Part.LineSegment(Poles_1[25],Poles_1[26])
+		Leg1_p26p32 = Part.LineSegment(Poles_1[26],Poles_1[32])
+		
+		# seam 1
+		Poles_1[16] = Poles_1[16] + Mid_L1Scale[1] * (Poles_1[10]-Poles_1[4])
+		Poles_2[26] = Poles_2[26] + Mid_L1Scale[1] * (Poles_2[25]-Poles_2[24])
+			
+		Leg1_p10p16 = Part.LineSegment(Poles_1[10],Poles_1[16])
+		Leg1_p16p17 = Part.LineSegment(Poles_1[16],Poles_1[17])
+		Leg2_p25p26 = Part.LineSegment(Poles_2[25],Poles_2[26])
+		Leg2_p26p32 = Part.LineSegment(Poles_2[26],Poles_2[32])
+		
+		# seam 2
+		Poles_2[16] = Poles_2[16] + Mid_L1Scale[2] * (Poles_2[10]-Poles_2[4])
+		Poles_0[26] = Poles_0[26] + Mid_L1Scale[2] * (Poles_0[25]-Poles_0[24])
+			
+		Leg2_p10p16 = Part.LineSegment(Poles_2[10],Poles_2[16])
+		Leg2_p16p17 = Part.LineSegment(Poles_2[16],Poles_2[17])
+		Leg0_p25p26 = Part.LineSegment(Poles_0[25],Poles_0[26])
+		Leg0_p26p32 = Part.LineSegment(Poles_0[26],Poles_0[32])
+		
+		
+		# apply the L1 scale to the remaining points in the third rows
+		
+		#in Poles_0	
+		Poles_0[15] = Poles_0[15] + 0.5*(Mid_L1Scale[0]+Sub_L1Scale[0][1]) * (Poles_0[9]-Poles_0[3])
+		Poles_0[20] = Poles_0[20] + 0.5*(Mid_L1Scale[2]+Sub_L1Scale[0][0]) * (Poles_0[19]-Poles_0[18])
+		
+		Leg0_p9p15 = Part.LineSegment(Poles_0[9],Poles_0[15])
+		Leg0_p14p15 = Part.LineSegment(Poles_0[14],Poles_0[15])
+		Leg0_p15p16 = Part.LineSegment(Poles_0[15],Poles_0[16])
+		
+		Leg0_p19p20 = Part.LineSegment(Poles_0[19],Poles_0[20])
+		Leg0_p14p20 = Part.LineSegment(Poles_0[14],Poles_0[20])
+		Leg0_p20p26 = Part.LineSegment(Poles_0[20],Poles_0[26])
+		
+		#in Poles_1	
+		Poles_1[15] = Poles_1[15] + 0.5*(Mid_L1Scale[1]+Sub_L1Scale[1][1]) * (Poles_1[9]-Poles_1[3])
+		Poles_1[20] = Poles_1[20] + 0.5*(Mid_L1Scale[0]+Sub_L1Scale[1][0]) * (Poles_1[19]-Poles_1[18])
+		
+		Leg1_p9p15 = Part.LineSegment(Poles_1[9],Poles_1[15])
+		Leg1_p14p15 = Part.LineSegment(Poles_1[14],Poles_1[15])
+		Leg1_p15p16 = Part.LineSegment(Poles_1[15],Poles_1[16])
+		
+		Leg1_p19p20 = Part.LineSegment(Poles_1[19],Poles_1[20])
+		Leg1_p14p20 = Part.LineSegment(Poles_1[14],Poles_1[20])
+		Leg1_p20p26 = Part.LineSegment(Poles_1[20],Poles_1[26])	
+
+		#in Poles_2	
+		Poles_2[15] = Poles_2[15] + 0.5*(Mid_L1Scale[2]+Sub_L1Scale[2][1]) * (Poles_2[9]-Poles_2[3])
+		Poles_2[20] = Poles_2[20] + 0.5*(Mid_L1Scale[1]+Sub_L1Scale[2][0]) * (Poles_2[19]-Poles_2[18])
+		
+		Leg2_p9p15 = Part.LineSegment(Poles_2[9],Poles_2[15])
+		Leg2_p14p15 = Part.LineSegment(Poles_2[14],Poles_2[15])
+		Leg2_p15p16 = Part.LineSegment(Poles_2[15],Poles_2[16])
+		
+		Leg2_p19p20 = Part.LineSegment(Poles_2[19],Poles_2[20])
+		Leg2_p14p20 = Part.LineSegment(Poles_2[14],Poles_2[20])
+		Leg2_p20p26 = Part.LineSegment(Poles_2[20],Poles_2[26])			
+		
+		# build the actual grid diagonals at 33[21] by averaging neighboring leg projections
+		
+		# Poles_0
+		Poles_0_33_u = Poles_0[20] + Poles_0[15] - Poles_0[14]
+		Poles_0_33_v = Poles_0[15] + Poles_0[20] - Poles_0[14]
+		Poles_0[33] = 0.5 * (Poles_0_33_u+Poles_0_33_v)
+		
+		Leg0_p20p21 = Part.LineSegment(Poles_0[20],Poles_0_33_u)
+		Leg0_p15p21 = Part.LineSegment(Poles_0[15],Poles_0_33_u)
+		
+		# Poles_1
+		Poles_1_33_u = Poles_1[20] + Poles_1[15] - Poles_1[14]
+		Poles_1_33_v = Poles_1[15] + Poles_1[20] - Poles_1[14]
+		Poles_1[33] = 0.5 * (Poles_1_33_u+Poles_1_33_v)
+		
+		Leg1_p20p21 = Part.LineSegment(Poles_1[20],Poles_1_33_u)
+		Leg1_p15p21 = Part.LineSegment(Poles_1[15],Poles_1_33_u)		
+		
+		# Poles_2
+		Poles_2_33_u = Poles_2[20] + Poles_2[15] - Poles_2[14]
+		Poles_2_33_v = Poles_2[15] + Poles_2[20] - Poles_2[14]
+		Poles_2[33] = 0.5 * (Poles_2_33_u+Poles_2_33_v)
+		
+		Leg2_p20p21 = Part.LineSegment(Poles_2[20],Poles_2_33_u)
+		Leg2_p15p21 = Part.LineSegment(Poles_2[15],Poles_2_33_u)
+
+
+
+		Legs = [Leg0_p1p2, Leg1_p1p2, Leg2_p1p2,
+				Leg0_p10p16, Leg0_p16p17,
+				Leg1_p25p26, Leg1_p26p32,
+				Leg1_p10p16, Leg1_p16p17,
+				Leg2_p25p26, Leg2_p26p32,
+				Leg2_p10p16, Leg2_p16p17,
+				Leg0_p25p26, Leg0_p26p32,
+				Leg0_p9p15, Leg0_p14p15, Leg0_p15p16,
+				Leg0_p19p20, Leg0_p14p20, Leg0_p20p26,
+				Leg1_p9p15, Leg1_p14p15, Leg1_p15p16,
+				Leg1_p19p20, Leg1_p14p20, Leg1_p20p26,
+				Leg2_p9p15, Leg2_p14p15, Leg2_p15p16,
+				Leg2_p19p20, Leg2_p14p20, Leg2_p20p26,
+				Leg0_p20p21, Leg0_p15p21,
+				Leg1_p20p21, Leg1_p15p21,
+				Leg2_p20p21, Leg2_p15p21]
+		
+		'''
+		#diag0 = self.DiagApprox(Sub_0, Sub_1, Sub_2, 1)
+		diag00 = self.DiagSplit(self.DiagApprox(Sub_0, Sub_1, Sub_2, 1)[0],0)
+		#diag01 = self.DiagSplit(self.DiagApprox(Sub_0, Sub_1, Sub_2, 1)[0],1)
+		diag10 = self.DiagSplit(self.DiagApprox(Sub_1, Sub_2, Sub_0, 1)[0],0)
+		#diag11 = self.DiagSplit(self.DiagApprox(Sub_1, Sub_2, Sub_0, 1)[0],1)
+		diag20 = self.DiagSplit(self.DiagApprox(Sub_2, Sub_0, Sub_1, 1)[0],0)
+		#diag21 = self.DiagSplit(self.DiagApprox(Sub_2, Sub_0, Sub_1, 1)[0],1)
+
+		Sub_0midNormal = (Sub_0.Poles[11]-Sub_0.Poles[5]).cross(Sub_0.Poles[4]-Sub_0.Poles[5])
+		Sub_1midNormal = (Sub_1.Poles[11]-Sub_1.Poles[5]).cross(Sub_1.Poles[4]-Sub_1.Poles[5])
+		Sub_2midNormal = (Sub_2.Poles[11]-Sub_2.Poles[5]).cross(Sub_2.Poles[4]-Sub_2.Poles[5])
+		
+		centerP = (1.0/3.0) * (diag00[1] + diag10[1] + diag20[1])
+		centerN = (1.0/3.0) * (Sub_0midNormal + Sub_1midNormal + Sub_2midNormal)
+		center = Part.LineSegment(centerP, centerP+centerN)
+		
+		offset0 = centerP-diag00[1]
+		offset1 = centerP-diag10[1]
+		offset2 = centerP-diag20[1]
+					
+		Legs = [diag00[0], diag10[0], diag20[0], center]
+		'''
+		
+		
 		
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)		
