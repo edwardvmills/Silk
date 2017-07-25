@@ -3499,31 +3499,23 @@ class ControlGridTriple66_3Sub:
 		Leg2_p14p20 = Part.LineSegment(Poles_2[14],Poles_2[20])
 		Leg2_p20p26 = Part.LineSegment(Poles_2[20],Poles_2[26])			
 		
-		# build the actual grid diagonals at 33[21] by averaging neighboring leg projections
+		# build the actual grid diagonals at 33[21]
 		
 		# Poles_0
-		Poles_0_33_u = Poles_0[20] + Poles_0[15] - Poles_0[14]
-		Poles_0_33_v = Poles_0[15] + Poles_0[20] - Poles_0[14]
-		Poles_0[21] = 0.5 * (Poles_0_33_u+Poles_0_33_v)
-		
-		Leg0_p20p21 = Part.LineSegment(Poles_0[20],Poles_0_33_u)
-		Leg0_p15p21 = Part.LineSegment(Poles_0[15],Poles_0_33_u)
+		Poles_0[21] = Poles_0[20] + Poles_0[15] - Poles_0[14]
+		Leg0_p20p21 = Part.LineSegment(Poles_0[20],Poles_0[21])
+		Leg0_p15p21 = Part.LineSegment(Poles_0[15],Poles_0[21])
 		
 		# Poles_1
-		Poles_1_33_u = Poles_1[20] + Poles_1[15] - Poles_1[14]
-		Poles_1_33_v = Poles_1[15] + Poles_1[20] - Poles_1[14]
-		Poles_1[21] = 0.5 * (Poles_1_33_u+Poles_1_33_v)
-		
-		Leg1_p20p21 = Part.LineSegment(Poles_1[20],Poles_1_33_u)
-		Leg1_p15p21 = Part.LineSegment(Poles_1[15],Poles_1_33_u)		
+		Poles_1[21] = Poles_1[20] + Poles_1[15] - Poles_1[14]
+		Leg1_p20p21 = Part.LineSegment(Poles_1[20],Poles_1[21])
+		Leg1_p15p21 = Part.LineSegment(Poles_1[15],Poles_1[21])		
 		
 		# Poles_2
-		Poles_2_33_u = Poles_2[20] + Poles_2[15] - Poles_2[14]
-		Poles_2_33_v = Poles_2[15] + Poles_2[20] - Poles_2[14]
-		Poles_2[21] = 0.5 * (Poles_2_33_u+Poles_2_33_v)
+		Poles_2[21] = Poles_2[20] + Poles_2[15] - Poles_2[14]
 		
-		Leg2_p20p21 = Part.LineSegment(Poles_2[20],Poles_2_33_u)
-		Leg2_p15p21 = Part.LineSegment(Poles_2[15],Poles_2_33_u)
+		Leg2_p20p21 = Part.LineSegment(Poles_2[20],Poles_2[21])
+		Leg2_p15p21 = Part.LineSegment(Poles_2[15],Poles_2[21])
 
 		# pull the seams in (fourth row). average neighboring 33 displacement to the seam, then average again for seam neighbors
 		# seams
@@ -3573,31 +3565,29 @@ class ControlGridTriple66_3Sub:
 		Leg2_p21p27 = Part.LineSegment(Poles_2[21],Poles_2[27])
 		Leg2_p27p33 = Part.LineSegment(Poles_2[27],Poles_2[33])		
 
-		# build the actual grid diagonals at 44[28] by averaging neighboring leg projections
+		# build the actual grid diagonals at 44[28] scale down to spread out center
 		# Poles_0
-		Poles_0_44_u = Poles_0[27] + Poles_0[22] - Poles_0[21]
-		Poles_0_44_v = Poles_0[22] + Poles_0[27] - Poles_0[21] # this is redundant by definition, go back and clean up all instances.
-		Poles_0[28] = 0.5 * (Poles_0_44_u+Poles_0_44_v)
-		Leg0_p27p28 = Part.LineSegment(Poles_0[27],Poles_0_44_u)
-		Leg0_p22p28 = Part.LineSegment(Poles_0[22],Poles_0_44_u)
+		Poles_0_44_raw = Poles_0[27] + Poles_0[22] - Poles_0[21]
+		Poles_0[28] = Poles_0[21] + 0.75 * (Poles_0_44_raw - Poles_0[21])
+		Leg0_p27p28 = Part.LineSegment(Poles_0[27],Poles_0[28])
+		Leg0_p22p28 = Part.LineSegment(Poles_0[22],Poles_0[28])
 		
 		# Poles_1
-		Poles_1_44_u = Poles_1[27] + Poles_1[22] - Poles_1[21]
-		Poles_1_44_v = Poles_1[22] + Poles_1[27] - Poles_1[21] # this is redundant by definition, go back and clean up all instances.
-		Poles_1[28] = 0.5 * (Poles_1_44_u+Poles_1_44_v)
-		Leg1_p27p28 = Part.LineSegment(Poles_1[27],Poles_1_44_u)
-		Leg1_p22p28 = Part.LineSegment(Poles_1[22],Poles_1_44_u)
+		Poles_1_44_raw = Poles_1[27] + Poles_1[22] - Poles_1[21]
+		Poles_1[28] = Poles_1[21] + 0.75 * (Poles_1_44_raw - Poles_1[21])
+		Leg1_p27p28 = Part.LineSegment(Poles_1[27],Poles_1[28])
+		Leg1_p22p28 = Part.LineSegment(Poles_1[22],Poles_1[28])
 
 		# Poles_2
-		Poles_2_44_u = Poles_2[27] + Poles_2[22] - Poles_2[21]
-		Poles_2_44_v = Poles_2[22] + Poles_2[27] - Poles_2[21] # this is redundant by definition, go back and clean up all instances.
-		Poles_2[28] = 0.5 * (Poles_2_44_u+Poles_2_44_v)
-		Leg2_p27p28 = Part.LineSegment(Poles_2[27],Poles_2_44_u)
-		Leg2_p22p28 = Part.LineSegment(Poles_2[22],Poles_2_44_u)
-
+		Poles_2_44_raw = Poles_2[27] + Poles_2[22] - Poles_2[21]
+		Poles_2[28] = Poles_2[21] + 0.75 * (Poles_2_44_raw - Poles_2[21])
+		Leg2_p27p28 = Part.LineSegment(Poles_2[27],Poles_2[28])
+		Leg2_p22p28 = Part.LineSegment(Poles_2[22],Poles_2[28])
+		
 		# pull the seams in (fifth row). average neighboring 44 displacement to the seam
 		# seam 0
-		Mid0_p4 = Poles_0[23] + 0.5 * ((Poles_0[28]-Poles_0[22])+(Poles_1[28]-Poles_1[27]))
+		# Mid0_p4 = Poles_0[23] + 0.5 * ((Poles_0[28]-Poles_0[22])+(Poles_1[28]-Poles_1[27]))
+		Mid0_p4 = 0.5 * (Poles_0[28] + Poles_1[28]) # second try, flatten the center
 		Poles_0[29] = Mid0_p4
 		Poles_1[34] = Mid0_p4
 		Leg0_p23p29 = Part.LineSegment(Poles_0[23],Poles_0[29])
@@ -3605,7 +3595,8 @@ class ControlGridTriple66_3Sub:
 		Leg1_p28p34 = Part.LineSegment(Poles_1[28],Poles_1[34])
 		
 		# seam 1
-		Mid1_p4 = Poles_1[23] + 0.5 * ((Poles_1[28]-Poles_1[22])+(Poles_2[28]-Poles_2[27]))
+		# Mid1_p4 = Poles_1[23] + 0.5 * ((Poles_1[28]-Poles_1[22])+(Poles_2[28]-Poles_2[27]))
+		Mid1_p4 = 0.5 * (Poles_1[28] + Poles_2[28]) # second try, flatten the center
 		Poles_1[29] = Mid1_p4
 		Poles_2[34] = Mid1_p4
 		Leg1_p23p29 = Part.LineSegment(Poles_1[23],Poles_1[29])
@@ -3613,7 +3604,8 @@ class ControlGridTriple66_3Sub:
 		Leg2_p28p34 = Part.LineSegment(Poles_2[28],Poles_2[34])
 		
 		# seam 2
-		Mid2_p4 = Poles_2[23] + 0.5 * ((Poles_2[28]-Poles_2[22])+(Poles_0[28]-Poles_0[27]))
+		# Mid2_p4 = Poles_2[23] + 0.5 * ((Poles_2[28]-Poles_2[22])+(Poles_0[28]-Poles_0[27]))
+		Mid2_p4 = 0.5 * (Poles_2[28] + Poles_0[28]) # second try, flatten the center
 		Poles_2[29] = Mid2_p4
 		Poles_0[34] = Mid2_p4
 		Leg2_p23p29 = Part.LineSegment(Poles_2[23],Poles_2[29])
