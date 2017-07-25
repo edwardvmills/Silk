@@ -3629,6 +3629,14 @@ class ControlGridTriple66_3Sub:
 		Leg1_p29p35 = Part.LineSegment(Poles_1[29],Poles_1[35])	
 		Leg2_p29p35 = Part.LineSegment(Poles_2[29],Poles_2[35])	
 		
+		fp.Poles_0 = Poles_0
+		fp.Poles_1 = Poles_1
+		fp.Poles_2 = Poles_2
+		
+		fp.Weights_0 = [1.0]*36
+		fp.Weights_1 = [1.0]*36
+		fp.Weights_2 = [1.0]*36
+		
 		Legs = [Leg0_p11p17, Leg1_p11p17, Leg2_p11p17,
 				Leg0_p10p16, Leg0_p16p17,
 				Leg1_p25p26, Leg1_p26p32,
@@ -3660,7 +3668,150 @@ class ControlGridTriple66_3Sub:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)		
 		
+
+class CubicTriangle_Triple66:
+	def __init__(self, obj , Trip):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nCubicTriangle_Triple66 Init\n")
+		obj.addProperty("App::PropertyLink","Trip","CubicTriangle_Triple66","control grid triple").Trip = Trip
+		obj.addProperty("Part::PropertyGeometryList","Surf","CubicTriangle_Triple66","Cubic Surfaces").Surf
+		obj.Proxy = self
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		# setup the Poles and Weights
+		Poles_0 = fp.Trip.Poles_0
+		Poles_1 = fp.Trip.Poles_1
+		Poles_2 = fp.Trip.Poles_2
 		
+		Weights_0 = fp.Trip.Weights_0
+		Weights_1 = fp.Trip.Weights_1
+		Weights_2 = fp.Trip.Weights_2
+		
+		# legacy shape function wants 'homogeneous' coords as [[x,y,z],w]
+		WeightedPoles_0=[
+			[Poles_0[0],Weights_0[0]],
+			[Poles_0[1],Weights_0[1]],
+			[Poles_0[2],Weights_0[2]],
+			[Poles_0[3],Weights_0[3]],
+			[Poles_0[4],Weights_0[4]],
+			[Poles_0[5],Weights_0[5]],
+			[Poles_0[6],Weights_0[6]],
+			[Poles_0[7],Weights_0[7]],
+			[Poles_0[8],Weights_0[8]],
+			[Poles_0[9],Weights_0[9]],
+			[Poles_0[10],Weights_0[10]],
+			[Poles_0[11],Weights_0[11]],
+			[Poles_0[12],Weights_0[12]],
+			[Poles_0[13],Weights_0[13]],
+			[Poles_0[14],Weights_0[14]],
+			[Poles_0[15],Weights_0[15]],
+			[Poles_0[16],Weights_0[16]],
+			[Poles_0[17],Weights_0[17]],
+			[Poles_0[18],Weights_0[18]],
+			[Poles_0[19],Weights_0[19]],
+			[Poles_0[20],Weights_0[20]],
+			[Poles_0[21],Weights_0[21]],
+			[Poles_0[22],Weights_0[22]],
+			[Poles_0[23],Weights_0[23]],
+			[Poles_0[24],Weights_0[24]],
+			[Poles_0[25],Weights_0[25]],
+			[Poles_0[26],Weights_0[26]],
+			[Poles_0[27],Weights_0[27]],
+			[Poles_0[28],Weights_0[28]],
+			[Poles_0[29],Weights_0[29]],
+			[Poles_0[30],Weights_0[30]],
+			[Poles_0[31],Weights_0[31]],
+			[Poles_0[32],Weights_0[32]],
+			[Poles_0[33],Weights_0[33]],
+			[Poles_0[34],Weights_0[34]],
+			[Poles_0[35],Weights_0[35]]]
+			
+		WeightedPoles_1=[
+			[Poles_1[0],Weights_1[0]],
+			[Poles_1[1],Weights_1[1]],
+			[Poles_1[2],Weights_1[2]],
+			[Poles_1[3],Weights_1[3]],
+			[Poles_1[4],Weights_1[4]],
+			[Poles_1[5],Weights_1[5]],
+			[Poles_1[6],Weights_1[6]],
+			[Poles_1[7],Weights_1[7]],
+			[Poles_1[8],Weights_1[8]],
+			[Poles_1[9],Weights_1[9]],
+			[Poles_1[10],Weights_1[10]],
+			[Poles_1[11],Weights_1[11]],
+			[Poles_1[12],Weights_1[12]],
+			[Poles_1[13],Weights_1[13]],
+			[Poles_1[14],Weights_1[14]],
+			[Poles_1[15],Weights_1[15]],
+			[Poles_1[16],Weights_1[16]],
+			[Poles_1[17],Weights_1[17]],
+			[Poles_1[18],Weights_1[18]],
+			[Poles_1[19],Weights_1[19]],
+			[Poles_1[20],Weights_1[20]],
+			[Poles_1[21],Weights_1[21]],
+			[Poles_1[22],Weights_1[22]],
+			[Poles_1[23],Weights_1[23]],
+			[Poles_1[24],Weights_1[24]],
+			[Poles_1[25],Weights_1[25]],
+			[Poles_1[26],Weights_1[26]],
+			[Poles_1[27],Weights_1[27]],
+			[Poles_1[28],Weights_1[28]],
+			[Poles_1[29],Weights_1[29]],
+			[Poles_1[30],Weights_1[30]],
+			[Poles_1[31],Weights_1[31]],
+			[Poles_1[32],Weights_1[32]],
+			[Poles_1[33],Weights_1[33]],
+			[Poles_1[34],Weights_1[34]],
+			[Poles_1[35],Weights_1[35]]]
+
+		WeightedPoles_2=[
+			[Poles_2[0],Weights_2[0]],
+			[Poles_2[1],Weights_2[1]],
+			[Poles_2[2],Weights_2[2]],
+			[Poles_2[3],Weights_2[3]],
+			[Poles_2[4],Weights_2[4]],
+			[Poles_2[5],Weights_2[5]],
+			[Poles_2[6],Weights_2[6]],
+			[Poles_2[7],Weights_2[7]],
+			[Poles_2[8],Weights_2[8]],
+			[Poles_2[9],Weights_2[9]],
+			[Poles_2[10],Weights_2[10]],
+			[Poles_2[11],Weights_2[11]],
+			[Poles_2[12],Weights_2[12]],
+			[Poles_2[13],Weights_2[13]],
+			[Poles_2[14],Weights_2[14]],
+			[Poles_2[15],Weights_2[15]],
+			[Poles_2[16],Weights_2[16]],
+			[Poles_2[17],Weights_2[17]],
+			[Poles_2[18],Weights_2[18]],
+			[Poles_2[19],Weights_2[19]],
+			[Poles_2[20],Weights_2[20]],
+			[Poles_2[21],Weights_2[21]],
+			[Poles_2[22],Weights_2[22]],
+			[Poles_2[23],Weights_2[23]],
+			[Poles_2[24],Weights_2[24]],
+			[Poles_2[25],Weights_2[25]],
+			[Poles_2[26],Weights_2[26]],
+			[Poles_2[27],Weights_2[27]],
+			[Poles_2[28],Weights_2[28]],
+			[Poles_2[29],Weights_2[29]],
+			[Poles_2[30],Weights_2[30]],
+			[Poles_2[31],Weights_2[31]],
+			[Poles_2[32],Weights_2[32]],
+			[Poles_2[33],Weights_2[33]],
+			[Poles_2[34],Weights_2[34]],
+			[Poles_2[35],Weights_2[35]]]
+
+			
+		# the legacy function below sets the degree and knot vector
+		Surf_0 = NURBS_Cubic_66_surf(WeightedPoles_0)
+		Surf_1 = NURBS_Cubic_66_surf(WeightedPoles_1)
+		Surf_2 = NURBS_Cubic_66_surf(WeightedPoles_2)
+		
+		Surf = [Surf_0, Surf_1, Surf_2]
+
+		fp.Shape = Part.Shape(Surf)
 		
 		
 		
