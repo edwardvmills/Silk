@@ -3565,22 +3565,35 @@ class ControlGridTriple66_3Sub:
 		Leg2_p21p27 = Part.LineSegment(Poles_2[21],Poles_2[27])
 		Leg2_p27p33 = Part.LineSegment(Poles_2[27],Poles_2[33])		
 
-		# build the actual grid diagonals at 44[28] scale down to spread out center
+		# build the actual grid diagonals at 44[28]. scale down to spread out center, project down to '53[33]s' plane. blend the two versions
+		CenterPlane33 = Part.Plane(Poles_0[33],Poles_1[33],Poles_2[33])
 		# Poles_0
 		Poles_0_44_raw = Poles_0[27] + Poles_0[22] - Poles_0[21]
-		Poles_0[28] = Poles_0[21] + 0.75 * (Poles_0_44_raw - Poles_0[21])
+		Poles_0_44_scaled = Poles_0[21] + .75 * (Poles_0_44_raw - Poles_0[21])
+		Poles_0_44_param = CenterPlane33.parameter(Poles_0_44_scaled)
+		Poles_0_44_project = CenterPlane33.value(Poles_0_44_param[0],Poles_0_44_param[1])
+		Poles_0_44_final = 0.5 * (Poles_0_44_scaled + Poles_0_44_project)
+		Poles_0[28] = Poles_0_44_final
 		Leg0_p27p28 = Part.LineSegment(Poles_0[27],Poles_0[28])
 		Leg0_p22p28 = Part.LineSegment(Poles_0[22],Poles_0[28])
 		
 		# Poles_1
-		Poles_1_44_raw = Poles_1[27] + Poles_1[22] - Poles_1[21]
-		Poles_1[28] = Poles_1[21] + 0.75 * (Poles_1_44_raw - Poles_1[21])
+		Poles_1_44_raw = Poles_1[27] + Poles_1[22] - Poles_1[21]		
+		Poles_1_44_scaled = Poles_1[21] + .75 * (Poles_1_44_raw - Poles_1[21])
+		Poles_1_44_param = CenterPlane33.parameter(Poles_1_44_scaled)
+		Poles_1_44_project = CenterPlane33.value(Poles_1_44_param[0],Poles_1_44_param[1])
+		Poles_1_44_final = 0.5 * (Poles_1_44_scaled + Poles_1_44_project)
+		Poles_1[28] = Poles_1_44_final
 		Leg1_p27p28 = Part.LineSegment(Poles_1[27],Poles_1[28])
 		Leg1_p22p28 = Part.LineSegment(Poles_1[22],Poles_1[28])
 
 		# Poles_2
 		Poles_2_44_raw = Poles_2[27] + Poles_2[22] - Poles_2[21]
-		Poles_2[28] = Poles_2[21] + 0.75 * (Poles_2_44_raw - Poles_2[21])
+		Poles_2_44_scaled = Poles_2[21] + .75 * (Poles_2_44_raw - Poles_2[21])
+		Poles_2_44_param = CenterPlane33.parameter(Poles_2_44_scaled)
+		Poles_2_44_project = CenterPlane33.value(Poles_2_44_param[0],Poles_2_44_param[1])
+		Poles_2_44_final = 0.5 * (Poles_2_44_scaled + Poles_2_44_project)
+		Poles_2[28] = Poles_2_44_final
 		Leg2_p27p28 = Part.LineSegment(Poles_2[27],Poles_2[28])
 		Leg2_p22p28 = Part.LineSegment(Poles_2[22],Poles_2[28])
 		
