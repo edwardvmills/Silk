@@ -2961,15 +2961,15 @@ class ControlGrid64_3_1Grid44:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 		
-class SubGrid63_Tri_2Surf64:
+class SubGrid63_2Surf64:
 	def __init__(self, obj , Surf_0, Surf_1):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nSubGrid62Tri_2Surf64 class Init\n")
-		obj.addProperty("App::PropertyLink","Surf_0","SubGrid63_Tri_2Surf64","first reference 6X4 surface").Surf_0 = Surf_0
-		obj.addProperty("App::PropertyLink","Surf_1","SubGrid63_Tri_2Surf64","second reference 6X4 surface").Surf_1 = Surf_1
-		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid63_Tri_2Surf64","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","SubGrid63_Tri_2Surf64","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","SubGrid63_Tri_2Surf64","Weights").Weights
+		obj.addProperty("App::PropertyLink","Surf_0","SubGrid63_2Surf64","first reference 6X4 surface").Surf_0 = Surf_0
+		obj.addProperty("App::PropertyLink","Surf_1","SubGrid63_2Surf64","second reference 6X4 surface").Surf_1 = Surf_1
+		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid63_2Surf64","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","SubGrid63_2Surf64","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","SubGrid63_2Surf64","Weights").Weights
 	
 		obj.Proxy = self
 
@@ -3288,93 +3288,26 @@ class SubGrid63_Tri_2Surf64:
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 		
-class ControlGridTriple66_3Sub:		
+class ControlGrid3Star66_3Sub_old:		
 	def __init__(self, obj , Sub_0, Sub_1, Sub_2):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGridTriple66_3Sub class Init\n")
-		obj.addProperty("App::PropertyLink","Sub_0","ControlGridTriple66_3Sub","first reference Sub Grid").Sub_0 = Sub_0
-		obj.addProperty("App::PropertyLink","Sub_1","ControlGridTriple66_3Sub","second reference Sub Grid").Sub_1 = Sub_1		
-		obj.addProperty("App::PropertyLink","Sub_2","ControlGridTriple66_3Sub","third reference Sub Grid").Sub_2 = Sub_2		
-		obj.addProperty("App::PropertyVectorList","Poles_0","ControlGridTriple66_3Sub","Poles_0").Poles_0
-		obj.addProperty("App::PropertyVectorList","Poles_1","ControlGridTriple66_3Sub","Poles_1").Poles_1		
-		obj.addProperty("App::PropertyVectorList","Poles_2","ControlGridTriple66_3Sub","Poles_2").Poles_2		
-		obj.addProperty("App::PropertyFloatList","Weights_0","ControlGridTriple66_3Sub","Weights_0").Weights_0
-		obj.addProperty("App::PropertyFloatList","Weights_1","ControlGridTriple66_3Sub","Weights_0").Weights_1		
-		obj.addProperty("App::PropertyFloatList","Weights_2","ControlGridTriple66_3Sub","Weights_2").Weights_2				
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGridTriple66_3Sub","control segments").Legs		
+		FreeCAD.Console.PrintMessage("\nControlGrid3Star66_3Sub class Init\n")
+		obj.addProperty("App::PropertyLink","Sub_0","ControlGrid3Star66_3Sub","first reference Sub Grid").Sub_0 = Sub_0
+		obj.addProperty("App::PropertyLink","Sub_1","ControlGrid3Star66_3Sub","second reference Sub Grid").Sub_1 = Sub_1		
+		obj.addProperty("App::PropertyLink","Sub_2","ControlGrid3Star66_3Sub","third reference Sub Grid").Sub_2 = Sub_2		
+		obj.addProperty("App::PropertyVectorList","Poles_0","ControlGrid3Star66_3Sub","Poles_0").Poles_0
+		obj.addProperty("App::PropertyVectorList","Poles_1","ControlGrid3Star66_3Sub","Poles_1").Poles_1		
+		obj.addProperty("App::PropertyVectorList","Poles_2","ControlGrid3Star66_3Sub","Poles_2").Poles_2		
+		obj.addProperty("App::PropertyFloatList","Weights_0","ControlGrid3Star66_3Sub","Weights_0").Weights_0
+		obj.addProperty("App::PropertyFloatList","Weights_1","ControlGrid3Star66_3Sub","Weights_0").Weights_1		
+		obj.addProperty("App::PropertyFloatList","Weights_2","ControlGrid3Star66_3Sub","Weights_2").Weights_2				
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid3Star66_3Sub","control segments").Legs		
 		obj.Proxy = self
 
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
 		return L1_scale
-		
-	def setMidpointL1Scale(self, Sub_0, Sub_1, pinch):
-		p0_v0 = Sub_0.Poles[0]
-		p1_v0 = Sub_0.Poles[6]
-		p2_v0 = Sub_0.Poles[12]
-		p0_u1 = Sub_1.Poles[0]
-		p1_u1 = Sub_1.Poles[1]
-		p2_u1 = Sub_1.Poles[2]
-		L1_v0= self.getL1Scale(p0_v0, p1_v0, p2_v0)
-		L1_u1= self.getL1Scale(p0_u1, p1_u1, p2_u1)
-		L1 = (L1_v0 + L1_u1) * 0.5 * pinch
-		p0 = Sub_0.Poles[5]
-		p1 = Sub_0.Poles[11]
-		p2_raw = Sub_0.Poles[17]
-		p2 = p2_raw + L1 * (p1-p0)
-		return p2
-		
-	def DiagApprox(self, Sub_0, Sub_1, Sub_2, pinch):
-		diag_0=Sub_0.Poles[5]
-		diag_1=Sub_0.Poles[11]		
-		## find opposing L1 ratios
-		## set u3/v3 
-		diag_2 = self.setMidpointL1Scale(Sub_0,Sub_1,pinch)
-		## create a 6P curve on the diagonal.
-		diag_3_raw = Sub_2.Poles[14]
-		diag_4 = Sub_2.Poles[7]
-		diag_5 = Sub_2.Poles[0]
-		diag_l1Scale = self.getL1Scale(diag_5, diag_4, diag_3_raw)
-		diag_3_h = ((diag_4 - diag_5).cross((diag_3_raw-diag_4)))
-		diag_3 = diag_3_raw + ((diag_4 - diag_5) * (diag_l1Scale-1) * pinch)
-		# collect poles
-		diag_poles = [[diag_0,1], [diag_1,1], [diag_2,1], [diag_3,1], [diag_4,1], [diag_5,1]]
-		## diagonal approximation curve
-		diag_Curve = NURBS_Cubic_6P_curve(diag_poles)
-		## display elements
-		diag_poly0 = Part.LineSegment(diag_0, diag_1)
-		diag_poly1 = Part.LineSegment(diag_1, diag_2) 
-		diag_poly2 = Part.LineSegment(diag_2, diag_3)
-		diag_poly3 = Part.LineSegment(diag_3, diag_4)
-		diag_poly4 = Part.LineSegment(diag_4, diag_5)
-		## collect elements to return
-		DiagApprox = [diag_Curve, diag_poly0, diag_poly1, diag_poly2, diag_poly3, diag_poly4]
-		return DiagApprox
-		
-	def DiagSplit(self, diag, portion):
-		diaghalf=diag
-		if portion == 0:
-			diaghalf.segment(0,0.5)
-			diaghalf.insertKnot(1.0/6.0)
-			p0=diaghalf.getPole(6)
-			p1=diaghalf.getPole(5)
-			p2=diaghalf.getPole(4)
-			p3=diaghalf.getPole(3)
-			p4=diaghalf.getPole(2)
-			p5=diaghalf.getPole(1)
-			
-		if portion ==1:
-			diaghalf.segment(0.5,1.0)
-			diaghalf.insertKnot(5.0/6.0)
-			p0=diaghalf.getPole(1)
-			p1=diaghalf.getPole(2)
-			p2=diaghalf.getPole(3)
-			p3=diaghalf.getPole(4)
-			p4=diaghalf.getPole(5)
-			p5=diaghalf.getPole(6)
-			
-		return [diaghalf, p0, p1, p2, p3, p4, p5]
-		
+
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
 		
@@ -3674,12 +3607,334 @@ class ControlGridTriple66_3Sub:
 		fp.Shape = Part.Shape(fp.Legs)		
 		
 
-class CubicTriangle_Triple66:
+class ControlGrid3Star66_3Sub:		
+	def __init__(self, obj , Sub_0, Sub_1, Sub_2):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid3Star66_3Sub class Init\n")
+		obj.addProperty("App::PropertyLink","Sub_0","ControlGrid3Star66_3Sub","first reference Sub Grid").Sub_0 = Sub_0
+		obj.addProperty("App::PropertyLink","Sub_1","ControlGrid3Star66_3Sub","second reference Sub Grid").Sub_1 = Sub_1		
+		obj.addProperty("App::PropertyLink","Sub_2","ControlGrid3Star66_3Sub","third reference Sub Grid").Sub_2 = Sub_2		
+		obj.addProperty("App::PropertyVectorList","Poles_0","ControlGrid3Star66_3Sub","Poles_0").Poles_0
+		obj.addProperty("App::PropertyVectorList","Poles_1","ControlGrid3Star66_3Sub","Poles_1").Poles_1		
+		obj.addProperty("App::PropertyVectorList","Poles_2","ControlGrid3Star66_3Sub","Poles_2").Poles_2		
+		obj.addProperty("App::PropertyFloatList","Weights_0","ControlGrid3Star66_3Sub","Weights_0").Weights_0
+		obj.addProperty("App::PropertyFloatList","Weights_1","ControlGrid3Star66_3Sub","Weights_0").Weights_1		
+		obj.addProperty("App::PropertyFloatList","Weights_2","ControlGrid3Star66_3Sub","Weights_2").Weights_2				
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid3Star66_3Sub","control segments").Legs		
+		obj.Proxy = self
+
+	def getL1Scale(self, p0, p1, p2):
+		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
+		return L1_scale
+		
+	#def StarRow2():
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		
+		Poles_0 = fp.Sub_0.Poles		
+		Poles_1 = fp.Sub_1.Poles
+		Poles_2 = fp.Sub_2.Poles
+		
+		# now that we have all three subgrids that go into the triangle
+		# let's apply the L1 scale of the third row of control points from the subgrids
+
+		# determine all 6 L1 scales. 2 for each subgrid
+		Sub0_uL1Scale = self.getL1Scale(Poles_0[12], Poles_0[13], Poles_0[14])
+		Sub0_vL1Scale = self.getL1Scale(Poles_0[2], Poles_0[8], Poles_0[14])
+
+		Sub1_uL1Scale = self.getL1Scale(Poles_0[12], Poles_0[13], Poles_0[14])
+		Sub1_vL1Scale = self.getL1Scale(Poles_0[2], Poles_0[8], Poles_0[14])
+		
+		Sub2_uL1Scale = self.getL1Scale(Poles_0[12], Poles_0[13], Poles_0[14])
+		Sub2_vL1Scale = self.getL1Scale(Poles_0[2], Poles_0[8], Poles_0[14])
+		
+		Sub_L1Scale = [[Sub0_uL1Scale, Sub0_vL1Scale],
+						[Sub1_uL1Scale, Sub1_vL1Scale],
+						[Sub2_uL1Scale, Sub2_vL1Scale]]
+		
+		# determine the average L1 scales along the edge where 2 subgrids meet
+		Mid_L1Scale = [ 0.5 * (Sub_L1Scale[0][1] + Sub_L1Scale[1][0]),
+						0.5 * (Sub_L1Scale[1][1] + Sub_L1Scale[2][0]),
+						0.5 * (Sub_L1Scale[0][0] + Sub_L1Scale[2][1])]
+						
+		# apply the L1 scale to the points on the third rows of the subgrid (they have their relative height set for curvature already)
+		
+		# as points along a common seam
+		Mid0_p2 = Poles_0[17] + Mid_L1Scale[0] * (Poles_0[11]-Poles_0[5])
+		Mid1_p2 = Poles_1[17] + Mid_L1Scale[1] * (Poles_1[11]-Poles_1[5])
+		Mid2_p2 = Poles_2[17] + Mid_L1Scale[2] * (Poles_2[11]-Poles_2[5])
+		
+		# set the points to the Pole grids
+		Poles_0[17] = Mid0_p2
+		Poles_0[32] = Mid2_p2
+		
+		Poles_1[17] = Mid1_p2
+		Poles_1[32] = Mid0_p2
+
+		Poles_2[17] = Mid2_p2
+		Poles_2[32] = Mid1_p2	
+		
+		Leg0_p11p17 = Part.LineSegment(Poles_0[11],Poles_0[17])
+		Leg1_p11p17 = Part.LineSegment(Poles_1[11],Poles_1[17])
+		Leg2_p11p17 = Part.LineSegment(Poles_2[11],Poles_2[17])
+
+		# set the L1 scale to the points on the third row, to either side of the subgrid seam. (they have their relative height set for curvature already)
+		# how to do this is not clear right now, there are a lot of potentially conflicting constraints
+		# for G1 along the seam inside the triangle, these points and the seam point need to align, and the legs need to be of equal length.
+		# to maintain G2 across the seams outside the triangle, these points can only be moved along the tangent.
+		
+		# first shot: apply the same L1 factor as was applied along the internal seam. 
+		# looks decent although not exact for G1. pretty much equal and aligned across the seam
+		
+		# seam 0
+		Poles_0[16] = Poles_0[16] + Mid_L1Scale[0] * (Poles_0[10]-Poles_0[4])
+		Poles_1[26] = Poles_1[26] + Mid_L1Scale[0] * (Poles_1[25]-Poles_1[24])
+			
+		Leg0_p10p16 = Part.LineSegment(Poles_0[10],Poles_0[16])
+		Leg0_p16p17 = Part.LineSegment(Poles_0[16],Poles_0[17])
+		Leg1_p25p26 = Part.LineSegment(Poles_1[25],Poles_1[26])
+		Leg1_p26p32 = Part.LineSegment(Poles_1[26],Poles_1[32])
+		
+		# seam 1
+		Poles_1[16] = Poles_1[16] + Mid_L1Scale[1] * (Poles_1[10]-Poles_1[4])
+		Poles_2[26] = Poles_2[26] + Mid_L1Scale[1] * (Poles_2[25]-Poles_2[24])
+			
+		Leg1_p10p16 = Part.LineSegment(Poles_1[10],Poles_1[16])
+		Leg1_p16p17 = Part.LineSegment(Poles_1[16],Poles_1[17])
+		Leg2_p25p26 = Part.LineSegment(Poles_2[25],Poles_2[26])
+		Leg2_p26p32 = Part.LineSegment(Poles_2[26],Poles_2[32])
+		
+		# seam 2
+		Poles_2[16] = Poles_2[16] + Mid_L1Scale[2] * (Poles_2[10]-Poles_2[4])
+		Poles_0[26] = Poles_0[26] + Mid_L1Scale[2] * (Poles_0[25]-Poles_0[24])
+			
+		Leg2_p10p16 = Part.LineSegment(Poles_2[10],Poles_2[16])
+		Leg2_p16p17 = Part.LineSegment(Poles_2[16],Poles_2[17])
+		Leg0_p25p26 = Part.LineSegment(Poles_0[25],Poles_0[26])
+		Leg0_p26p32 = Part.LineSegment(Poles_0[26],Poles_0[32])
+		
+		
+		# apply the L1 scale to the remaining points in the third rows
+		
+		#in Poles_0	
+		Poles_0[15] = Poles_0[15] + 0.5*(Mid_L1Scale[0]+Sub_L1Scale[0][1]) * (Poles_0[9]-Poles_0[3])
+		Poles_0[20] = Poles_0[20] + 0.5*(Mid_L1Scale[2]+Sub_L1Scale[0][0]) * (Poles_0[19]-Poles_0[18])
+		
+		Leg0_p9p15 = Part.LineSegment(Poles_0[9],Poles_0[15])
+		Leg0_p14p15 = Part.LineSegment(Poles_0[14],Poles_0[15])
+		Leg0_p15p16 = Part.LineSegment(Poles_0[15],Poles_0[16])
+		
+		Leg0_p19p20 = Part.LineSegment(Poles_0[19],Poles_0[20])
+		Leg0_p14p20 = Part.LineSegment(Poles_0[14],Poles_0[20])
+		Leg0_p20p26 = Part.LineSegment(Poles_0[20],Poles_0[26])
+		
+		#in Poles_1	
+		Poles_1[15] = Poles_1[15] + 0.5*(Mid_L1Scale[1]+Sub_L1Scale[1][1]) * (Poles_1[9]-Poles_1[3])
+		Poles_1[20] = Poles_1[20] + 0.5*(Mid_L1Scale[0]+Sub_L1Scale[1][0]) * (Poles_1[19]-Poles_1[18])
+		
+		Leg1_p9p15 = Part.LineSegment(Poles_1[9],Poles_1[15])
+		Leg1_p14p15 = Part.LineSegment(Poles_1[14],Poles_1[15])
+		Leg1_p15p16 = Part.LineSegment(Poles_1[15],Poles_1[16])
+		
+		Leg1_p19p20 = Part.LineSegment(Poles_1[19],Poles_1[20])
+		Leg1_p14p20 = Part.LineSegment(Poles_1[14],Poles_1[20])
+		Leg1_p20p26 = Part.LineSegment(Poles_1[20],Poles_1[26])	
+
+		#in Poles_2	
+		Poles_2[15] = Poles_2[15] + 0.5*(Mid_L1Scale[2]+Sub_L1Scale[2][1]) * (Poles_2[9]-Poles_2[3])
+		Poles_2[20] = Poles_2[20] + 0.5*(Mid_L1Scale[1]+Sub_L1Scale[2][0]) * (Poles_2[19]-Poles_2[18])
+		
+		Leg2_p9p15 = Part.LineSegment(Poles_2[9],Poles_2[15])
+		Leg2_p14p15 = Part.LineSegment(Poles_2[14],Poles_2[15])
+		Leg2_p15p16 = Part.LineSegment(Poles_2[15],Poles_2[16])
+		
+		Leg2_p19p20 = Part.LineSegment(Poles_2[19],Poles_2[20])
+		Leg2_p14p20 = Part.LineSegment(Poles_2[14],Poles_2[20])
+		Leg2_p20p26 = Part.LineSegment(Poles_2[20],Poles_2[26])			
+		
+		# build the actual grid diagonals at 33[21]
+		
+		# Poles_0
+		Poles_0[21] = Poles_0[20] + Poles_0[15] - Poles_0[14]
+		Leg0_p20p21 = Part.LineSegment(Poles_0[20],Poles_0[21])
+		Leg0_p15p21 = Part.LineSegment(Poles_0[15],Poles_0[21])
+		
+		# Poles_1
+		Poles_1[21] = Poles_1[20] + Poles_1[15] - Poles_1[14]
+		Leg1_p20p21 = Part.LineSegment(Poles_1[20],Poles_1[21])
+		Leg1_p15p21 = Part.LineSegment(Poles_1[15],Poles_1[21])		
+		
+		# Poles_2
+		Poles_2[21] = Poles_2[20] + Poles_2[15] - Poles_2[14]
+		
+		Leg2_p20p21 = Part.LineSegment(Poles_2[20],Poles_2[21])
+		Leg2_p15p21 = Part.LineSegment(Poles_2[15],Poles_2[21])
+
+		# pull the seams in (fourth row). average neighboring 33 displacement to the seam, then average again for seam neighbors
+		# seams
+		Mid0_p3 = Poles_0[17] + 0.5 * ((Poles_0[21]-Poles_0[15])+(Poles_1[21]-Poles_1[20]))
+		Poles_0[23] = Mid0_p3
+		Poles_1[33] = Mid0_p3
+		Leg0_p17p23 = Part.LineSegment(Poles_0[17],Poles_0[23])
+		
+		Mid1_p3 = Poles_1[17] + 0.5 * ((Poles_1[21]-Poles_1[15])+(Poles_2[21]-Poles_2[20]))
+		Poles_1[23] = Mid1_p3
+		Poles_2[33] = Mid1_p3
+		Leg1_p17p23 = Part.LineSegment(Poles_1[17],Poles_1[23])		
+
+		Mid2_p3 = Poles_2[17] + 0.5 * ((Poles_2[21]-Poles_2[15])+(Poles_0[21]-Poles_0[20]))
+		Poles_2[23] = Mid2_p3
+		Poles_0[33] = Mid2_p3
+		Leg2_p17p23 = Part.LineSegment(Poles_2[17],Poles_2[23])	
+
+		# seam neighbors in fourth row
+		# Poles_0
+		Poles_0[22] = Poles_0[16] + 0.5 * ((Poles_0[21]-Poles_0[15])+(Poles_0[23]-Poles_0[17]))
+		Poles_0[27] = Poles_0[26] + 0.5 * ((Poles_0[21]-Poles_0[20])+(Poles_0[33]-Poles_0[32]))
+		Leg0_p16p22 = Part.LineSegment(Poles_0[16],Poles_0[22])
+		Leg0_p21p22 = Part.LineSegment(Poles_0[21],Poles_0[22])
+		Leg0_p22p23 = Part.LineSegment(Poles_0[22],Poles_0[23])
+		Leg0_p26p27 = Part.LineSegment(Poles_0[26],Poles_0[27])
+		Leg0_p21p27 = Part.LineSegment(Poles_0[21],Poles_0[27])
+		Leg0_p27p33 = Part.LineSegment(Poles_0[27],Poles_0[33])
+		
+		# Poles_1
+		Poles_1[22] = Poles_1[16] + 0.5 * ((Poles_1[21]-Poles_1[15])+(Poles_1[23]-Poles_1[17]))
+		Poles_1[27] = Poles_1[26] + 0.5 * ((Poles_1[21]-Poles_1[20])+(Poles_1[33]-Poles_1[32]))
+		Leg1_p16p22 = Part.LineSegment(Poles_1[16],Poles_1[22])
+		Leg1_p21p22 = Part.LineSegment(Poles_1[21],Poles_1[22])
+		Leg1_p22p23 = Part.LineSegment(Poles_1[22],Poles_1[23])
+		Leg1_p26p27 = Part.LineSegment(Poles_1[26],Poles_1[27])
+		Leg1_p21p27 = Part.LineSegment(Poles_1[21],Poles_1[27])
+		Leg1_p27p33 = Part.LineSegment(Poles_1[27],Poles_1[33])		
+		
+		# Poles_2
+		Poles_2[22] = Poles_2[16] + 0.5 * ((Poles_2[21]-Poles_2[15])+(Poles_2[23]-Poles_2[17]))
+		Poles_2[27] = Poles_2[26] + 0.5 * ((Poles_2[21]-Poles_2[20])+(Poles_2[33]-Poles_2[32]))
+		Leg2_p16p22 = Part.LineSegment(Poles_2[16],Poles_2[22])
+		Leg2_p21p22 = Part.LineSegment(Poles_2[21],Poles_2[22])
+		Leg2_p22p23 = Part.LineSegment(Poles_2[22],Poles_2[23])
+		Leg2_p26p27 = Part.LineSegment(Poles_2[26],Poles_2[27])
+		Leg2_p21p27 = Part.LineSegment(Poles_2[21],Poles_2[27])
+		Leg2_p27p33 = Part.LineSegment(Poles_2[27],Poles_2[33])		
+
+		# build the actual grid diagonals at 44[28]. scale down to spread out center, project down to '53[33]s' plane. blend the two versions
+		CenterPlane33 = Part.Plane(Poles_0[33],Poles_1[33],Poles_2[33])
+		# Poles_0
+		Poles_0_44_raw = Poles_0[27] + Poles_0[22] - Poles_0[21]
+		Poles_0_44_scaled = Poles_0[21] + .75 * (Poles_0_44_raw - Poles_0[21])
+		Poles_0_44_param = CenterPlane33.parameter(Poles_0_44_scaled)
+		Poles_0_44_project = CenterPlane33.value(Poles_0_44_param[0],Poles_0_44_param[1])
+		Poles_0_44_final = 0.5 * (Poles_0_44_scaled + Poles_0_44_project)
+		Poles_0[28] = Poles_0_44_final
+		Leg0_p27p28 = Part.LineSegment(Poles_0[27],Poles_0[28])
+		Leg0_p22p28 = Part.LineSegment(Poles_0[22],Poles_0[28])
+		
+		# Poles_1
+		Poles_1_44_raw = Poles_1[27] + Poles_1[22] - Poles_1[21]		
+		Poles_1_44_scaled = Poles_1[21] + .75 * (Poles_1_44_raw - Poles_1[21])
+		Poles_1_44_param = CenterPlane33.parameter(Poles_1_44_scaled)
+		Poles_1_44_project = CenterPlane33.value(Poles_1_44_param[0],Poles_1_44_param[1])
+		Poles_1_44_final = 0.5 * (Poles_1_44_scaled + Poles_1_44_project)
+		Poles_1[28] = Poles_1_44_final
+		Leg1_p27p28 = Part.LineSegment(Poles_1[27],Poles_1[28])
+		Leg1_p22p28 = Part.LineSegment(Poles_1[22],Poles_1[28])
+
+		# Poles_2
+		Poles_2_44_raw = Poles_2[27] + Poles_2[22] - Poles_2[21]
+		Poles_2_44_scaled = Poles_2[21] + .75 * (Poles_2_44_raw - Poles_2[21])
+		Poles_2_44_param = CenterPlane33.parameter(Poles_2_44_scaled)
+		Poles_2_44_project = CenterPlane33.value(Poles_2_44_param[0],Poles_2_44_param[1])
+		Poles_2_44_final = 0.5 * (Poles_2_44_scaled + Poles_2_44_project)
+		Poles_2[28] = Poles_2_44_final
+		Leg2_p27p28 = Part.LineSegment(Poles_2[27],Poles_2[28])
+		Leg2_p22p28 = Part.LineSegment(Poles_2[22],Poles_2[28])
+		
+		# pull the seams in (fifth row). average neighboring 44 displacement to the seam
+		# seam 0
+		# Mid0_p4 = Poles_0[23] + 0.5 * ((Poles_0[28]-Poles_0[22])+(Poles_1[28]-Poles_1[27]))
+		Mid0_p4 = 0.5 * (Poles_0[28] + Poles_1[28]) # second try, flatten the center
+		Poles_0[29] = Mid0_p4
+		Poles_1[34] = Mid0_p4
+		Leg0_p23p29 = Part.LineSegment(Poles_0[23],Poles_0[29])
+		Leg0_p28p29 = Part.LineSegment(Poles_0[28],Poles_0[29])
+		Leg1_p28p34 = Part.LineSegment(Poles_1[28],Poles_1[34])
+		
+		# seam 1
+		# Mid1_p4 = Poles_1[23] + 0.5 * ((Poles_1[28]-Poles_1[22])+(Poles_2[28]-Poles_2[27]))
+		Mid1_p4 = 0.5 * (Poles_1[28] + Poles_2[28]) # second try, flatten the center
+		Poles_1[29] = Mid1_p4
+		Poles_2[34] = Mid1_p4
+		Leg1_p23p29 = Part.LineSegment(Poles_1[23],Poles_1[29])
+		Leg1_p28p29 = Part.LineSegment(Poles_1[28],Poles_1[29])
+		Leg2_p28p34 = Part.LineSegment(Poles_2[28],Poles_2[34])
+		
+		# seam 2
+		# Mid2_p4 = Poles_2[23] + 0.5 * ((Poles_2[28]-Poles_2[22])+(Poles_0[28]-Poles_0[27]))
+		Mid2_p4 = 0.5 * (Poles_2[28] + Poles_0[28]) # second try, flatten the center
+		Poles_2[29] = Mid2_p4
+		Poles_0[34] = Mid2_p4
+		Leg2_p23p29 = Part.LineSegment(Poles_2[23],Poles_2[29])
+		Leg2_p28p29 = Part.LineSegment(Poles_2[28],Poles_2[29])
+		Leg0_p28p34 = Part.LineSegment(Poles_0[28],Poles_0[34])	
+		
+		# final point! 55[35]
+		center = 1.0/3.0*(Poles_0[29] + Poles_1[29] + Poles_2[29])
+		Poles_0[35] = center
+		Poles_1[35] = center
+		Poles_2[35] = center
+		Leg0_p29p35 = Part.LineSegment(Poles_0[29],Poles_0[35])	
+		Leg1_p29p35 = Part.LineSegment(Poles_1[29],Poles_1[35])	
+		Leg2_p29p35 = Part.LineSegment(Poles_2[29],Poles_2[35])	
+		
+		fp.Poles_0 = Poles_0
+		fp.Poles_1 = Poles_1
+		fp.Poles_2 = Poles_2
+		
+		fp.Weights_0 = [1.0]*36
+		fp.Weights_1 = [1.0]*36
+		fp.Weights_2 = [1.0]*36
+		
+		Legs = [Leg0_p11p17, Leg1_p11p17, Leg2_p11p17,
+				Leg0_p10p16, Leg0_p16p17,
+				Leg1_p25p26, Leg1_p26p32,
+				Leg1_p10p16, Leg1_p16p17,
+				Leg2_p25p26, Leg2_p26p32,
+				Leg2_p10p16, Leg2_p16p17,
+				Leg0_p25p26, Leg0_p26p32,
+				Leg0_p9p15, Leg0_p14p15, Leg0_p15p16,
+				Leg0_p19p20, Leg0_p14p20, Leg0_p20p26,
+				Leg1_p9p15, Leg1_p14p15, Leg1_p15p16,
+				Leg1_p19p20, Leg1_p14p20, Leg1_p20p26,
+				Leg2_p9p15, Leg2_p14p15, Leg2_p15p16,
+				Leg2_p19p20, Leg2_p14p20, Leg2_p20p26,
+				Leg0_p20p21, Leg0_p15p21,
+				Leg1_p20p21, Leg1_p15p21,
+				Leg2_p20p21, Leg2_p15p21,
+				Leg0_p17p23, Leg1_p17p23, Leg2_p17p23,
+				Leg0_p16p22, Leg0_p21p22, Leg0_p22p23, Leg0_p26p27, Leg0_p21p27, Leg0_p27p33,
+				Leg1_p16p22, Leg1_p21p22, Leg1_p22p23, Leg1_p26p27, Leg1_p21p27, Leg1_p27p33,
+				Leg2_p16p22, Leg2_p21p22, Leg2_p22p23, Leg2_p26p27, Leg2_p21p27, Leg2_p27p33,
+				Leg0_p27p28, Leg0_p22p28,
+				Leg1_p27p28, Leg1_p22p28,
+				Leg2_p27p28, Leg2_p22p28,
+				Leg0_p23p29, Leg0_p28p29, Leg1_p28p34,
+				Leg1_p23p29, Leg1_p28p29, Leg2_p28p34,
+				Leg2_p23p29, Leg2_p28p29, Leg0_p28p34,
+				Leg0_p29p35, Leg1_p29p35, Leg2_p29p35]
+		
+		fp.Legs=Legs
+		fp.Shape = Part.Shape(fp.Legs)		
+		
+		
+		
+class CubicTriangle_3Star66:
 	def __init__(self, obj , Trip):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nCubicTriangle_Triple66 Init\n")
-		obj.addProperty("App::PropertyLink","Trip","CubicTriangle_Triple66","control grid triple").Trip = Trip
-		obj.addProperty("Part::PropertyGeometryList","Surf","CubicTriangle_Triple66","Cubic Surfaces").Surf
+		FreeCAD.Console.PrintMessage("\nCubicTriangle_3Star66 Init\n")
+		obj.addProperty("App::PropertyLink","Trip","CubicTriangle_3Star66","control grid 3Star").Trip = Trip
+		obj.addProperty("Part::PropertyGeometryList","Surf","CubicTriangle_3Star66","Cubic Surfaces").Surf
 		obj.Proxy = self
 
 	def execute(self, fp):

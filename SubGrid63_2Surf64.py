@@ -17,7 +17,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
@@ -28,17 +27,22 @@ import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
-class CubicTriangle_Triple66():
+class SubGrid63_2Surf64():
 	def Activated(self):
-		triple=Gui.Selection.getSelection()[0]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicTriangle_Triple66")
-		AN.CubicTriangle_Triple66(a,triple)
+		sel=Gui.Selection.getSelection()
+		Surf_0=Gui.Selection.getSelection()[0] 
+		Surf_1=Gui.Selection.getSelection()[1]
+		
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid63_2Surf64")
+		AN.SubGrid63_2Surf64(a,Surf_0,Surf_1)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
-		a.ViewObject.DisplayMode = u"Shaded"
-		a.ViewObject.ShapeColor = (0.33,0.67,1.00)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (1.00,0.67,0.00)
+		a.ViewObject.PointSize = 2.00
+		a.ViewObject.PointColor = (1.00,1.00,0.00)		
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicTriangle_Triple66.svg', 'MenuText': 'CubicTriangle_Triple66', 'ToolTip': 'CubicTriangle_Triple66'}
+		return {'Pixmap' :  path_Silk_icons + '/SubGrid63_2Surf64.svg', 'MenuText': 'SubGrid63_2Surf64', 'ToolTip': 'SubGrid63_2Surf64'}
 
-Gui.addCommand('CubicTriangle_Triple66', CubicTriangle_Triple66())
+Gui.addCommand('SubGrid63_2Surf64', SubGrid63_2Surf64())

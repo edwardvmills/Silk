@@ -27,14 +27,15 @@ import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
-class SubGrid63_Tri_2Surf64():
+class ControlGrid3Star66_3Sub():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
-		Surf_0=Gui.Selection.getSelection()[0] 
-		Surf_1=Gui.Selection.getSelection()[1]
+		Sub_0=Gui.Selection.getSelection()[0] 
+		Sub_1=Gui.Selection.getSelection()[1]
+		Sub_2=Gui.Selection.getSelection()[2]
 		
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid63_Tri_2Surf64")
-		AN.SubGrid63_Tri_2Surf64(a,Surf_0,Surf_1)
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid3Star66_3Sub")
+		AN.ControlGrid3Star66_3Sub(a,Sub_0,Sub_1, Sub_2)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
 		a.ViewObject.LineColor = (1.00,0.67,0.00)
@@ -43,6 +44,6 @@ class SubGrid63_Tri_2Surf64():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/SubGrid63_Tri_2Surf64.svg', 'MenuText': 'SubGrid63_Tri_2Surf64', 'ToolTip': 'SubGrid63_Tri_2Surf64'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid3Star66_3Sub.svg', 'MenuText': 'ControlGrid3Star66_3Sub', 'ToolTip': 'ControlGrid3Star66_3Sub'}
 
-Gui.addCommand('SubGrid63_Tri_2Surf64', SubGrid63_Tri_2Surf64())
+Gui.addCommand('ControlGrid3Star66_3Sub', ControlGrid3Star66_3Sub())
