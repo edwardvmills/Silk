@@ -28,17 +28,17 @@ import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
-class CubicTriangle_3Star66():
+class CubicNStarSurface_NStar66():
 	def Activated(self):
-		_3Star=Gui.Selection.getSelection()[0]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicTriangle_3Star66")
-		AN.CubicTriangle_3Star66(a,_3Star)
+		NStarGrid = Gui.Selection.getSelection()[0]
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicNStarSurface_NStar66")
+		AN.CubicNStarSurface_NStar66(a, NStarGrid)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.DisplayMode = u"Shaded"
 		a.ViewObject.ShapeColor = (0.33,0.67,1.00)
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicTriangle_3Star66.svg', 'MenuText': 'CubicTriangle_3Star66', 'ToolTip': 'CubicTriangle_3Star66'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicNStarSurface_NStar66.svg', 'MenuText': 'CubicNStarSurface_NStar66', 'ToolTip': 'CubicNStarSurface_NStar66'}
 
-Gui.addCommand('CubicTriangle_3Star66', CubicTriangle_3Star66())
+Gui.addCommand('CubicNStarSurface_NStar66', CubicNStarSurface_NStar66())
