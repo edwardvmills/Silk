@@ -299,7 +299,13 @@ def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	l2 = p2 - p1
 
 	h4_scalar = (l1.cross(l2)).Length*tanRatio.__pow__(2)/l1.Length
-	hn = ((l1.cross(l2)).cross(l1)).normalize() 
+	
+	test0 = ((l1.cross(l2)).cross(l1))
+	test1 = equalVectors(test0, Base.Vector(0,0,0), .000001)
+	if test1 == 1:
+		hn = Base.Vector(0,0,0)
+	else:
+		hn = ((l1.cross(l2)).cross(l1)).normalize() 
 	h4 = hn * h4_scalar
 	
 	p3 = p0 - (p1-p0) * tanRatio
@@ -2960,7 +2966,7 @@ class ControlGrid64_3_1Grid44:
 		
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
-		
+
 class SubGrid63_2Surf64:
 	def __init__(self, obj , Surf_0, Surf_1):
 		''' Add the properties '''
@@ -3265,7 +3271,7 @@ class SubGrid63_2Surf64:
 		
 
 		
-		Legs=[0]*36
+		Legs=[0]*30
 		
 		Legs[0]=Part.LineSegment(p00,p01)
 		Legs[1]=Part.LineSegment(p01,p02)
@@ -3303,19 +3309,19 @@ class SubGrid63_2Surf64:
 		
 		Legs[28]=Part.LineSegment(p12,p22_u_isect)
 		
-		Legs[29]=Part.LineSegment(p13,p23_h)
-		Legs[30]=Part.LineSegment(p14,p24_h) 
-		Legs[31]=Part.LineSegment(p15, p25_h)
+		#Legs[29]=Part.LineSegment(p13,p23_h)  # these points can collapse. need to test before making lines.
+		#Legs[30]=Part.LineSegment(p14,p24_h) 
+		#Legs[31]=Part.LineSegment(p15, p25_h)
 		
-		Legs[32]=Part.LineSegment(p21,p22_v_isect)
+		Legs[29]=Part.LineSegment(p21,p22_v_isect)
 		
-		Legs[33]=Part.LineSegment(p31, p32_h)
-		Legs[34]=Part.LineSegment(p41, p42_h)
-		Legs[35]=Part.LineSegment(p51, p52_h)
+		#Legs[33]=Part.LineSegment(p31, p32_h)
+		#Legs[34]=Part.LineSegment(p41, p42_h)
+		#Legs[35]=Part.LineSegment(p51, p52_h)
 		
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
-		
+
 class ControlGrid3Star66_3Sub_old:	# self contained 3Star grid. obsolete?	
 	def __init__(self, obj , Sub_0, Sub_1, Sub_2):
 		''' Add the properties '''
@@ -3633,7 +3639,7 @@ class ControlGrid3Star66_3Sub_old:	# self contained 3Star grid. obsolete?
 		
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)				
-		
+
 class CubicTriangle_3Star66:  ## 3 surface star only. obsolete?
 	def __init__(self, obj , Trip):
 		''' Add the properties '''
@@ -3778,8 +3784,8 @@ class CubicTriangle_3Star66:  ## 3 surface star only. obsolete?
 		Surf = [Surf_0, Surf_1, Surf_2]
 
 		fp.Shape = Part.Shape(Surf)
-		
-class ControlGridNStar66_NSub:		
+
+class ControlGridNStar66_NSub:	# strictly base class version
 	def __init__(self, fp , SubList):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGridNStar66_NSub class Init\n")
@@ -3789,28 +3795,15 @@ class ControlGridNStar66_NSub:
 		''' the poles and weights will be defined in specific subclasses where N = 3, 4, 5, 6, and maybe 7.
 		the list of poles and weights must be accessible outside the object through the FreeCAD python feature attribute interface:
 		the poles and weights must be one of the predefined attribute types. if we choose PropertyVectorList and PropertyFloatList,
-		we must then use 'variable' variable names to set N of them. This is not good practice. The other option is using a Matrix. 
-		The matrix is probably yhe way to go...later.
+		we must then use 'variable' variable names to set N of them. This is not good practice. 
 		
 		I know how to read and write the entire pole table with 'variable' variable names, but i don't know how to read a single object and then write a single object.
 		
-		As of now, there is a functioning N=3 version. The N=3 object passes its attributes and the value N to the functions of the base class. 
+		As of now, there are functioning N=3 and N=5 versions. These object pass their attributes and the value N to the functions of the base class. 
 		Each function in the base class uses 'variable' variable names to load the entire Poles table of the Subgrids it is working on, 
 		do a few simple things, and then overwrite the entire table again for each Subgrid involved! 
 		
-		This is pretty horrible way to handle data access across a dataset of unknown size. It is especially gruesome in the last function,
-		where i read 1 value from each table, average them all, and assign this value to one address in each table. it takes 4 for loops!
-		
-		At least all my functions are defined only once, which is more critical right now for debugging
-		
-		loop 1 runs N X 2 pole tables
-		loop 2 runs N X 1 pole tables
-		loop 3 runs N X 2 pole tables
-		loop 4 runs N X 3 pole tables
-		loop 5 runs N X 2 pole tables
-		Loop 6 runs 1 X N pole tables
-		
-		11 X N pole tables are read and written, where in fact the table actually needs to be read about twice, and written LESS than once.
+		This is pretty horrible way to handle data access across a dataset of unknown size. 
 		'''
 
 	def getL1Scale(self, p0, p1, p2):
@@ -3858,6 +3851,7 @@ class ControlGridNStar66_NSub:
 		# loop in pairs from first element to last
 		for i in range(N-1):
 			self.StarRow2_2Sub(fp, i, i+1)
+		
 		# close sequence by looping back a pair from last to first element
 		self.StarRow2_2Sub(fp, N-1, 0)
 		return 0
@@ -3938,8 +3932,13 @@ class ControlGridNStar66_NSub:
 		# do the thing
 		# parallelogram diagonal 
 		Sub_28_raw = Sub[27] + (Sub[22]-Sub[21])
+		# scaling factor. based on N?
+		if fp.N == 3:
+			scale = 0.75
+		if fp.N == 5:
+		 scale = 1.25
 		# scaled down 75% to spread out center
-		Sub_28_scaled = Sub[21] + 0.75 * (Sub_28_raw - Sub[21])
+		Sub_28_scaled = Sub[21] + scale * (Sub_28_raw - Sub[21])
 		
 		Plane_prev = Part.Plane(Sub[33],Sub[23],Sub_prev[33])
 		Plane_next = Part.Plane(Sub[33],Sub[23],Sub_next[23])
@@ -3974,6 +3973,41 @@ class ControlGridNStar66_NSub:
 		self.StarDiag4_3Sub(fp, N-1, 0, 1)
 		return 0
 
+	def StarDiag4_squish(self, fp, N):
+		# we are going to average all poles [28] around the loop to define the squish center
+		# collect instance properties using getattr() and string manipulation to set index
+		Poles = [0]*N
+		for i in range(N):
+			Poles[i] = getattr(fp, 'Poles_%d' % i)
+			
+		# sum all poles [28]
+		Poles_28_total = Base.Vector(0,0,0)
+		for i in range(N):
+			Poles_28_total = Poles_28_total + Poles[i][28]
+
+		SquishCenter = (1.0 / N) * Poles_28_total		
+			
+		# do cross products in pairs around the loops to get a list of normal direction approximations
+		cross_total = Base.Vector(0,0,0)
+		for i in range(N-1):
+			cross_total = cross_total + (Poles[i][28]-SquishCenter).cross(Poles[i+1][28]-SquishCenter)
+		# close sequence by looping back	
+		cross_total = cross_total + (Poles[N-1][28]-SquishCenter).cross(Poles[0][28]-SquishCenter)
+		
+		# define squish plane from squish center and squsih normal
+		Squish_Plane = Part.Plane(SquishCenter, cross_total)
+		# project all diag4 points to this plane.
+		
+		projections = [0] * N
+		
+		for i in range(N):
+			param = Squish_Plane.parameter(Poles[i][28])
+			Poles[i][28] = Squish_Plane.value(param[0],param[1])
+		
+		# update instance properties using setattr() and string manipulation to set index
+		for i in range(N):
+			setattr(fp, 'Poles_%d' % i, Poles[i])		
+			
 	def StarRow4_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		# apply indices and get Poles lists from instance.
 		Sub_0 = getattr(fp, 'Poles_%d' % Sub_0_i)
@@ -4001,7 +4035,7 @@ class ControlGridNStar66_NSub:
 		fp.Legs = Legs + Legs_Row4
 		return 0
 
-	def StarRow4_SubLoop(self, fp, N): # last good test point
+	def StarRow4_SubLoop(self, fp, N):
 		# loop in pairs from first element to last
 		for i in range(N-1):
 			self.StarRow4_2Sub(fp, i, i+1)
@@ -4042,7 +4076,9 @@ class ControlGridNStar66_NSub:
 		
 		return 0
 
-class ControlGrid3Star66_3Sub(ControlGridNStar66_NSub):		
+## placeholder for ControlGridNStar66_NSub as direct modeling object	
+		
+class ControlGrid3Star66_3Sub(ControlGridNStar66_NSub):	
 	def __init__(self, fp , SubList):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGrid3Star66_3Sub class Init\n")
@@ -4064,19 +4100,64 @@ class ControlGrid3Star66_3Sub(ControlGridNStar66_NSub):
 		fp.Poles_0 = fp.SubList[0].Poles
 		fp.Weights_0 = fp.SubList[0].Weights
 		fp.Poles_1 = fp.SubList[1].Poles
-		fp.Weights_1 = fp.SubList[1].Weights		
+		fp.Weights_1 = fp.SubList[1].Weights
 		fp.Poles_2 = fp.SubList[2].Poles
-		fp.Weights_2 = fp.SubList[2].Weights		
+		fp.Weights_2 = fp.SubList[2].Weights
 		fp.Legs = []
 		self.StarRow2_SubLoop(fp, fp.N)
 		self.StarDiag3_SubLoop(fp, fp.N)
 		self.StarRow3_SubLoop(fp, fp.N)
-		self.StarDiag4_SubLoop(fp, fp.N)		
+		self.StarDiag4_SubLoop(fp, fp.N)
+		self.StarDiag4_squish(fp, N)
 		self.StarRow4_SubLoop(fp, fp.N)
 		self.StarCenter(fp, fp.N)
 		
 		fp.Shape = Part.Shape(fp.Legs)	
-				
+
+class ControlGrid5Star66_5Sub(ControlGridNStar66_NSub):	
+	def __init__(self, fp , SubList):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid5Star66_5Sub class Init\n")
+		ControlGridNStar66_NSub.__init__(self, fp, SubList)
+		# create the additional properties for N =5
+		fp.addProperty("App::PropertyInteger","N","ControlGrid5Star66_5Sub","N").N=5
+		fp.setEditorMode("N", 2) 
+		fp.addProperty("App::PropertyVectorList","Poles_0","ControlGrid5Star66_5Sub","Poles_0").Poles_0
+		fp.addProperty("App::PropertyVectorList","Poles_1","ControlGrid5Star66_5Sub","Poles_1").Poles_1
+		fp.addProperty("App::PropertyVectorList","Poles_2","ControlGrid5Star66_5Sub","Poles_2").Poles_2
+		fp.addProperty("App::PropertyVectorList","Poles_3","ControlGrid5Star66_5Sub","Poles_3").Poles_3
+		fp.addProperty("App::PropertyVectorList","Poles_4","ControlGrid5Star66_5Sub","Poles_4").Poles_4
+		fp.addProperty("App::PropertyFloatList","Weights_0","ControlGrid5Star66_5Sub","Weights_0").Weights_0
+		fp.addProperty("App::PropertyFloatList","Weights_1","ControlGrid5Star66_5Sub","Weights_1").Weights_1
+		fp.addProperty("App::PropertyFloatList","Weights_2","ControlGrid5Star66_5Sub","Weights_2").Weights_2
+		fp.addProperty("App::PropertyFloatList","Weights_3","ControlGrid5Star66_5Sub","Weights_3").Weights_3
+		fp.addProperty("App::PropertyFloatList","Weights_4","ControlGrid5Star66_5Sub","Weights_4").Weights_4
+		
+
+	def execute(self, fp):
+		N=5
+		# refresh properties back to linked SubGrids everytime the Star gets recomputed
+		fp.Poles_0 = fp.SubList[0].Poles
+		fp.Weights_0 = fp.SubList[0].Weights
+		fp.Poles_1 = fp.SubList[1].Poles
+		fp.Weights_1 = fp.SubList[1].Weights		
+		fp.Poles_2 = fp.SubList[2].Poles
+		fp.Weights_2 = fp.SubList[2].Weights	
+		fp.Poles_3 = fp.SubList[3].Poles
+		fp.Weights_3 = fp.SubList[3].Weights	
+		fp.Poles_4 = fp.SubList[4].Poles
+		fp.Weights_4 = fp.SubList[4].Weights	
+		fp.Legs = []
+		self.StarRow2_SubLoop(fp, fp.N)
+		self.StarDiag3_SubLoop(fp, fp.N)
+		self.StarRow3_SubLoop(fp, fp.N)
+		self.StarDiag4_SubLoop(fp, fp.N)
+		self.StarDiag4_squish(fp, N)
+		self.StarRow4_SubLoop(fp, fp.N)
+		self.StarCenter(fp, fp.N)
+		
+		fp.Shape = Part.Shape(fp.Legs)	
+
 class CubicNStarSurface_NStar66:
 	def __init__(self, obj , NStarGrid):
 		''' Add the properties '''
@@ -4122,4 +4203,60 @@ class CubicNStarSurface_NStar66:
 
 		fp.Shape = Part.Shape(fp.NSurf)
 		
-		
+class StarTrim_CubicNStar:
+	def __init__(self, obj , CubicNStar):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nStarTrim_CubicNStar Init\n")
+		obj.addProperty("App::PropertyLink","CubicNStar","StarTrim_CubicNStar","base Surface star").CubicNStar = CubicNStar
+		obj.addProperty("Part::PropertyGeometryList","NSurf","CubicNStarSurface_NStar66","N Cubic Surfaces").NSurf
+		fp.addProperty("App::PropertyInteger","N","ControlGrid5Star66_5Sub","N").N
+		fp.setEditorMode("N", 2) 
+		obj.Proxy = self
+	
+	def execute(self, fp):		
+		N=3
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+	
+

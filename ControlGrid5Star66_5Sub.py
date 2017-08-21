@@ -17,8 +17,6 @@
 #    You should have received a copy of the GNU General Public License
 #    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-
-from __future__ import division # allows floating point division from integers
 import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
@@ -29,24 +27,26 @@ import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
-class SubGrid33_2Grid64():
+class ControlGrid5Star66_5Sub():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
-
-		Grid_a=Gui.Selection.getSelection()[0] 
-		Grid_b=Gui.Selection.getSelection()[1]
-
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid33_2Grid64")
-		AN.SubGrid33_2Grid64(a,Grid_a,Grid_b)
+		Sub_0=Gui.Selection.getSelection()[0] 
+		Sub_1=Gui.Selection.getSelection()[1]
+		Sub_2=Gui.Selection.getSelection()[2]
+		Sub_3=Gui.Selection.getSelection()[3]
+		Sub_4=Gui.Selection.getSelection()[4]
+		SubList = [Sub_0, Sub_1, Sub_2, Sub_3, Sub_4]
+		
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid5Star66_5Sub")
+		AN.ControlGrid5Star66_5Sub(a,SubList)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
-		a.ViewObject.LineColor = (0.67,1.00,1.00)
-		a.ViewObject.PointSize = 4.00
-		a.ViewObject.PointColor = (0.00,0.33,1.00)
+		a.ViewObject.LineColor = (1.00,0.67,0.00)
+		a.ViewObject.PointSize = 2.00
+		a.ViewObject.PointColor = (1.00,1.00,0.00)
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/SubGrid33_2Grid64.svg', 'MenuText': 'SubGrid33_2Grid64',
-		'ToolTip': 'SubGrid33_2Grid64: \n Select two ControlGrid_64 objects meeting at a corner \n to generate a corner blend partial grid. \n this is intended for the case where the two ControlGrid_64 objects \n are blends grids which have segments of one common surface as inputs'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid5Star66_5Sub.svg', 'MenuText': 'ControlGrid5Star66_5Sub', 'ToolTip': 'ControlGrid5Star66_5Sub'}
 
-Gui.addCommand('SubGrid33_2Grid64', SubGrid33_2Grid64())
+Gui.addCommand('ControlGrid5Star66_5Sub', ControlGrid5Star66_5Sub())

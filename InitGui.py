@@ -49,6 +49,7 @@ class Silk (Workbench):
 		import ControlGrid66_4Sub
 		import SubGrid63_2Surf64
 		import ControlGrid3Star66_3Sub
+		import ControlGrid5Star66_5Sub
 		import CubicNStarSurface_NStar66
 		self.list = ["ControlPoly4",
 					"CubicCurve_4", 
@@ -70,6 +71,7 @@ class Silk (Workbench):
 					"ControlGrid66_4Sub",
 					"SubGrid63_2Surf64",
 					"ControlGrid3Star66_3Sub",
+					"ControlGrid5Star66_5Sub",
 					"CubicNStarSurface_NStar66"] 
 					# A list of command names created in the line above
 		
