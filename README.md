@@ -1,7 +1,7 @@
 # Silk
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench)
 
-![Best example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_02.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_02.png?raw=true)
 
 Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
 
@@ -9,6 +9,8 @@ Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSli
 
 Until documentation and tutorials are rewritten for Silk, [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) is the best source of information regarding the project. 
 The tutorials can still be followed, simply skip setup, color, and display mode instructions. All setup is handled by installing the workbench, and the object display properties have been set to reasonable defaults. ([Silk Wiki in progress](https://github.com/edwardvmills/Silk/wiki))
+
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_03.png?raw=true)
 
 All program files (.py, .pyc, .FCMacro) are offered under the terms of the [Gnu gpl-v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
 
