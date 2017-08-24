@@ -4076,7 +4076,6 @@ class ControlGridNStar66_NSub_old:	# strictly base class version. obsolete...aft
 		
 		return 0
 
-
 class ControlGridNStar66_NSub:	# all in one version - 
 	def __init__(self, fp , SubList):
 		''' Add the properties '''
@@ -4088,34 +4087,6 @@ class ControlGridNStar66_NSub:	# all in one version -
 		fp.addProperty("App::PropertyPythonObject","StarGrid","ControlGrid3Star66_3Sub","Poles").StarGrid
 		fp.Proxy = self
 
-	def __getstate__(fp):
-		'''__getstate__() ... callback before receiver is saved to a file.'''
-		StarGrid_noVector = [0] * fp.N
-		for n in range(N):
-			StarGrid_noVectors_n = [0] * 36
-			for i in range(36):
-				V = fp.StarGrid[n][i][0]
-				StarGrid_noVector_n_i = [[V[0],V[1],V[2]], fp.StarGrid[n][i][1]]
-				StarGrid_noVector_n[i] = StarGrid_noVector_n_i
-			StarGrid_noVector[n] = StarGrid_noVector_n
-		state = StarGrid_noVector
-		return state
-	
-	def __setstate__(self, state):
-		fp.N=len(fp.SubList)
-		fp.StarGrid = [0] * fp.N
-		for n in range(fp.N):
-			#set size of single SubGrid
-			StarGrid_n = [0] * 36
-			for i in range(36):
-				# set Pole/Weight format [Base.Vector(), Float]
-				StarGrid_n_i = [0,0]
-				StarGrid_n_i[0] = Base.Vector(state[n][i][0])
-				StarGrid_n_i[1] = state[n][i][1]
-				StarGrid_n[i] = StarGrid_n_i
-			fp.StarGrid[n] = StarGrid_n
-	
-	
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
 		return L1_scale
@@ -4357,8 +4328,19 @@ class ControlGridNStar66_NSub:	# all in one version -
 		self.StarRow4_SubLoop(fp, fp.N)
 		self.StarCenter(fp, fp.N)
 		
-		fp.Shape = Part.Shape(fp.Legs)	
+		fp.Shape = Part.Shape(fp.Legs)
 		
+		# convert all vectors in StarGrid to lists. this allows saving the PythonObject attribute. The data needs to be fed back to Base.Vector() downstream.
+		for n in range(fp.N):
+			#set size of single SubGrid
+			StarGrid_n = [0] * 36
+			for i in range(36):
+				# set Pole/Weight format [Base.Vector(), Float]
+				StarGrid_n_i = [0,0]
+				StarGrid_n_i[0] = [fp.StarGrid[n][i][0].x, fp.StarGrid[n][i][0].y, fp.StarGrid[n][i][0].z]
+				StarGrid_n_i[1] = fp.SubList[n].Weights[i]
+				StarGrid_n[i] = StarGrid_n_i
+			fp.StarGrid[n] = StarGrid_n
 		
 class ControlGrid3Star66_3Sub(ControlGridNStar66_NSub):	# obsolete
 	def __init__(self, fp , SubList):
@@ -4485,30 +4467,23 @@ class CubicNStarSurface_NStar66_old: # this version worked with the varying numb
 
 		fp.Shape = Part.Shape(fp.NSurf)
 
-class CubicNStarSurface_NStar66: # new version that reads forma PythonObject attribute. possible JSON issues?
+class CubicNStarSurface_NStar66: # new version that reads from a PythonObject attribute. possible JSON issues?
 	def __init__(self, obj , NStarGrid):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nCubicNStarSurface_NStar66 Init\n")
 		obj.addProperty("App::PropertyLink","NStarGrid","CubicNStarSurface_NStar66","control grid star").NStarGrid = NStarGrid
-		obj.addProperty("Part::PropertyGeometryList","NSurf","CubicNStarSurface_NStar66","N Cubic Surfaces").NSurf
+		obj.addProperty("Part::PropertyGeometryList","NSurf","CubicNStarSurface_NStar66","N Cubic Surfaces").NSurf	
 		obj.Proxy = self
 		
 	def HomogeneousGrids(self, fp, N):
-		
-		HGrids = [0] * N
+		HomogeneousGrids = [0] * N
 		for i in range(N):
-			FreeCAD.Console.PrintMessage("\nsetting homogeneous grid\n")
-			FreeCAD.Console.PrintMessage(i)
-			# this linked grid attribute cycling seems to work
-			Poles_i = getattr(fp.NStarGrid, 'Poles_%d' % i)
-			Weights_i = getattr(fp.NStarGrid, 'Weights_%d' % i)
-			FreeCAD.Console.PrintMessage("\np00\n")
-			FreeCAD.Console.PrintMessage(Poles_i[0])
 			HGrid_i = [0] *36
 			for j in range(36):
-				HGrid_i[j] = [Poles_i[j], Weights_i[j]]
-			HGrids[i] = HGrid_i	
-		return HGrids	
+				# convert the float list from NStarGrid back to Base.Vector.
+				HGrid_i[j] = [Base.Vector(fp.NStarGrid.StarGrid[i][j][0][0],fp.NStarGrid.StarGrid[i][j][0][1],fp.NStarGrid.StarGrid[i][j][0][2]), fp.NStarGrid.StarGrid[i][j][1]] 
+			HomogeneousGrids[i] = HGrid_i	
+		return HomogeneousGrids	
 		
 	def makeNSurf(self, fp, HomogeneousGrids, N):
 		NSurf = [0] * N
@@ -4517,17 +4492,11 @@ class CubicNStarSurface_NStar66: # new version that reads forma PythonObject att
 		return NSurf
 
 	def execute(self,fp):
+		# cast [x ,y, z] in linked NstarGrid back to Base.Vector
+		HomogeneousGrids = self.HomogeneousGrids(fp, fp.NStarGrid.N)
 		
-		#HGrids = self.HomogeneousGrids(fp, fp.NStarGrid.N)
-		#FreeCAD.Console.PrintMessage("\nHGrids[0][0]\n")
-		#FreeCAD.Console.PrintMessage(HGrids[0][0])
-		#FreeCAD.Console.PrintMessage("\nHGrids[1][0]\n")
-		#FreeCAD.Console.PrintMessage(HGrids[1][0])
-		#FreeCAD.Console.PrintMessage("\nHGrids[2][0]\n")
-		#FreeCAD.Console.PrintMessage(HGrids[2][0])
-		
-		
-		fp.NSurf = self.makeNSurf(fp, fp.NStarGrid.StarGrid, fp.NStarGrid.N)
+		#loop over the homogeneous grids to make the surfaces
+		fp.NSurf = self.makeNSurf(fp, HomogeneousGrids, fp.NStarGrid.N)
 
 		fp.Shape = Part.Shape(fp.NSurf)
 	
