@@ -4088,6 +4088,34 @@ class ControlGridNStar66_NSub:	# all in one version -
 		fp.addProperty("App::PropertyPythonObject","StarGrid","ControlGrid3Star66_3Sub","Poles").StarGrid
 		fp.Proxy = self
 
+	def __getstate__(fp):
+		'''__getstate__() ... callback before receiver is saved to a file.'''
+		StarGrid_noVector = [0] * fp.N
+		for n in range(N):
+			StarGrid_noVectors_n = [0] * 36
+			for i in range(36):
+				V = fp.StarGrid[n][i][0]
+				StarGrid_noVector_n_i = [[V[0],V[1],V[2]], fp.StarGrid[n][i][1]]
+				StarGrid_noVector_n[i] = StarGrid_noVector_n_i
+			StarGrid_noVector[n] = StarGrid_noVector_n
+		state = StarGrid_noVector
+		return state
+	
+	def __setstate__(self, state):
+		fp.N=len(fp.SubList)
+		fp.StarGrid = [0] * fp.N
+		for n in range(fp.N):
+			#set size of single SubGrid
+			StarGrid_n = [0] * 36
+			for i in range(36):
+				# set Pole/Weight format [Base.Vector(), Float]
+				StarGrid_n_i = [0,0]
+				StarGrid_n_i[0] = Base.Vector(state[n][i][0])
+				StarGrid_n_i[1] = state[n][i][1]
+				StarGrid_n[i] = StarGrid_n_i
+			fp.StarGrid[n] = StarGrid_n
+	
+	
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
 		return L1_scale
