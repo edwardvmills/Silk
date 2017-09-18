@@ -3331,6 +3331,7 @@ class ControlGridNStar66_NSub:
 		fp.setEditorMode("N", 2)
 		fp.addProperty("Part::PropertyGeometryList","Legs","ControlGridNStar66_NSub","control segments").Legs
 		fp.addProperty("App::PropertyPythonObject","StarGrid","ControlGridNStar66_NSub","Poles").StarGrid
+		fp.addProperty("App::PropertyInteger","SquishDiag4","ControlGridNStar66_NSub","SquishDiag4").SquishDiag4 = 0
 		fp.Proxy = self
 
 	def getL1Scale(self, p0, p1, p2):
@@ -3426,17 +3427,33 @@ class ControlGridNStar66_NSub:
 		return 0
 	
 	def StarDiag4_3Sub(self, fp, Sub_prev_i, Sub_i, Sub_next_i):
-		# parallelogram diagonal 
-		Sub_28_raw = fp.StarGrid[Sub_i][27][0] + (fp.StarGrid[Sub_i][22][0]-fp.StarGrid[Sub_i][21][0])
+		# parallelogram diagonal
+		#Sub_28_raw = fp.StarGrid[Sub_i][27][0] + (fp.StarGrid[Sub_i][22][0]-fp.StarGrid[Sub_i][21][0])
+		
+		# components of the parallelogram diagonals, scaled by opposite edge on adjacent grid
+		u_28_i = fp.StarGrid[Sub_i][22][0] - fp.StarGrid[Sub_i][21][0]
+		v_28_i = fp.StarGrid[Sub_i][27][0] - fp.StarGrid[Sub_i][21][0]
+		
+		u_28_prev_i = fp.StarGrid[Sub_prev_i][27][0] - fp.StarGrid[Sub_prev_i][21][0]
+		v_28_next_i = fp.StarGrid[Sub_next_i][22][0] - fp.StarGrid[Sub_next_i][21][0]
+		
+		scaled_u_28_i = u_28_i * ( 1 +  ( u_28_prev_i.Length - u_28_i.Length ) / ( 3.0 * u_28_i.Length ) )
+		scaled_v_28_i = v_28_i * ( 1 +  ( v_28_next_i.Length - v_28_i.Length ) / ( 3.0 * v_28_i.Length ) )
+		
+		Sub_28_raw = fp.StarGrid[Sub_i][21][0] + scaled_u_28_i +scaled_v_28_i
+		
 		# scaling factor. based on N? 
 		# no. need to fix this. the scaling factor needs to achieve alignment between neighboring subgrids if they align,
 		# and a smooth rotation if they do not align.
 		# something...something...angle in the normal or maybe tangent plane. something...(1-cos()) factor.
+
 		if fp.N == 3:
 			scale = 0.75 # scaled down 75% to spread out center this works quite well for triangles actually
 		if fp.N == 5:
-		 scale = 1.00 # this is a mess. a single factor doesn't do it. oh well, moving on.
-		
+		 scale = 1.25 # this is a mess. a single factor doesn't do it. oh well, moving on.
+		if fp.N == 6:
+		 scale = 1.5
+
 		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (Sub_28_raw - fp.StarGrid[Sub_i][21][0])
 		
 		Plane_prev = Part.Plane(fp.StarGrid[Sub_i][33][0],fp.StarGrid[Sub_i][23][0],fp.StarGrid[Sub_prev_i][33][0])
@@ -3448,7 +3465,8 @@ class ControlGridNStar66_NSub:
 		Sub_28_next_param = Plane_next.parameter(Sub_28_scaled)
 		Sub_28_next_proj = Plane_next.value(Sub_28_next_param[0],Sub_28_next_param[1])
 		
-		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj)
+		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj) # best first round result for N=3, bad for recursion. N=5 is distorte din the center
+		# fp.StarGrid[Sub_i][28][0] = 0.0 * Sub_28_scaled + 0.5 * (Sub_28_prev_proj + Sub_28_next_proj) # N=3 round 1 shmushed, but good result on round 2. round 3 too pointy. unlear for N=5
 		
 		# control leg visualization
 		Legs_Diag4 = [0,0]
@@ -3570,7 +3588,12 @@ class ControlGridNStar66_NSub:
 		self.StarDiag3_SubLoop(fp, fp.N)
 		self.StarRow3_SubLoop(fp, fp.N)
 		self.StarDiag4_SubLoop(fp, fp.N)
-		self.StarDiag4_squish(fp, fp.N)
+		if fp.SquishDiag4 == 1:
+			self.StarDiag4_squish(fp, fp.N)
+			print "Squish Diagonal 4"
+		else:
+			print "no Squish Diagonal 4!"
+		
 		self.StarRow4_SubLoop(fp, fp.N)
 		self.StarCenter(fp, fp.N)
 		
@@ -3671,8 +3694,7 @@ class StarTrim_CubicNStar:
 		
 		fp.Shape = Part.Shape(trim)
 
-
-class ControlGridNStar66_StarTrim: # quick and dirty test for star center refinement. uses a list of subgrids within the single linked StarTrim, instead of a linklist
+class ControlGridNStar66_StarTrim: # quick and dirty test for star center refinement. uses a list of subgrids within the single linked StarTrim, instead of a linklist. 
 	def __init__(self, fp , StarTrim):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGridNStar66_StarTrim class Init\n")
@@ -3681,8 +3703,10 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		fp.setEditorMode("N", 2)
 		fp.addProperty("Part::PropertyGeometryList","Legs","ControlGridNStar66_StarTrim","control segments").Legs
 		fp.addProperty("App::PropertyPythonObject","StarGrid","ControlGridNStar66_StarTrim","Poles").StarGrid
+		fp.addProperty("App::PropertyInteger","SquishDiag4","ControlGridNStar66_NSub","SquishDiag4").SquishDiag4 = 0
 		fp.Proxy = self
-
+		
+		
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
 		return L1_scale
@@ -3776,16 +3800,33 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		return 0
 	
 	def StarDiag4_3Sub(self, fp, Sub_prev_i, Sub_i, Sub_next_i):
-		# parallelogram diagonal 
-		Sub_28_raw = fp.StarGrid[Sub_i][27][0] + (fp.StarGrid[Sub_i][22][0]-fp.StarGrid[Sub_i][21][0])
+		# parallelogram diagonal
+		#Sub_28_raw = fp.StarGrid[Sub_i][27][0] + (fp.StarGrid[Sub_i][22][0]-fp.StarGrid[Sub_i][21][0])
+		
+		# components of the parallelogram diagonals, scaled by opposite edge on adjacent grid
+		u_28_i = fp.StarGrid[Sub_i][22][0] - fp.StarGrid[Sub_i][21][0]
+		v_28_i = fp.StarGrid[Sub_i][27][0] - fp.StarGrid[Sub_i][21][0]
+		
+		u_28_prev_i = fp.StarGrid[Sub_prev_i][27][0] - fp.StarGrid[Sub_prev_i][21][0]
+		v_28_next_i = fp.StarGrid[Sub_next_i][22][0] - fp.StarGrid[Sub_next_i][21][0]
+		
+		scaled_u_28_i = u_28_i * ( 1 +  ( u_28_prev_i.Length - u_28_i.Length ) / ( 3.0 * u_28_i.Length ) )
+		scaled_v_28_i = v_28_i * ( 1 +  ( v_28_next_i.Length - v_28_i.Length ) / ( 3.0 * v_28_i.Length ) )
+		
+		Sub_28_raw = fp.StarGrid[Sub_i][21][0] + scaled_u_28_i +scaled_v_28_i
+		
 		# scaling factor. based on N? 
 		# no. need to fix this. the scaling factor needs to achieve alignment between neighboring subgrids if they align,
 		# and a smooth rotation if they do not align.
 		# something...something...angle in the normal or maybe tangent plane. something...(1-cos()) factor.
+
 		if fp.N == 3:
 			scale = 0.75 # scaled down 75% to spread out center this works quite well for triangles actually
 		if fp.N == 5:
 		 scale = 1.00 # this is a mess. a single factor doesn't do it. oh well, moving on.
+
+		
+		
 		
 		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (Sub_28_raw - fp.StarGrid[Sub_i][21][0])
 		
@@ -3809,7 +3850,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag4
 		return 0
-	
+		
 	def StarDiag4_SubLoop(self, fp, N):
 		# loop in triples from first element to second to last
 		for i in range(N-2):
@@ -3895,6 +3936,10 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		return 0
 
 	def execute(self, fp):	
+		# instead of a list of Subgrid Links, we have a single link to a list of surface segments. we have to make our own SubGrids
+		
+		
+		# this version works directly from NSurf_Center. this isn't directly equivalent, because the curvature row/col is not 'collapsed' to the tangent row/col, as it would be in a fresh SubGrid63
 		# refresh properties back to linked Startrim every time the Star gets recomputed
 		# determine number of SubGrids in the StarTrim
 		fp.N= fp.StarTrim.CubicNStar.NStarGrid.N
@@ -3903,7 +3948,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		# compile all SubGrid Poles and Weights into StarGrid attribute
 		for n in range(fp.N):
 			print 'n = ', n
-			# extract subgird info from each StarTrim center section
+			# extract subgrid info from each StarTrim center section
 			PoleArray = fp.StarTrim.NSurf_center[n].getPoles()
 			Poles = [0] *36
 			for v in range(6):
@@ -3929,8 +3974,9 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		# a specific Weight is now addresses as StarGrid[n][i][1]
 		
 		
+		# now that we effectilvely have a list of N Subgrids, make an NStar control grid
 		fp.Legs = []
-		self.StarRow2_SubLoop(fp, fp.N)
+		# self.StarRow2_SubLoop(fp, fp.N) # skip row 2 since we carry in the curvature rows? just go right to row 3?
 		self.StarDiag3_SubLoop(fp, fp.N)
 		self.StarRow3_SubLoop(fp, fp.N)
 		self.StarDiag4_SubLoop(fp, fp.N)
