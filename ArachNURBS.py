@@ -1506,7 +1506,10 @@ class Point_onCurve:
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nPoint_onCurve class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Curve","Point_onCurve","reference curve").NL_Curve = NL_Curve
-		obj.addProperty("App::PropertyFloat","u","Point_onCurve","parameter along curve").u = u		
+                lower = 0.0
+                upper = 1.0
+                step = 0.01
+                obj.addProperty("App::PropertyFloatConstraint","u","Point_onCurve","parameter along curve").u = (u, lower, upper, step)
 		obj.addProperty("App::PropertyVector","Position","Point_onCurve","position vector").Position	
 		obj.Proxy = self
 
