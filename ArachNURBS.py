@@ -1722,7 +1722,10 @@ class CubicSurface_64:
 #	10 11 12 13
 #	00 01 02 03
 #
-# this will be annoying to rewrite.				
+# this will be annoying to rewrite.	
+#
+# 12/20/2017 migrating to FreeCAD 0.17.12847 found grid rotation bug:
+# ControlGrid64_2Grid44, was working for all input pairs on 0.17.11699, but now rotating input grids in the class causes bad output. still ok when no rotations are required	
 		
 #### surface derived objects (+surf to input)		
 		
@@ -2046,7 +2049,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		if seam_0 == [1,2]:
 			rotate_0 = 0
 		if seam_0 == [2,3]:
-			rotate_0 = 1 
+			rotate_0 = 1
 		if seam_0 == [0,3]:
 			rotate_0 = 2 
 		if seam_0 == [0,1]:
@@ -2063,7 +2066,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		if seam_1 == [1,2] or seam_1 == [2,1]:
 			rotate_1 = 2 
 		if seam_1 == [3,2] or seam_1 == [2,3]:
-			rotate_1 = 3 
+			rotate_1 = 3
 						
 		print 'rotate left: ', rotate_0
 		print 'rotate right: ', rotate_1
