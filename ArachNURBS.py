@@ -102,6 +102,44 @@ def orient_a_to_b(polesa,polesb):	# polesa and polesb are lists of poles that sh
 		print 'curves do not share endpoints'
 		return 0
 
+def Cubic_Bezier_ddu(pole0, pole1):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
+	P0=Base.Vector(pole0)
+	P1=Base.Vector(pole1)
+	Cubic_Bezier_ddu = (P1 - P0)*3
+	return Cubic_Bezier_ddu
+
+def Cubic_6P_ddu(pole0, pole1):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
+	P0=Base.Vector(pole0)
+	P1=Base.Vector(pole1)
+	Cubic_6P_ddu = (P1 - P0)*9
+	return Cubic_6P_ddu
+
+def Cubic_Bezier_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
+	P0=Base.Vector(pole0)
+	P1=Base.Vector(pole1)
+	P2=Base.Vector(pole2)	
+	Cubic_Bezier_d2du2 = (P0- P1*2 + P2)*6
+	return Cubic_Bezier_d2du2
+
+def Cubic_6P_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
+	P0=Base.Vector(pole0)
+	P1=Base.Vector(pole1)
+	P2=Base.Vector(pole2)	
+	Cubic_6P_d2du2 = (P0*2- P1*3 + P2)*27
+	return Cubic_6P_d2du2
+
+def Cubic_Bezier_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
+	ddu = Cubic_Bezier_ddu(pole0, pole1)
+	d2du2 = Cubic_Bezier_d2du2(pole0, pole1, pole2)
+	Cubic_Bezier_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
+	return Cubic_Bezier_curvature
+
+def Cubic_6P_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
+	ddu = Cubic_6P_ddu(pole0, pole1)
+	d2du2 = Cubic_6P_d2du2(pole0, pole1, pole2)
+	Cubic_6P_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
+	return Cubic_6P_curvature
+	
 def Bezier_Cubic_curve(poles):	# pinned cubic rational B spline, 4 control points Part.BSplineCurve(), cubic bezier form
 #draws a degree 3 rational bspline from first to last point,
 # second and third act as tangents
@@ -236,9 +274,9 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	p0=[poles_6_0[0],weights_6_0[0]]
 	p1=[poles_6_0[1],weights_6_0[1]]
 	p2=[poles_6_0[2],weights_6_0[2]]
-	p3=[poles_6_1[3],weights_6_0[3]]
-	p4=[poles_6_1[4],weights_6_0[4]]
-	p5=[poles_6_1[5],weights_6_0[5]]
+	p3=[poles_6_1[3],weights_6_0[3]] ###
+	p4=[poles_6_1[4],weights_6_0[4]] ###
+	p5=[poles_6_1[5],weights_6_0[5]] ###
 	corner='p01p10'
 	
 			
@@ -293,7 +331,237 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	current_test = NURBS_Cubic_6P_curve(WeightedPoles)
 	
 	return [poles,weights]
+
+def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic bezier curve defined by the given poles
+	# calculate start point curvature directly from poles
+	C0 = Cubic_Bezier_curvature(pole0[0], pole1[0], pole2[0])
+	# prepare cubic bezier object to subdivide
+	Curve = Bezier_Cubic_curve([pole0, pole1, pole2, pole3])
 	
+	# setup refinement loop
+	t_seg = 0.05	# initial segmentation value
+	segment_degen = 'false'
+	tol= 0.001
+	error = 1.0
+	loop_count = 0
+	dCds_last = 'not_ready'
+	while (error > tol  and loop_count < 100 and segment_degen != 'true'):
+		Curve.segment(0,t_seg)
+		Poles = Curve.getPoles()
+		# check start curvature after segmentation
+		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
+		if math.fabs((C0_seg - C0)/C0) > tol:
+			segment_degen == 'true'
+			print 'segmentation has collapsed the curve'
+			print 'C0', C0, 'C0_check', C0_seg
+			print 'Cubic_Bezier_dCds step ', loopcount
+		# calculate curvature at the end of the current segment
+		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
+		# calculate chord length of current segment
+		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
+		s = S.Length
+		dCds_seg = (Cs-C0)/s
+		#print 'step ', loop_count, '  dCds_seg ', dCds_seg
+		if loop_count > 1:
+			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
+		dCds_last = dCds_seg
+		t_seg = t_seg / 2.0
+		loop_count=loop_count + 1
+	#print 'step ', loop_count, '  dCds_seg ', dCds_seg, '  error ', error
+	if error > tol:
+		# print 'no dCds found within ', tol
+		dCds = 'NONE'
+	else:
+		dCds = dCds_seg	
+	return dCds
+
+def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic 6P curve defined by the given poles
+	# calculate start point curvature directly from poles.
+	C0 = Cubic_6P_curvature(pole0[0], pole1[0], pole2[0])
+	# prepare cubic bezier object to subdivide
+	Curve = NURBS_Cubic_6P_curve([pole0, pole1, pole2, pole3, pole4, pole5])
+	
+	# setup refinement loop
+	t_seg = 0.05	# initial segmentation value
+	segment_degen = 'false'
+	tol= 0.001
+	error = 1.0
+	loop_count = 0
+	dCds_last = 'not_ready'
+	while (error > tol  and loop_count < 100 and segment_degen != 'true'):
+		# after the initial cut, the curve will no longer be 6P!
+		Curve.segment(0,t_seg)
+		# we are now back to Bezier! do i need to check?
+		Poles = Curve.getPoles()
+		# check start curvature after segmentation
+		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
+		if math.fabs((C0_seg - C0)/C0) > tol:
+			segment_degen == 'true'
+			print 'segmentation has collapsed the curve'
+			print 'C0', C0
+			print 'C0_check', C0_seg
+		# calculate curvature at the end of the current segment
+		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
+		# calculate chord length of current segment
+		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
+		s = S.Length
+		dCds_seg = (Cs-C0)/s
+		#print 'step ', loop_count, '  dCds_seg ', dCds_seg
+		if loop_count > 1:
+			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
+		dCds_last = dCds_seg
+		t_seg = t_seg / 2.0
+		loop_count=loop_count + 1
+	#print 'step ', loop_count, '  dCds_seg ', dCds_seg, '  error ', error
+	if error > tol:
+		#print 'no dCds found within ', tol
+		dCds = 'NONE'
+	else:
+		dCds = dCds_seg	
+	return dCds
+	
+def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
+	# IN PROGRESS - starting with a copy of blend_poly_2x4_1x6
+	# step1: clean up the source function
+	# step2: make the inner scaling clearer in the context of the blend poly. right now it is applied to the 6P version of the original polys
+	# step3: determine target dC/ds at each end (write external function to calculate this)
+	# step4: march the inner scales until dC/ds matches at both ends
+	
+	# rebuild both bezier inputs from the poles and weights
+	WeightedPoles_0=[[poles_0[0],weights_0[0]], [poles_0[1],weights_0[1]], [poles_0[2],weights_0[2]], [poles_0[3],weights_0[3]]]
+	CubicCurve4_0= Bezier_Cubic_curve(WeightedPoles_0) 
+	WeightedPoles_1=[[poles_1[0],weights_1[0]], [poles_1[1],weights_1[1]], [poles_1[2],weights_1[2]], [poles_1[3],weights_1[3]]]
+	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) 	
+	
+	# set end point dC/ds targets
+	dCds0 = Cubic_Bezier_dCds(WeightedPoles_0[0], WeightedPoles_0[1], WeightedPoles_0[2], WeightedPoles_0[3])
+	dCds1 = Cubic_Bezier_dCds(WeightedPoles_1[3], WeightedPoles_1[2], WeightedPoles_1[1], WeightedPoles_1[0])
+	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1
+
+	# convert 4P inputs to 6P
+	CubicCurve6_0=CubicCurve4_0
+	CubicCurve6_0.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
+	CubicCurve6_0.insertKnot(2.0/3.0)
+	CubicCurve6_1=CubicCurve4_1
+	CubicCurve6_1.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
+	CubicCurve6_1.insertKnot(2.0/3.0)	
+	
+	# extract poles and weights from 6Ps
+	poles_6_0=CubicCurve6_0.getPoles()
+	weights_6_0=CubicCurve6_0.getWeights()
+	poles_6_1=CubicCurve6_1.getPoles()
+	weights_6_1=CubicCurve6_1.getWeights()
+	
+	# check Cubic_6P_dCds
+	WeightedPoles_6_0=[[poles_6_0[0],weights_6_0[0]],
+						[poles_6_0[1],weights_6_0[1]],
+						[poles_6_0[2],weights_6_0[2]],
+						[poles_6_0[3],weights_6_0[3]],
+						[poles_6_0[4],weights_6_0[4]],
+						[poles_6_0[5],weights_6_0[5]]]
+						
+	dCds6_0 = Cubic_6P_dCds(WeightedPoles_6_0[0],
+							WeightedPoles_6_0[1],
+							WeightedPoles_6_0[2],
+							WeightedPoles_6_0[3],
+							WeightedPoles_6_0[4],
+							WeightedPoles_6_0[5])
+							
+	WeightedPoles_6_1=[[poles_6_1[0],weights_6_1[0]],
+						[poles_6_1[1],weights_6_1[1]],
+						[poles_6_1[2],weights_6_1[2]],
+						[poles_6_1[3],weights_6_1[3]],
+						[poles_6_1[4],weights_6_1[4]],
+						[poles_6_1[5],weights_6_1[5]]]
+	
+	dCds6_1 = Cubic_6P_dCds(WeightedPoles_6_1[5],
+							WeightedPoles_6_1[4],
+							WeightedPoles_6_1[3],
+							WeightedPoles_6_1[2],
+							WeightedPoles_6_1[1],
+							WeightedPoles_6_1[0])	
+	
+	print "dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1
+	
+	# compile the blend poly. this initial form is G2, but clumped towards the outer points.
+	p0=[poles_6_0[0],weights_6_0[0]]
+	p1=[poles_6_0[1],weights_6_0[1]]
+	p2=[poles_6_0[2],weights_6_0[2]]
+	p3=[poles_6_1[3],weights_6_1[3]]
+	p4=[poles_6_1[4],weights_6_1[4]]
+	p5=[poles_6_1[5],weights_6_1[5]]
+		
+	### calculate curvature components
+	## start point
+	l0 = p1[0]-p0[0]					# first control leg
+	tan0=Base.Vector(l0)				# make clean copy
+	tan0.normalize()					# unit tangent direction
+	l1=Base.Vector(tan0)				# make clean copy
+	l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
+	h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
+	## end point
+	l4 = p4[0]-p5[0]					# last control leg
+	tan4=Base.Vector(l4)				# make clean copy
+	tan4.normalize()					# unit tangent direction
+	l3=Base.Vector(tan4)				# make clean copy
+	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
+	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent	
+	### scale first and last control legs
+	L0=Base.Vector(l0)					# make clean copy
+	L0.multiply(scale_0)				# apply tangent scale
+	p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
+	L4=Base.Vector(l4)					# make clean copy
+	L4.multiply(scale_3)				# apply tangent scale
+	p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
+	### calc new heights for inner control legs
+	H1 = Base.Vector(h1)				# make clean copy
+	H1.multiply(scale_0.__pow__(2))		# apply height scale
+	H3 = Base.Vector(h3)				# make clean copy
+	H3.multiply(scale_3.__pow__(2))		# apply height scale
+
+	L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
+	L3 = p4_scl[0] - p5[0]				# rescale to new tangent (scale_3 already applied)
+	
+	scale_1i = 1.0
+	scale_2i = 1.0
+	
+	#instead of plugging in scale_1 and scale_2, we need to march them from 'scale_xi' up/down while checking dCds until they match at both ends
+	tol= 0.00000001
+	error = 1.0
+	loop_count = 0
+	while (error > tol  and loop_count < 1 ):
+		# apply scales
+		L1 = L1.multiply(scale_1i)			# apply inner tangent scale
+		p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
+		L3 = L3.multiply(scale_2i)			# apply inner tangent scale
+		p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
+		# prepare curve
+		poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
+		weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
+		WeightedPoles_6_i = [[poles[0],weights[0]],
+							[poles[1],weights[1]],
+							[poles[2],weights[2]],
+							[poles[3],weights[3]],
+							[poles[4],weights[4]],
+							[poles[5],weights[5]]]
+		# check both end curvatures
+		dCds6_0i = Cubic_6P_dCds(WeightedPoles_6_i[0],
+								WeightedPoles_6_i[1],
+								WeightedPoles_6_i[2],
+								WeightedPoles_6_i[3],
+								WeightedPoles_6_i[4],
+								WeightedPoles_6_i[5])
+		print "dCds6_0i", dCds6_0i
+		dCds6_1i = Cubic_6P_dCds(WeightedPoles_6_i[5],
+								WeightedPoles_6_i[4],
+								WeightedPoles_6_i[3],
+								WeightedPoles_6_i[2],
+								WeightedPoles_6_i[1],
+								WeightedPoles_6_i[0])
+		print "dCds6_1i", dCds6_1i
+		loop_count=loop_count + 1
+	return [poles,weights,scale_1,scale_2]
+			
 def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	l1 = p1 - p0
 	l2 = p2 - p1
@@ -311,49 +579,11 @@ def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	p3 = p0 - (p1-p0) * tanRatio
 	p4 = p3 + h4
 	
-	matchSet = [ p3, p4]
+	matchSet = [p3, p4]
 	
 	return matchSet
 	
 ## direct functions currently unused in the Classes / unavailable through the Silk FreeCAD workbench (they are kept here because they were successfully used in the pre-parametric version of the tools):
-	
-def Cubic_Bezier_ddu(pole1, pole2):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
-	P1=Base.Vector(pole1)
-	P2=Base.Vector(pole2)
-	Cubic_Bezier_ddu = (P2 - P1)*3
-	return Cubic_Bezier_ddu
-
-def Cubic_6P_ddu(pole1, pole2):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
-	P1=Base.Vector(pole1)
-	P2=Base.Vector(pole2)
-	Cubic_6P_ddu = (P2 - P1)*9
-	return Cubic_6P_ddu
-
-def Cubic_Bezier_d2du2(pole1, pole2, pole3): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
-	P1=Base.Vector(pole1)
-	P2=Base.Vector(pole2)
-	P3=Base.Vector(pole3)	
-	Cubic_Bezier_d2du2 = (P1- P2*2 + P3)*6
-	return Cubic_Bezier_d2du2
-
-def Cubic_6P_d2du2(pole1, pole2, pole3): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
-	P1=Base.Vector(pole1)
-	P2=Base.Vector(pole2)
-	P3=Base.Vector(pole3)	
-	Cubic_6P_d2du2 = (P1*2- P2*3 + P3)*27
-	return Cubic_6P_d2du2
-
-def Cubic_Bezier_curvature(pole1, pole2, pole3): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
-	ddu = Cubic_Bezier_ddu(pole1, pole2)
-	d2du2 = Cubic_Bezier_d2du2(pole1, pole2, pole3)
-	Cubic_Bezier_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
-	return Cubic_Bezier_curvature
-
-def Cubic_6P_curvature(pole1, pole2, pole3): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
-	ddu = Cubic_6P_ddu(pole1, pole2)
-	d2du2 = Cubic_6P_d2du2(pole1, pole2, pole3)
-	Cubic_6P_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
-	return Cubic_6P_curvature
 
 def isect_test(curve, surf, u):		# provides information about a curve point at parameter u as a surface intersection candidate.						
 	test_point = curve.value(u)											# point on curve
@@ -1359,10 +1589,10 @@ class ControlPoly6_FilletBezier:
 		FreeCAD.Console.PrintMessage("\nControlPoly6_FilletBezier class Init\n")
 		obj.addProperty("App::PropertyLink","CubicCurve4_0","ControlPoly6_FilletBezier","First reference Bezier Curve").CubicCurve4_0 = cubiccurve4_0
 		obj.addProperty("App::PropertyLink","CubicCurve4_1","ControlPoly6_FilletBezier","Second reference Bezier Curve").CubicCurve4_1 = cubiccurve4_1
-		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_1 = 2.0
-		obj.addProperty("App::PropertyFloat","Scale_4","ControlPoly6_FilletBezier","Second curve tangent scaling").Scale_4 = 2.0
-		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","First curve inner scaling").Scale_2 = 3.0
-		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_3 = 3.0
+		obj.addProperty("App::PropertyFloat","Scale_0","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_0 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling").Scale_3 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling").Scale_1 = 3.0
+		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_2 = 3.0
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly6_FilletBezier","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly6_FilletBezier","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly6_FilletBezier","Weights").Weights = [1.0,1.0,1.0,1.0]
@@ -1370,132 +1600,38 @@ class ControlPoly6_FilletBezier:
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		CubicCurve6_0=fp.CubicCurve4_0.Shape.Curve.copy() # make copy to keep original selection intact
-		CubicCurve6_0.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
-		CubicCurve6_0.insertKnot(2.0/3.0)
+		poles_0 = fp.CubicCurve4_0.Poly.Poles
+		poles_1 = fp.CubicCurve4_1.Poly.Poles
+		
+		weights_0 = fp.CubicCurve4_0.Poly.Weights
+		weights_1 = fp.CubicCurve4_1.Poly.Weights
+		
+		blend_0 = orient_a_to_b(poles_0,poles_1)
 
-		CubicCurve6_1=fp.CubicCurve4_1.Shape.Curve.copy() # make copy to keep original selection intact
-		CubicCurve6_1.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
-		CubicCurve6_1.insertKnot(2.0/3.0)
-
-		# get all poles and weights
-		poles_0=CubicCurve6_0.getPoles()
-		weights_0=CubicCurve6_0.getWeights()
-		poles_1=CubicCurve6_1.getPoles()
-		weights_1=CubicCurve6_1.getWeights()
-
-		# get all start/end points of the curves to determine how they are connected. 
-		p00 = CubicCurve6_0.StartPoint
-		p01 = CubicCurve6_0.EndPoint
-		p10 = CubicCurve6_1.StartPoint
-		p11 = CubicCurve6_1.EndPoint
-
-		# reorder so control points flow from first curve into second curve. this is analogous to orient_a_to_b()
-		# the 'fillet' CubicCurve6 will be built based on the first three control points of the first curve, 
-		# and the last three control points of the second curve (after they are oriented correctly). 
-		# This allows start and end curvature control.
-
-		corner='none'
-		if equalVectors(p00,p10,0.000001): 
-			p0=[poles_0[5],weights_0[5]]
-			p1=[poles_0[4],weights_0[4]]
-			p2=[poles_0[3],weights_0[3]]
-			p3=[poles_1[3],weights_0[3]]
-			p4=[poles_1[4],weights_0[4]]
-			p5=[poles_1[5],weights_0[5]]
-			corner='p00p10'
+		blend_1_flip = orient_a_to_b(poles_1,poles_0)
+		blend_1 = blend_1_flip[::-1]
 		
-		if equalVectors(p00,p11,0.000001):
-			p0=[poles_0[5],weights_0[5]]
-			p1=[poles_0[4],weights_0[4]]
-			p2=[poles_0[3],weights_0[3]]
-			p3=[poles_1[2],weights_0[2]]
-			p4=[poles_1[1],weights_0[1]]
-			p5=[poles_1[0],weights_0[0]]
-			corner='p00p11'
+		if blend_0[0] != poles_0[0] and blend_0[0] == poles_0[-1]:
+			weights_0=weights_0[::-1]
+		if blend_1[0] != poles_1[0] and blend_1[0] == poles_1[-1]:
+			weights_1=weights_1[::-1]
 		
-		if equalVectors(p01,p10,0.000001):
-			p0=[poles_0[0],weights_0[0]]
-			p1=[poles_0[1],weights_0[1]]
-			p2=[poles_0[2],weights_0[2]]
-			p3=[poles_1[3],weights_0[3]]
-			p4=[poles_1[4],weights_0[4]]
-			p5=[poles_1[5],weights_0[5]]
-			corner='p01p10'
+		scale_0 = fp.Scale_0
+		scale_1 = fp.Scale_1
+		scale_2 = fp.Scale_2
+		scale_3 = fp.Scale_3
 		
-		if equalVectors(p01,p11,0.000001):
-			p0=[poles_0[0],weights_0[0]]
-			p1=[poles_0[1],weights_0[1]]
-			p2=[poles_0[2],weights_0[2]]
-			p3=[poles_1[2],weights_0[2]]
-			p4=[poles_1[1],weights_0[1]]
-			p5=[poles_1[0],weights_0[0]]
-			corner='p01p11'
-
-		# print warning if input curves do not join at a 'corner'		
-		if corner=='none':
-			print 'bezier blend/fillet only works if the curves are connected end to end'
-		#no further error handling is implemented
-
-		# at this stage, these poles are clustered around the curve start and end of the final curve.
-		# They need to get 'spread out' a bit
+		blendG3 = blendG3_poly_2x4_1x6(blend_0, weights_0, blend_1, weights_1, scale_0, scale_1, scale_2, scale_3)
 		
-		#### find start/end curvatures, scale start and end tangents, then reposition innermost control points to maintain curvature. 
-		#### set the height to the tangent, but leave the length along the tangent as numeric input. what to use for a start value?
+		fp.Poles = blendG3[0]
+		fp.Weights = blendG3[1]
 		
-		############## rewrite checkpoint
-		
-		### calculate curvature components
-		## start point
-		l0 = p1[0]-p0[0]					# first control leg
-		tan0=Base.Vector(l0)				# make clean copy
-		tan0.normalize()					# unit tangent direction
-		l1=Base.Vector(tan0)				# make clean copy
-		l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
-		h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
-		## end point
-		l4 = p4[0]-p5[0]					# last control leg
-		tan4=Base.Vector(l4)				# make clean copy
-		tan4.normalize()					# unit tangent direction
-		l3=Base.Vector(tan4)				# make clean copy
-		l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
-		h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
-		
-		### scale first and last control legs
-		L0=Base.Vector(l0)					# make clean copy
-		L0.multiply(fp.Scale_1)				# apply tangent scale
-		p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
-		
-		L4=Base.Vector(l4)					# make clean copy
-		L4.multiply(fp.Scale_4)				# apply tangent scale
-		p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
-		
-		### calc new heights for inner control legs
-		H1 = Base.Vector(h1)				# make clean copy
-		H1.multiply(fp.Scale_1.__pow__(2))		# apply height scale
-		
-		H3 = Base.Vector(h3)				# make clean copy
-		H3.multiply(fp.Scale_4.__pow__(2))		# apply height scale
-		
-		L1 = Base.Vector(l1) 				# make clean copy
-		L1 = L1.multiply(fp.Scale_2)			# apply inner tangent scale
-		p2_scl = [p1[0] + H1 + L1, p2[1]]	# reposition third control point
-				
-		L3 = Base.Vector(l3) 				# make clean copy
-		L3 = L3.multiply(fp.Scale_3)			# apply inner tangent scale
-		p3_scl = [p4[0] + H3 + L3, p3[1]]	# reposition third control point
-		
-		
-		fp.Poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
-		# set the weights. No scaling at this point. No idea what happens if one of the input curve is an arc.
-		# it would probably be a mess, since the curvature formulas above do not incorporate weights yet.
-		fp.Weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
 		# prepare the lines to draw the polyline
-		Leg0=Part.LineSegment(p0[0],p1_scl[0])
-		Leg1=Part.LineSegment(p1_scl[0],p2_scl[0])
-		Leg2=Part.LineSegment(p2_scl[0],p3_scl[0])
-		Leg3=Part.LineSegment(p3_scl[0],p4_scl[0])
-		Leg4=Part.LineSegment(p4_scl[0],p5[0])
+		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
+		Leg1=Part.LineSegment(fp.Poles[1],fp.Poles[2])
+		Leg2=Part.LineSegment(fp.Poles[2],fp.Poles[3])
+		Leg3=Part.LineSegment(fp.Poles[3],fp.Poles[4])
+		Leg4=Part.LineSegment(fp.Poles[4],fp.Poles[5])
 		#set the polygon legs property
 		fp.Legs=[Leg0, Leg1, Leg2, Leg3, Leg4]
 		# define the shape for visualization
