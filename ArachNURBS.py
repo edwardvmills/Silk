@@ -2,8 +2,9 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #    
-#    ArachNURBS is a library of functions and classes to manipulate NURBS curves, surfaces, and the associated control polygons and grids.
-#	 ArachNURBS is built on top FreeCAD's standard NURBS functions.
+#    ArachNURBS is a library of functions and classes to manipulate NURBS
+#    curves, surfaces, and the associated control polygons and grids.
+#    ArachNURBS is built on top FreeCAD's standard NURBS functions.
 #
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -46,13 +47,17 @@ import numpy as np
 #### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS (start around line 364)
 ####
 
-### SECTION 1: DIRECT FUNCTIONS - NO PARAMETRIC LINKING BETWEEN OBJECTS 
+### SECTION 1: DIRECT FUNCTIONS - NO PARAMETRIC LINKING BETWEEN OBJECTS
 ## Bottom up view:
-## poles = 3D points with weights, as [[x,y,z],w], or [x,y,z] (these are leftovers waiting to receive weights). 
-## These are the basic input data for all that follows. They are obtained from the FreeCAD functions .getPoles() and .getWeights()
-## NOTE: Poles in FreeCAD, such as returned by .getPoles(), refer only to xyz coordinates of a control point, THROUGHOUT the following functions, pole means [[x,y,z],w]
-## lists are probably not efficient, but until FreeCAD has fully integrated homogenous coordinates for all NURBS functions, this is easier for me :)
-## right now, the computation of these scripts is ridiculously fast compared to the time taken to generate the surfaces using the FreeCAD Part.BSplineSurface() function
+## poles = 3D points with weights, as [[x,y,z],w], or [x,y,z] (these are leftovers waiting to receive weights).
+## These are the basic input data for all that follows.
+## They are obtained from the FreeCAD functions .getPoles() and .getWeights()
+## NOTE: Poles in FreeCAD, such as returned by .getPoles(), refer only to xyz coordinates of a control point,
+## THROUGHOUT the following functions, pole means [[x,y,z],w]
+## lists are probably not efficient, but until FreeCAD has fully integrated homogenous coordinates
+## for all NURBS functions, this is easier for me :)
+## Right now, the computation of these scripts is ridiculously fast compared
+## to the time taken to generate the surfaces using the FreeCAD Part.BSplineSurface() function
 
 ## direct functions actually used in the Classes / available through the Silk FreeCAD workbench:
 
@@ -78,69 +83,77 @@ def int_2l(la,lb):
 	lax=Part.Line(pa1,pa3)
 	lbx=Part.Line(pb1,pb3)
 	pln=Part.Plane(pa1,pb1,pa2)
-	int_0_1= lax.intersect2d(lbx,pln) #works down to 5.73 degrees between the lines 
+	int_0_1= lax.intersect2d(lbx,pln) # works down to 5.73 degrees between the lines
 	if int_0_1==[]:
 		return 'intersection failed'
-	int_abs_coord=pln.value(int_0_1[0][0],int_0_1[0][1]) 
+	int_abs_coord=pln.value(int_0_1[0][0],int_0_1[0][1])
 	return int_abs_coord
-	
-def orient_a_to_b(polesa,polesb):	# polesa and polesb are lists of poles that share one endpoint. if needed, this function reorders a so that a.end = b.start or b.end. b is never modified
 
-	if equalVectors(polesa[-1],polesb[0],0.000001):  # last point of first curve is first point of second curve
+def orient_a_to_b(polesa,polesb):   # polesa and polesb are lists of poles that share one endpoint.
+                                    # if needed, this function reorders a so that a.end = b.start or b.end. b is never modified
+
+	if equalVectors(polesa[-1],polesb[0],0.000001):     # last point of first curve is first point of second curve
 		# curve 1 is oriented properly
 		return polesa
 	elif equalVectors(polesa[-1],polesb[-1],0.000001):  # last point of first curve is last point of second curve
 		# curve 1 is oriented properly
 		return polesa
-	elif equalVectors(polesa[0],polesb[0],0.000001):  # first point of first curve is first point of second curve
+	elif equalVectors(polesa[0],polesb[0],0.000001):    # first point of first curve is first point of second curve
 		# curve 1 is reversed
 		return polesa[::-1]
-	elif equalVectors(polesa[0],polesb[-1],0.000001):  # first point of first curve is last point of second curve
+	elif equalVectors(polesa[0],polesb[-1],0.000001):   # first point of first curve is last point of second curve
 		# curve 1 is reversed
 		return polesa[::-1]
 	else:
 		print 'curves do not share endpoints'
 		return 0
 
-def Cubic_Bezier_ddu(pole0, pole1):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
+def Cubic_Bezier_ddu(pole0, pole1):          # cubic derivative at curve start (pole1) based on first 
+                                             # two poles (no curve required). Weights not included yet
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
 	Cubic_Bezier_ddu = (P1 - P0)*3
 	return Cubic_Bezier_ddu
 
-def Cubic_6P_ddu(pole0, pole1):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
+def Cubic_6P_ddu(pole0, pole1):              # cubic derivative at curve start (pole1) based on first 
+                                             # two poles (no curve required). Weights not included yet.
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
 	Cubic_6P_ddu = (P1 - P0)*9
 	return Cubic_6P_ddu
 
-def Cubic_Bezier_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
+def Cubic_Bezier_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first 
+                                             # three poles (no curve required). Weights not included yet.
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
 	P2=Base.Vector(pole2)	
 	Cubic_Bezier_d2du2 = (P0- P1*2 + P2)*6
 	return Cubic_Bezier_d2du2
 
-def Cubic_6P_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
+def Cubic_6P_d2du2(pole0, pole1, pole2):     # cubic second derivative at curve start (pole1) based on first
+                                             # three poles (no curve required). Weights not included yet.
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
 	P2=Base.Vector(pole2)	
 	Cubic_6P_d2du2 = (P0*2- P1*3 + P2)*27
 	return Cubic_6P_d2du2
 
-def Cubic_Bezier_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
+def Cubic_Bezier_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three 
+                                                 # poles (no curve required). Weights not included yet.
 	ddu = Cubic_Bezier_ddu(pole0, pole1)
 	d2du2 = Cubic_Bezier_d2du2(pole0, pole1, pole2)
 	Cubic_Bezier_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
 	return Cubic_Bezier_curvature
 
-def Cubic_6P_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
+def Cubic_6P_curvature(pole0, pole1, pole2):     # curvature at curve start (pole1) based on the first three
+                                                 # poles (no curve required). Weights not included yet
 	ddu = Cubic_6P_ddu(pole0, pole1)
 	d2du2 = Cubic_6P_d2du2(pole0, pole1, pole2)
 	Cubic_6P_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
 	return Cubic_6P_curvature
-	
-def Bezier_Cubic_curve(poles):	# pinned cubic rational B spline, 4 control points Part.BSplineCurve(), cubic bezier form
+
+def Bezier_Cubic_curve(poles):      # pinned cubic rational B spline, 4 control points
+                                    # Part.BSplineCurve(), cubic bezier form
 #draws a degree 3 rational bspline from first to last point,
 # second and third act as tangents
 # poles is a list: [[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w]]
@@ -160,7 +173,8 @@ def Bezier_Cubic_curve(poles):	# pinned cubic rational B spline, 4 control point
 		i=i+1;
 	return bs
 
-def Bezier_Bicubic_surf(grid_44):	# given a 4 x 4 control grid, build the bicubic bezier surface from a Part.BSplineSurface() in Bicubic Bezier form
+def Bezier_Bicubic_surf(grid_44):   # given a 4 x 4 control grid, build the bicubic bezier
+                                    # surface from a Part.BSplineSurface() in Bicubic Bezier form
 	# len(knot_u) := nNodes_u + degree_u + 1
 	# len(knot_v) := nNodes_v + degree_v + 1
 	degree_u=3
@@ -183,8 +197,9 @@ def Bezier_Bicubic_surf(grid_44):	# given a 4 x 4 control grid, build the bicubi
 			Bezier_Bicubic_surf.setPole(ii+1,jj+1,grid_44[i][0], grid_44[i][1]);
 			i=i+1;
 	return Bezier_Bicubic_surf
-	
-def NURBS_Cubic_6P_curve(poles): 	# pinned cubic rational Bspline, 6 control points Part.BSplineCurve(), just enough to have independent endpoint curvature
+
+def NURBS_Cubic_6P_curve(poles):    # pinned cubic rational Bspline, 6 control points
+                                    # Part.BSplineCurve(), just enough to have independent endpoint curvature
 # draws a degree 3 rational bspline from first to last point,
 # second and third act as tangents
 # poles is a list: [[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w]]
@@ -204,7 +219,8 @@ def NURBS_Cubic_6P_curve(poles): 	# pinned cubic rational Bspline, 6 control poi
 		i=i+1;
 	return bs
 
-def NURBS_Cubic_66_surf(grid_66):	# given a 6 x 6 control grid, build the cubic NURBS surface from a Part.BSplineSurface().
+def NURBS_Cubic_66_surf(grid_66):	# given a 6 x 6 control grid, build the cubic
+									# NURBS surface from a Part.BSplineSurface().
 	# len(knot_u) := nNodes_u + degree_u + 1
 	# len(knot_v) := nNodes_v + degree_v + 1
 	degree_u=3
@@ -228,7 +244,8 @@ def NURBS_Cubic_66_surf(grid_66):	# given a 6 x 6 control grid, build the cubic 
 			i=i+1;
 	return  NURBS_Cubic_66_surf
 
-def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic NURBS surface from a Part.BSplineSurface().
+def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic
+									# NURBS surface from a Part.BSplineSurface().
 	# len(knot_u) := nNodes_u + degree_u + 1
 	# len(knot_v) := nNodes_v + degree_v + 1
 	degree_u=3
@@ -332,7 +349,8 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	
 	return [poles,weights]
 
-def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic bezier curve defined by the given poles
+def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of change of curvature per unit length (chord) 
+                                                    # at the beginning of a cubic bezier curve defined by the given poles
 	# calculate start point curvature directly from poles
 	C0 = Cubic_Bezier_curvature(pole0[0], pole1[0], pole2[0])
 		
@@ -385,7 +403,8 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of chang
 		dCds = dCds_seg	
 	return dCds
 
-def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic 6P curve defined by the given poles
+def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the rate of change of curvature per unit length (chord)
+                                                                # at the beginning of a cubic 6P curve defined by the given poles
 	# calculate start point curvature directly from poles.
 	C0 = Cubic_6P_curvature(pole0[0], pole1[0], pole2[0])
 		
@@ -1945,10 +1964,12 @@ class CubicSurface_64:
 # this will be annoying to rewrite.	
 #
 # 12/20/2017 migrating to FreeCAD 0.17.12847 found grid rotation bug:
-# ControlGrid64_2Grid44, was working for all input pairs on 0.17.11699, but now rotating input grids in the class causes bad output. still ok when no rotations are required	
-		
-#### surface derived objects (+surf to input)		
-		
+# ControlGrid64_2Grid44, was working for all input pairs on 0.17.11699, 
+# but now rotating input grids in the class causes bad output. 
+# still ok when no rotations are required
+
+#### surface derived objects (+surf to input)
+
 class ControlGrid44_EdgeSegment:
 	def __init__(self, obj , NL_Surface, NL_Curve):
 		''' Add the properties '''
