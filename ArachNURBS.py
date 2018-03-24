@@ -341,7 +341,7 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of chang
 	# setup refinement loop
 	t_seg = 0.05	# initial segmentation value
 	segment_degen = 'false'
-	tol= 0.001
+	tol= 0.01
 	error = 1.0
 	loop_count = 0
 	dCds_last = 'not_ready'
@@ -350,8 +350,8 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of chang
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
-		if math.fabs((C0_seg - C0)/C0) > tol:
-			segment_degen == 'true'
+		if C0 == 0.0 or math.fabs((C0_seg - C0)/C0) > tol:
+			segment_degen = 'true'
 			print 'segmentation has collapsed the curve'
 			print 'C0', C0, 'C0_check', C0_seg
 			print 'Cubic_Bezier_dCds step ', loopcount
@@ -384,7 +384,7 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rat
 	# setup refinement loop
 	t_seg = 0.05	# initial segmentation value
 	segment_degen = 'false'
-	tol= 0.001
+	tol= 0.01
 	error = 1.0
 	loop_count = 0
 	dCds_last = 'not_ready'
@@ -395,8 +395,8 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rat
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
-		if math.fabs((C0_seg - C0)/C0) > tol:
-			segment_degen == 'true'
+		if C0 == 0.0 or math.fabs((C0_seg - C0)/C0) > tol:
+			segment_degen = 'true'
 			print 'segmentation has collapsed the curve'
 			print 'C0', C0
 			print 'C0_check', C0_seg
@@ -519,25 +519,31 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	H3 = Base.Vector(h3)				# make clean copy
 	H3.multiply(scale_3.__pow__(2))		# apply height scale
 
-	L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
-	L3 = p4_scl[0] - p5[0]				# rescale to new tangent (scale_3 already applied)
-	
+
+	# search loop initial parameters
 	scale_1i = 1.0
 	scale_2i = 1.0
-	
-	#instead of plugging in scale_1 and scale_2, we need to march them from 'scale_xi' up/down while checking dCds until they match at both ends
-	tol= 0.00000001
 	error = 1.0
+	step_size = 0.5
+	dir_0_prev = 0.0
+	dir_1_prev = 0.0
+	nudge_prev = 'none'
+	step_stage_complete = 0
 	loop_count = 0
-	while (error > tol  and loop_count < 1 ):
+	tol= 0.01
+	while (error > tol  and loop_count < 50 ):
+		# reset for next iteration
+		L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
+		L3 = p4_scl[0] - p5[0]				# rescale to new tangent (scale_3 already applied)
 		# apply scales
 		L1 = L1.multiply(scale_1i)			# apply inner tangent scale
 		p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
 		L3 = L3.multiply(scale_2i)			# apply inner tangent scale
 		p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
-		# prepare curve
+		# prepare poles and weights function output
 		poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
 		weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
+		# prepare weighted poles for curvature analysis
 		WeightedPoles_6_i = [[poles[0],weights[0]],
 							[poles[1],weights[1]],
 							[poles[2],weights[2]],
@@ -551,14 +557,55 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 								WeightedPoles_6_i[3],
 								WeightedPoles_6_i[4],
 								WeightedPoles_6_i[5])
-		print "dCds6_0i", dCds6_0i
+		
 		dCds6_1i = Cubic_6P_dCds(WeightedPoles_6_i[5],
 								WeightedPoles_6_i[4],
 								WeightedPoles_6_i[3],
 								WeightedPoles_6_i[2],
 								WeightedPoles_6_i[1],
 								WeightedPoles_6_i[0])
-		print "dCds6_1i", dCds6_1i
+
+		# do G3 seeking stuff
+		error_0 = (dCds6_0i - dCds0) / math.fabs(dCds0)
+		error_1 = (dCds6_1i - dCds1) / math.fabs(dCds1)
+		error = math.fabs(error_0) + math.fabs(error_1)
+		# determine the required direction for each endpoint.
+		if error_0 > tol:
+			direction_0 = 1.0
+		elif error_0 < -tol:
+			direction_0 = -1.0
+		else:
+			direction_0 = 0.0
+		if error_1 > tol:
+			direction_1 = 1.0
+		elif error_1 < -tol:
+			direction_1 = -1.0
+		else:
+			direction_1 = 0.0
+		# plan the next action
+		if 	math.fabs(error_0) >= math.fabs(error_1):
+			nudge = 0
+			dir = direction_0
+		elif 	math.fabs(error_0) < math.fabs(error_1):
+			nudge = 1
+			dir = direction_1
+		# compare the next planned action to the last executed action
+		if nudge == nudge_prev and dir != dir_prev:
+			# if we are undoing the previous action, reduce step size
+			step_size = step_size / 2.0
+			step_stage_complete = 0
+		# execute planned action
+		if 	math.fabs(error_0) >= math.fabs(error_1):
+			scale_1i = scale_1i + direction_0 * step_size
+			dir_prev = direction_0
+			nudge_prev = 0
+		elif 	math.fabs(error_0) < math.fabs(error_1):
+			scale_2i = scale_2i + direction_1 * step_size
+			dir_prev = direction_1
+			nudge_prev = 1
+		# G3 loop message
+		print loop_count, " : ", "[", scale_1i, " , ", scale_2i, "] [", dCds6_0i, " , ", dCds6_1i, "] [", error_0, " , ", error_1, "]    ", nudge_prev, " "
+		#print loop_count, " : ",  " [", dCds6_0i, " , ", dCds6_1i, "]    ", error
 		loop_count=loop_count + 1
 	return [poles,weights,scale_1,scale_2]
 			
@@ -4143,3 +4190,4 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 
 
 # 
+
