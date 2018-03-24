@@ -1989,7 +1989,7 @@ class ControlGrid44_EdgeSegment:
 		curve=fp.NL_Curve.Shape.Curve
 		p0 = curve.StartPoint
 		p1 = curve.EndPoint
-		# determine u or v segmentation and get parameter span fron cutting points
+		# determine u or v segmentation and get parameter span from cutting points
 		param0=surface.parameter(p0)
 		print 'param0: ', param0
 		param1=surface.parameter(p1)
@@ -2017,7 +2017,7 @@ class ControlGrid44_EdgeSegment:
 			t1=1
 
 		# create surface segment. this works very nicely most of the time, but! 
-		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instad of a whole grid.
+		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instead of a whole grid.
 
 		print 'sgdir: ', segdir 
 		print 't0 ', t0
@@ -2111,7 +2111,7 @@ class ControlGrid44_2EdgeSegments:
 		b1 = curve_b.EndPoint
 
 
-		# determine u or v segmentation and get parameter span fron cutting points for curve a
+		# determine u or v segmentation and get parameter span from cutting points for curve a
 		param_a0=surface.parameter(a0)
 		#print 'param_a0: ', param_a0
 		param_a1=surface.parameter(a1)
@@ -2138,7 +2138,7 @@ class ControlGrid44_2EdgeSegments:
 		if s1>1:
 			s1=1
 
-		# determine u or v segmentation and get parameter span fron cutting points for curve b
+		# determine u or v segmentation and get parameter span from cutting points for curve b
 		param_b0=surface.parameter(b0)
 		#print 'param_b0: ', param_b0
 		param_b1=surface.parameter(b1)
@@ -2167,7 +2167,7 @@ class ControlGrid44_2EdgeSegments:
 
 
 		# create surface segment. this works very nicely most of the time, but! 
-		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instad of a whole grid.
+		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instead of a whole grid.
 
 		if segdira=='u' and segdirb=='v':
 			surface.segment(s0,s1,t0,t1)
@@ -2375,7 +2375,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 
 		#b=Base.Vector(a[0],a[1],a[2])
 
-		# run ControlPoly6_FilletBezier or equivalent internal function on each pair runnning across the seam
+		# run ControlPoly6_FilletBezier or equivalent internal function on each pair running across the seam
 		row_0 = blend_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
 		blend_poles_0 = row_0[0]
 		blend_weights_0 = row_0[1]
@@ -3720,7 +3720,7 @@ class ControlGridNStar66_NSub:
 		Legs_Diag4[0] = Part.LineSegment(fp.StarGrid[Sub_i][22][0],fp.StarGrid[Sub_i][28][0])
 		Legs_Diag4[1] = Part.LineSegment(fp.StarGrid[Sub_i][27][0],fp.StarGrid[Sub_i][28][0])
 
-		# update instance property. direct assigment
+		# update instance property. direct assignment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag4
 		return 0
@@ -3772,7 +3772,7 @@ class ControlGridNStar66_NSub:
 		Legs_Row4[1] = Part.LineSegment(fp.StarGrid[Sub_0_i][28][0],fp.StarGrid[Sub_0_i][29][0])
 		Legs_Row4[2] = Part.LineSegment(fp.StarGrid[Sub_1_i][28][0],fp.StarGrid[Sub_1_i][34][0])
 
-		# update instance property. direct assigment
+		# update instance property. direct assignment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row4
 		return 0
@@ -3803,7 +3803,7 @@ class ControlGridNStar66_NSub:
 		for i in range(N):
 			Legs_Row5.append(Part.LineSegment(fp.StarGrid[i][29][0],fp.StarGrid[i][35][0]))
 
-		# update instance property. direct assigment
+		# update instance property. direct assignment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row5
 
@@ -4093,7 +4093,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		Legs_Diag4[0] = Part.LineSegment(fp.StarGrid[Sub_i][22][0],fp.StarGrid[Sub_i][28][0])
 		Legs_Diag4[1] = Part.LineSegment(fp.StarGrid[Sub_i][27][0],fp.StarGrid[Sub_i][28][0])
 
-		# update instance property. direct assigment
+		# update instance property. direct assignment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag4
 		return 0
@@ -4145,7 +4145,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		Legs_Row4[1] = Part.LineSegment(fp.StarGrid[Sub_0_i][28][0],fp.StarGrid[Sub_0_i][29][0])
 		Legs_Row4[2] = Part.LineSegment(fp.StarGrid[Sub_1_i][28][0],fp.StarGrid[Sub_1_i][34][0])
 
-		# update instance property. direct assigment
+		# update instance property. direct assignment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row4
 		return 0
@@ -4176,7 +4176,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		for i in range(N):
 			Legs_Row5.append(Part.LineSegment(fp.StarGrid[i][29][0],fp.StarGrid[i][35][0]))
 
-		# update instance property. direct assigment
+		# update instance property. direct assignment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row5
 

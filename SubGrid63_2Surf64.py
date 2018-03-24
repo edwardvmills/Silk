@@ -1,7 +1,7 @@
 #    This file is part of Silk
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
-#	
+#
 #    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
 #
 #    Silk is free software: you can redistribute it and/or modify
@@ -32,16 +32,16 @@ class SubGrid63_2Surf64():
 		sel=Gui.Selection.getSelection()
 		Surf_0=Gui.Selection.getSelection()[0] 
 		Surf_1=Gui.Selection.getSelection()[1]
-		
+
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid63_2Surf64")
 		AN.SubGrid63_2Surf64(a,Surf_0,Surf_1)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
 		a.ViewObject.LineColor = (1.00,0.67,0.00)
 		a.ViewObject.PointSize = 2.00
-		a.ViewObject.PointColor = (1.00,1.00,0.00)		
+		a.ViewObject.PointColor = (1.00,1.00,0.00)
 		FreeCAD.ActiveDocument.recompute()
-	
+
 	def GetResources(self):
 		return {'Pixmap' :  path_Silk_icons + '/SubGrid63_2Surf64.svg', 'MenuText': 'SubGrid63_2Surf64', 'ToolTip': 'SubGrid63_2Surf64'}
 
