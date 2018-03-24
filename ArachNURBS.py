@@ -335,6 +335,7 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic bezier curve defined by the given poles
 	# calculate start point curvature directly from poles
 	C0 = Cubic_Bezier_curvature(pole0[0], pole1[0], pole2[0])
+		
 	# prepare cubic bezier object to subdivide
 	Curve = Bezier_Cubic_curve([pole0, pole1, pole2, pole3])
 	
@@ -350,13 +351,22 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of chang
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
-		if C0 == 0.0 or math.fabs((C0_seg - C0)/C0) > tol:
-			segment_degen = 'true'
-			print 'segmentation has collapsed the curve'
-			print 'C0', C0, 'C0_check', C0_seg
-			print 'Cubic_Bezier_dCds step ', loopcount
+		# if the start curvature changes dramatically after segmentation, the new values are invalid
+		# not a valid test when C0 = 0.0 to begin with
+		if C0 != 0.0:
+			if math.fabs((C0_seg - C0)/C0) > tol:
+				segment_degen = 'true'
+				print 'segmentation has collapsed the curve'
+				print 'C0', C0, 'C0_check', C0_seg
+				print 'Cubic_Bezier_dCds step ', loop_count
+		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
+		
+		#if the start curvature and first cut curvature are both 0, then dCds is 0
+		if math.fabs(C0-Cs) <= 0.000001 and loop_count == 0:
+			return 0.0
+		
 		# calculate chord length of current segment
 		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
 		s = S.Length
@@ -378,6 +388,7 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of chang
 def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic 6P curve defined by the given poles
 	# calculate start point curvature directly from poles.
 	C0 = Cubic_6P_curvature(pole0[0], pole1[0], pole2[0])
+		
 	# prepare cubic bezier object to subdivide
 	Curve = NURBS_Cubic_6P_curve([pole0, pole1, pole2, pole3, pole4, pole5])
 	
@@ -395,13 +406,22 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rat
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
-		if C0 == 0.0 or math.fabs((C0_seg - C0)/C0) > tol:
-			segment_degen = 'true'
-			print 'segmentation has collapsed the curve'
-			print 'C0', C0
-			print 'C0_check', C0_seg
+		# if the start curvature changes dramatically after segmentation, the new values are invalid
+		# not a valid test when C0 = 0.0 to begin with
+		if C0 != 0.0:
+			if math.fabs((C0_seg - C0)/C0) > tol:
+				segment_degen = 'true'
+				print 'segmentation has collapsed the curve'
+				print 'C0', C0, 'C0_check', C0_seg
+				print 'Cubic_Bezier_dCds step ', loop_count
+		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
+		
+		#if the start curvature and first cut curvature are both 0, then dCds is 0
+		if math.fabs(C0-Cs) <= 0.000001 and loop_count == 0:
+			return 0.0
+		
 		# calculate chord length of current segment
 		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
 		s = S.Length
@@ -521,8 +541,8 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 
 
 	# search loop initial parameters
-	scale_1i = 1.0
-	scale_2i = 1.0
+	scale_1i = 2.0
+	scale_2i = 2.0
 	error = 1.0
 	step_size = 0.5
 	dir_0_prev = 0.0
@@ -531,7 +551,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	step_stage_complete = 0
 	loop_count = 0
 	tol= 0.01
-	while (error > tol  and loop_count < 50 ):
+	while (error > tol  and loop_count < 200 ):
 		# reset for next iteration
 		L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
 		L3 = p4_scl[0] - p5[0]				# rescale to new tangent (scale_3 already applied)
@@ -566,19 +586,32 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 								WeightedPoles_6_i[0])
 
 		# do G3 seeking stuff
-		error_0 = (dCds6_0i - dCds0) / math.fabs(dCds0)
-		error_1 = (dCds6_1i - dCds1) / math.fabs(dCds1)
+		if dCds0 != 0.0:
+			error_0 = (dCds6_0i - dCds0) / math.fabs(dCds0)
+		elif dCds0 == 0.0:
+			error_0 = (dCds6_0i - dCds0)
+		else:
+			print "dCds0, ", dCds0, "returned from Cubic_6P_dCds()"
+		
+		if dCds1 != 0.0:
+			error_1 = (dCds6_1i - dCds1) / math.fabs(dCds1)
+		elif dCds1 == 0.0:	
+			error_1 = (dCds6_1i - dCds1)
+		else:
+			print "dCds1, ", dCds1, "returned from Cubic_6P_dCds()"
+		
+		error = math.fabs(error_0) + math.fabs(error_1)
 		error = math.fabs(error_0) + math.fabs(error_1)
 		# determine the required direction for each endpoint.
-		if error_0 > tol:
+		if error_0 > tol / 2.0:
 			direction_0 = 1.0
-		elif error_0 < -tol:
+		elif error_0 < -tol / 2.0:
 			direction_0 = -1.0
 		else:
 			direction_0 = 0.0
-		if error_1 > tol:
+		if error_1 > tol / 2.0:
 			direction_1 = 1.0
-		elif error_1 < -tol:
+		elif error_1 < -tol / 2.0:
 			direction_1 = -1.0
 		else:
 			direction_1 = 0.0
@@ -607,7 +640,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		print loop_count, " : ", "[", scale_1i, " , ", scale_2i, "] [", dCds6_0i, " , ", dCds6_1i, "] [", error_0, " , ", error_1, "]    ", nudge_prev, " "
 		#print loop_count, " : ",  " [", dCds6_0i, " , ", dCds6_1i, "]    ", error
 		loop_count=loop_count + 1
-	return [poles,weights,scale_1,scale_2]
+	return [poles,weights,scale_1i,scale_2i]
 			
 def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	l1 = p1 - p0
@@ -1637,9 +1670,11 @@ class ControlPoly6_FilletBezier:
 		obj.addProperty("App::PropertyLink","CubicCurve4_0","ControlPoly6_FilletBezier","First reference Bezier Curve").CubicCurve4_0 = cubiccurve4_0
 		obj.addProperty("App::PropertyLink","CubicCurve4_1","ControlPoly6_FilletBezier","Second reference Bezier Curve").CubicCurve4_1 = cubiccurve4_1
 		obj.addProperty("App::PropertyFloat","Scale_0","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_0 = 2.0
-		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling").Scale_3 = 2.0
-		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling").Scale_1 = 3.0
+		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling READ ONLY").Scale_3 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling READ ONLY").Scale_1 = 3.0
+		obj.setEditorMode("Scale_1", 1)
 		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_2 = 3.0
+		obj.setEditorMode("Scale_2", 1)
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly6_FilletBezier","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly6_FilletBezier","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly6_FilletBezier","Weights").Weights = [1.0,1.0,1.0,1.0]
@@ -1672,6 +1707,8 @@ class ControlPoly6_FilletBezier:
 		
 		fp.Poles = blendG3[0]
 		fp.Weights = blendG3[1]
+		fp.Scale_1 = blendG3[2]
+		fp.Scale_2 = blendG3[3]
 		
 		# prepare the lines to draw the polyline
 		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
