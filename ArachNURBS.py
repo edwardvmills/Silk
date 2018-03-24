@@ -2,8 +2,9 @@
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
 #    
-#    ArachNURBS is a library of functions and classes to manipulate NURBS curves, surfaces, and the associated control polygons and grids.
-#	 ArachNURBS is built on top FreeCAD's standard NURBS functions.
+#    ArachNURBS is a library of functions and classes to manipulate NURBS
+#    curves, surfaces, and the associated control polygons and grids.
+#    ArachNURBS is built on top FreeCAD's standard NURBS functions.
 #
 #
 #    This program is free software: you can redistribute it and/or modify
@@ -46,13 +47,17 @@ import numpy as np
 #### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS (start around line 364)
 ####
 
-### SECTION 1: DIRECT FUNCTIONS - NO PARAMETRIC LINKING BETWEEN OBJECTS 
+### SECTION 1: DIRECT FUNCTIONS - NO PARAMETRIC LINKING BETWEEN OBJECTS
 ## Bottom up view:
-## poles = 3D points with weights, as [[x,y,z],w], or [x,y,z] (these are leftovers waiting to receive weights). 
-## These are the basic input data for all that follows. They are obtained from the FreeCAD functions .getPoles() and .getWeights()
-## NOTE: Poles in FreeCAD, such as returned by .getPoles(), refer only to xyz coordinates of a control point, THROUGHOUT the following functions, pole means [[x,y,z],w]
-## lists are probably not efficient, but until FreeCAD has fully integrated homogenous coordinates for all NURBS functions, this is easier for me :)
-## right now, the computation of these scripts is ridiculously fast compared to the time taken to generate the surfaces using the FreeCAD Part.BSplineSurface() function
+## poles = 3D points with weights, as [[x,y,z],w], or [x,y,z] (these are leftovers waiting to receive weights).
+## These are the basic input data for all that follows.
+## They are obtained from the FreeCAD functions .getPoles() and .getWeights()
+## NOTE: Poles in FreeCAD, such as returned by .getPoles(), refer only to xyz coordinates of a control point,
+## THROUGHOUT the following functions, pole means [[x,y,z],w]
+## lists are probably not efficient, but until FreeCAD has fully integrated homogenous coordinates
+## for all NURBS functions, this is easier for me :)
+## Right now, the computation of these scripts is ridiculously fast compared
+## to the time taken to generate the surfaces using the FreeCAD Part.BSplineSurface() function
 
 ## direct functions actually used in the Classes / available through the Silk FreeCAD workbench:
 
@@ -61,7 +66,7 @@ def equalVectors(vector0,vector1,tol):	# 3D point equality test
 		return 1
 	elif (vector1-vector0).Length <= tol:
 		return 0
-		
+
 def int_2l(la,lb):
 	pa1=la.StartPoint
 	pa2=la.EndPoint
@@ -78,69 +83,77 @@ def int_2l(la,lb):
 	lax=Part.Line(pa1,pa3)
 	lbx=Part.Line(pb1,pb3)
 	pln=Part.Plane(pa1,pb1,pa2)
-	int_0_1= lax.intersect2d(lbx,pln) #works down to 5.73 degrees between the lines 
+	int_0_1= lax.intersect2d(lbx,pln) # works down to 5.73 degrees between the lines
 	if int_0_1==[]:
 		return 'intersection failed'
-	int_abs_coord=pln.value(int_0_1[0][0],int_0_1[0][1]) 
+	int_abs_coord=pln.value(int_0_1[0][0],int_0_1[0][1])
 	return int_abs_coord
-	
-def orient_a_to_b(polesa,polesb):	# polesa and polesb are lists of poles that share one endpoint. if needed, this function reorders a so that a.end = b.start or b.end. b is never modified
 
-	if equalVectors(polesa[-1],polesb[0],0.000001):  # last point of first curve is first point of second curve
+def orient_a_to_b(polesa,polesb):   # polesa and polesb are lists of poles that share one endpoint.
+                                    # if needed, this function reorders a so that a.end = b.start or b.end. b is never modified
+
+	if equalVectors(polesa[-1],polesb[0],0.000001):     # last point of first curve is first point of second curve
 		# curve 1 is oriented properly
 		return polesa
 	elif equalVectors(polesa[-1],polesb[-1],0.000001):  # last point of first curve is last point of second curve
 		# curve 1 is oriented properly
 		return polesa
-	elif equalVectors(polesa[0],polesb[0],0.000001):  # first point of first curve is first point of second curve
+	elif equalVectors(polesa[0],polesb[0],0.000001):    # first point of first curve is first point of second curve
 		# curve 1 is reversed
 		return polesa[::-1]
-	elif equalVectors(polesa[0],polesb[-1],0.000001):  # first point of first curve is last point of second curve
+	elif equalVectors(polesa[0],polesb[-1],0.000001):   # first point of first curve is last point of second curve
 		# curve 1 is reversed
 		return polesa[::-1]
 	else:
 		print 'curves do not share endpoints'
 		return 0
 
-def Cubic_Bezier_ddu(pole0, pole1):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
+def Cubic_Bezier_ddu(pole0, pole1):          # cubic derivative at curve start (pole1) based on first 
+                                             # two poles (no curve required). Weights not included yet
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
 	Cubic_Bezier_ddu = (P1 - P0)*3
 	return Cubic_Bezier_ddu
 
-def Cubic_6P_ddu(pole0, pole1):   # cubic derivative at curve start (pole1) based on first two poles (no curve required). Weights not included yet
+def Cubic_6P_ddu(pole0, pole1):              # cubic derivative at curve start (pole1) based on first 
+                                             # two poles (no curve required). Weights not included yet.
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
 	Cubic_6P_ddu = (P1 - P0)*9
 	return Cubic_6P_ddu
 
-def Cubic_Bezier_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
+def Cubic_Bezier_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first 
+                                             # three poles (no curve required). Weights not included yet.
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
-	P2=Base.Vector(pole2)	
+	P2=Base.Vector(pole2)
 	Cubic_Bezier_d2du2 = (P0- P1*2 + P2)*6
 	return Cubic_Bezier_d2du2
 
-def Cubic_6P_d2du2(pole0, pole1, pole2): # cubic second derivative at curve start (pole1) based on first three poles (no curve required). Weights not included yet
+def Cubic_6P_d2du2(pole0, pole1, pole2):     # cubic second derivative at curve start (pole1) based on first
+                                             # three poles (no curve required). Weights not included yet.
 	P0=Base.Vector(pole0)
 	P1=Base.Vector(pole1)
-	P2=Base.Vector(pole2)	
+	P2=Base.Vector(pole2)
 	Cubic_6P_d2du2 = (P0*2- P1*3 + P2)*27
 	return Cubic_6P_d2du2
 
-def Cubic_Bezier_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
+def Cubic_Bezier_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three 
+                                                 # poles (no curve required). Weights not included yet.
 	ddu = Cubic_Bezier_ddu(pole0, pole1)
 	d2du2 = Cubic_Bezier_d2du2(pole0, pole1, pole2)
 	Cubic_Bezier_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
 	return Cubic_Bezier_curvature
 
-def Cubic_6P_curvature(pole0, pole1, pole2): # curvature at curve start (pole1) based on the first three poles (no curve required). Weights not included yet
+def Cubic_6P_curvature(pole0, pole1, pole2):     # curvature at curve start (pole1) based on the first three
+                                                 # poles (no curve required). Weights not included yet
 	ddu = Cubic_6P_ddu(pole0, pole1)
 	d2du2 = Cubic_6P_d2du2(pole0, pole1, pole2)
 	Cubic_6P_curvature = ddu.cross(d2du2).Length/ddu.Length.__pow__(3)
 	return Cubic_6P_curvature
-	
-def Bezier_Cubic_curve(poles):	# pinned cubic rational B spline, 4 control points Part.BSplineCurve(), cubic bezier form
+
+def Bezier_Cubic_curve(poles):      # pinned cubic rational B spline, 4 control points
+                                    # Part.BSplineCurve(), cubic bezier form
 #draws a degree 3 rational bspline from first to last point,
 # second and third act as tangents
 # poles is a list: [[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w]]
@@ -160,7 +173,8 @@ def Bezier_Cubic_curve(poles):	# pinned cubic rational B spline, 4 control point
 		i=i+1;
 	return bs
 
-def Bezier_Bicubic_surf(grid_44):	# given a 4 x 4 control grid, build the bicubic bezier surface from a Part.BSplineSurface() in Bicubic Bezier form
+def Bezier_Bicubic_surf(grid_44):   # given a 4 x 4 control grid, build the bicubic bezier
+                                    # surface from a Part.BSplineSurface() in Bicubic Bezier form
 	# len(knot_u) := nNodes_u + degree_u + 1
 	# len(knot_v) := nNodes_v + degree_v + 1
 	degree_u=3
@@ -183,8 +197,9 @@ def Bezier_Bicubic_surf(grid_44):	# given a 4 x 4 control grid, build the bicubi
 			Bezier_Bicubic_surf.setPole(ii+1,jj+1,grid_44[i][0], grid_44[i][1]);
 			i=i+1;
 	return Bezier_Bicubic_surf
-	
-def NURBS_Cubic_6P_curve(poles): 	# pinned cubic rational Bspline, 6 control points Part.BSplineCurve(), just enough to have independent endpoint curvature
+
+def NURBS_Cubic_6P_curve(poles):    # pinned cubic rational Bspline, 6 control points
+                                    # Part.BSplineCurve(), just enough to have independent endpoint curvature
 # draws a degree 3 rational bspline from first to last point,
 # second and third act as tangents
 # poles is a list: [[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w],[[x,y,z],w]]
@@ -204,7 +219,8 @@ def NURBS_Cubic_6P_curve(poles): 	# pinned cubic rational Bspline, 6 control poi
 		i=i+1;
 	return bs
 
-def NURBS_Cubic_66_surf(grid_66):	# given a 6 x 6 control grid, build the cubic NURBS surface from a Part.BSplineSurface().
+def NURBS_Cubic_66_surf(grid_66):	# given a 6 x 6 control grid, build the cubic
+									# NURBS surface from a Part.BSplineSurface().
 	# len(knot_u) := nNodes_u + degree_u + 1
 	# len(knot_v) := nNodes_v + degree_v + 1
 	degree_u=3
@@ -228,7 +244,8 @@ def NURBS_Cubic_66_surf(grid_66):	# given a 6 x 6 control grid, build the cubic 
 			i=i+1;
 	return  NURBS_Cubic_66_surf
 
-def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic NURBS surface from a Part.BSplineSurface().
+def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic
+									# NURBS surface from a Part.BSplineSurface().
 	# len(knot_u) := nNodes_u + degree_u + 1
 	# len(knot_v) := nNodes_v + degree_v + 1
 	degree_u=3
@@ -258,19 +275,19 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	CubicCurve6_0=CubicCurve4_0
 	CubicCurve6_0.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
 	CubicCurve6_0.insertKnot(2.0/3.0)
-	
+
 	WeightedPoles_1=[[poles_1[0],weights_1[0]], [poles_1[1],weights_1[1]], [poles_1[2],weights_1[2]], [poles_1[3],weights_1[3]]]
 	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) # checked good BSplineSurface object.
 	CubicCurve6_1=CubicCurve4_1
 	CubicCurve6_1.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
-	CubicCurve6_1.insertKnot(2.0/3.0)	
-	
+	CubicCurve6_1.insertKnot(2.0/3.0)
+
 	poles_6_0=CubicCurve6_0.getPoles()
 	weights_6_0=CubicCurve6_0.getWeights()
-	
+
 	poles_6_1=CubicCurve6_1.getPoles()
 	weights_6_1=CubicCurve6_1.getWeights()
-	
+
 	p0=[poles_6_0[0],weights_6_0[0]]
 	p1=[poles_6_0[1],weights_6_0[1]]
 	p2=[poles_6_0[2],weights_6_0[2]]
@@ -278,8 +295,8 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	p4=[poles_6_1[4],weights_6_0[4]] ###
 	p5=[poles_6_1[5],weights_6_0[5]] ###
 	corner='p01p10'
-	
-			
+
+
 	### calculate curvature components
 	## start point
 	l0 = p1[0]-p0[0]					# first control leg
@@ -295,50 +312,51 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	l3=Base.Vector(tan4)				# make clean copy
 	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
 	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
-		
+
 	### scale first and last control legs
 	L0=Base.Vector(l0)					# make clean copy
 	L0.multiply(scale_0)				# apply tangent scale
 	p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
-		
+
 	L4=Base.Vector(l4)					# make clean copy
 	L4.multiply(scale_3)				# apply tangent scale
 	p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
-		
+
 	### calc new heights for inner control legs
 	H1 = Base.Vector(h1)				# make clean copy
 	H1.multiply(scale_0.__pow__(2))		# apply height scale
-		
+
 	H3 = Base.Vector(h3)				# make clean copy
 	H3.multiply(scale_3.__pow__(2))		# apply height scale
-		
+
 	L1 = Base.Vector(l1) 				# make clean copy
 	L1 = L1.multiply(scale_1)			# apply inner tangent scale
 	p2_scl = [p1[0] + H1 + L1, p2[1]]	# reposition third control point
-				
+
 	L3 = Base.Vector(l3) 				# make clean copy
 	L3 = L3.multiply(scale_2)			# apply inner tangent scale
 	p3_scl = [p4[0] + H3 + L3, p3[1]]	# reposition third control point
-		
-		
+
+
 	poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
 	# set the weights. No scaling at this point. No idea what happens if one of the input curve is an arc.
 	# it would probably be a mess, since the curvature formulas above do not incorporate weights yet.
 	weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
-	
+
 	WeightedPoles= [[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]], [poles[4],weights[4]], [poles[5],weights[5]]]
-	
+
 	current_test = NURBS_Cubic_6P_curve(WeightedPoles)
-	
+
 	return [poles,weights]
 
-def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic bezier curve defined by the given poles
+def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of change of curvature per unit length (chord) 
+                                                    # at the beginning of a cubic bezier curve defined by the given poles
 	# calculate start point curvature directly from poles
 	C0 = Cubic_Bezier_curvature(pole0[0], pole1[0], pole2[0])
 		
 	# prepare cubic bezier object to subdivide
 	Curve = Bezier_Cubic_curve([pole0, pole1, pole2, pole3])
-	
+
 	# setup refinement loop
 	t_seg = 0.05	# initial segmentation value
 	segment_degen = 'false'
@@ -382,16 +400,17 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):	# calculate the rate of chang
 		# print 'no dCds found within ', tol
 		dCds = 'NONE'
 	else:
-		dCds = dCds_seg	
+		dCds = dCds_seg
 	return dCds
 
-def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rate of change of curvature per unit length (chord) at the beginning of a cubic 6P curve defined by the given poles
+def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the rate of change of curvature per unit length (chord)
+                                                                # at the beginning of a cubic 6P curve defined by the given poles
 	# calculate start point curvature directly from poles.
 	C0 = Cubic_6P_curvature(pole0[0], pole1[0], pole2[0])
 		
 	# prepare cubic bezier object to subdivide
 	Curve = NURBS_Cubic_6P_curve([pole0, pole1, pole2, pole3, pole4, pole5])
-	
+
 	# setup refinement loop
 	t_seg = 0.05	# initial segmentation value
 	segment_degen = 'false'
@@ -437,22 +456,22 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):	# calculate the rat
 		#print 'no dCds found within ', tol
 		dCds = 'NONE'
 	else:
-		dCds = dCds_seg	
+		dCds = dCds_seg
 	return dCds
-	
+
 def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
 	# IN PROGRESS - starting with a copy of blend_poly_2x4_1x6
 	# step1: clean up the source function
 	# step2: make the inner scaling clearer in the context of the blend poly. right now it is applied to the 6P version of the original polys
 	# step3: determine target dC/ds at each end (write external function to calculate this)
 	# step4: march the inner scales until dC/ds matches at both ends
-	
+
 	# rebuild both bezier inputs from the poles and weights
 	WeightedPoles_0=[[poles_0[0],weights_0[0]], [poles_0[1],weights_0[1]], [poles_0[2],weights_0[2]], [poles_0[3],weights_0[3]]]
 	CubicCurve4_0= Bezier_Cubic_curve(WeightedPoles_0) 
 	WeightedPoles_1=[[poles_1[0],weights_1[0]], [poles_1[1],weights_1[1]], [poles_1[2],weights_1[2]], [poles_1[3],weights_1[3]]]
-	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) 	
-	
+	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) 
+
 	# set end point dC/ds targets
 	dCds0 = Cubic_Bezier_dCds(WeightedPoles_0[0], WeightedPoles_0[1], WeightedPoles_0[2], WeightedPoles_0[3])
 	dCds1 = Cubic_Bezier_dCds(WeightedPoles_1[3], WeightedPoles_1[2], WeightedPoles_1[1], WeightedPoles_1[0])
@@ -464,14 +483,14 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	CubicCurve6_0.insertKnot(2.0/3.0)
 	CubicCurve6_1=CubicCurve4_1
 	CubicCurve6_1.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
-	CubicCurve6_1.insertKnot(2.0/3.0)	
-	
+	CubicCurve6_1.insertKnot(2.0/3.0)
+
 	# extract poles and weights from 6Ps
 	poles_6_0=CubicCurve6_0.getPoles()
 	weights_6_0=CubicCurve6_0.getWeights()
 	poles_6_1=CubicCurve6_1.getPoles()
 	weights_6_1=CubicCurve6_1.getWeights()
-	
+
 	# check Cubic_6P_dCds
 	WeightedPoles_6_0=[[poles_6_0[0],weights_6_0[0]],
 						[poles_6_0[1],weights_6_0[1]],
@@ -479,30 +498,30 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 						[poles_6_0[3],weights_6_0[3]],
 						[poles_6_0[4],weights_6_0[4]],
 						[poles_6_0[5],weights_6_0[5]]]
-						
+
 	dCds6_0 = Cubic_6P_dCds(WeightedPoles_6_0[0],
 							WeightedPoles_6_0[1],
 							WeightedPoles_6_0[2],
 							WeightedPoles_6_0[3],
 							WeightedPoles_6_0[4],
 							WeightedPoles_6_0[5])
-							
+
 	WeightedPoles_6_1=[[poles_6_1[0],weights_6_1[0]],
 						[poles_6_1[1],weights_6_1[1]],
 						[poles_6_1[2],weights_6_1[2]],
 						[poles_6_1[3],weights_6_1[3]],
 						[poles_6_1[4],weights_6_1[4]],
 						[poles_6_1[5],weights_6_1[5]]]
-	
+
 	dCds6_1 = Cubic_6P_dCds(WeightedPoles_6_1[5],
 							WeightedPoles_6_1[4],
 							WeightedPoles_6_1[3],
 							WeightedPoles_6_1[2],
 							WeightedPoles_6_1[1],
-							WeightedPoles_6_1[0])	
-	
+							WeightedPoles_6_1[0])
+
 	print "dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1
-	
+
 	# compile the blend poly. this initial form is G2, but clumped towards the outer points.
 	p0=[poles_6_0[0],weights_6_0[0]]
 	p1=[poles_6_0[1],weights_6_0[1]]
@@ -510,7 +529,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	p3=[poles_6_1[3],weights_6_1[3]]
 	p4=[poles_6_1[4],weights_6_1[4]]
 	p5=[poles_6_1[5],weights_6_1[5]]
-		
+
 	### calculate curvature components
 	## start point
 	l0 = p1[0]-p0[0]					# first control leg
@@ -525,7 +544,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	tan4.normalize()					# unit tangent direction
 	l3=Base.Vector(tan4)				# make clean copy
 	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
-	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent	
+	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
 	### scale first and last control legs
 	L0=Base.Vector(l0)					# make clean copy
 	L0.multiply(scale_0)				# apply tangent scale
@@ -577,7 +596,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 								WeightedPoles_6_i[3],
 								WeightedPoles_6_i[4],
 								WeightedPoles_6_i[5])
-		
+
 		dCds6_1i = Cubic_6P_dCds(WeightedPoles_6_i[5],
 								WeightedPoles_6_i[4],
 								WeightedPoles_6_i[3],
@@ -647,7 +666,7 @@ def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	l2 = p2 - p1
 
 	h4_scalar = (l1.cross(l2)).Length*tanRatio.__pow__(2)/l1.Length
-	
+
 	test0 = ((l1.cross(l2)).cross(l1))
 	test1 = equalVectors(test0, Base.Vector(0,0,0), .000001)
 	if test1 == 1:
@@ -655,17 +674,17 @@ def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	else:
 		hn = ((l1.cross(l2)).cross(l1)).normalize() 
 	h4 = hn * h4_scalar
-	
+
 	p3 = p0 - (p1-p0) * tanRatio
 	p4 = p3 + h4
-	
+
 	matchSet = [p3, p4]
-	
+
 	return matchSet
-	
+
 ## direct functions currently unused in the Classes / unavailable through the Silk FreeCAD workbench (they are kept here because they were successfully used in the pre-parametric version of the tools):
 
-def isect_test(curve, surf, u):		# provides information about a curve point at parameter u as a surface intersection candidate.						
+def isect_test(curve, surf, u):		# provides information about a curve point at parameter u as a surface intersection candidate.
 	test_point = curve.value(u)											# point on curve
 	test_proj_param = surf.parameter(test_point)							# parameter of projection of curve point onto surface
 	test_proj = surf.value(test_proj_param[0],test_proj_param[1])			# projection of curve point onto surface
@@ -688,7 +707,7 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 	elif (test_u_direction[3] > 0):								# compare projection path to surface normal: dot product positive
 		direction = -1										# > curve grows 'out of' the surface
 	# initialize error
-	error = 1.0	
+	error = 1.0
 	# set up binary search loop
 	loop_count = 0
 	while (error > tol  and loop_count < 100):
@@ -1013,7 +1032,7 @@ class ControlGrid44_4:	# made from 4 CubicControlPoly4.
 		poles1=fp.Poly0.Poles
 		poles2=fp.Poly1.Poles
 		poles3=fp.Poly2.Poles
-		poles4=fp.Poly3.Poles	
+		poles4=fp.Poly3.Poles
 		weights1=fp.Poly0.Weights
 		weights2=fp.Poly1.Weights
 		weights3=fp.Poly2.Weights
@@ -1021,7 +1040,7 @@ class ControlGrid44_4:	# made from 4 CubicControlPoly4.
 		quad12 = orient_a_to_b(poles1,poles2)
 		quad23 = orient_a_to_b(poles2,poles3)
 		quad34 = orient_a_to_b(poles3,poles4)
-		quad41 = orient_a_to_b(poles4,poles1)	
+		quad41 = orient_a_to_b(poles4,poles1)
 		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
 			weights1=weights1[::-1]
 		if quad23[0]!=poles2[0] and quad23[0]==poles2[-1]:
@@ -1032,7 +1051,7 @@ class ControlGrid44_4:	# made from 4 CubicControlPoly4.
 			weights4=weights4[::-1]
 		p00 = quad12[0]
 		p01 = quad12[1]
-		p02 = quad12[2]	
+		p02 = quad12[2]
 		p03 = quad12[3]
 		p13 = quad23[1]
 		p23 = quad23[2]
@@ -1105,14 +1124,14 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
 		'''Do something when doing a recomputation, this method is mandatory'''
 		poles1=fp.Poly0.Poles
 		poles2=fp.Poly1.Poles
-		poles3=fp.Poly2.Poles	
+		poles3=fp.Poly2.Poles
 		weights1=fp.Poly0.Weights
 		weights2=fp.Poly1.Weights
 		weights3=fp.Poly2.Weights
 		quad12 = orient_a_to_b(poles1,poles2)
 		quad23 = orient_a_to_b(poles2,poles3)
 		quad31 = orient_a_to_b(poles3,poles1)
-	
+
 		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
 			weights1=weights1[::-1]
 		if quad23[0]!=poles2[0] and quad23[0]==poles2[-1]:
@@ -1126,7 +1145,7 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
 
 		p00 = quad12[0]
 		p01 = quad12[1]
-		p02 = quad12[2]	
+		p02 = quad12[2]
 		p03 = quad12[3]
 
 		p13 = quad23[1]
@@ -1171,7 +1190,7 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
 		w12 = w02*w13
 		w21 = w31*w20
 		w22 = w23*w31
-		
+
 
 		fp.Weights = [w00 ,w01, w02, w03,
 					w10, w11, w12, w13,
@@ -1196,7 +1215,7 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid66_4:	# made from 4 CubicControlPoly6.
-	# ControlGrid66_4(poly0, poly1, poly2, poly3)	
+	# ControlGrid66_4(poly0, poly1, poly2, poly3)
 	def __init__(self, obj , poly0, poly1, poly2, poly3):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGrid66_4 class Init\n")
@@ -1214,7 +1233,7 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		poles1=fp.Poly0.Poles
 		poles2=fp.Poly1.Poles
 		poles3=fp.Poly2.Poles
-		poles4=fp.Poly3.Poles	
+		poles4=fp.Poly3.Poles
 		weights1=fp.Poly0.Weights
 		weights2=fp.Poly1.Weights
 		weights3=fp.Poly2.Weights
@@ -1222,7 +1241,7 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		sext12 = orient_a_to_b(poles1,poles2)
 		sext23 = orient_a_to_b(poles2,poles3)
 		sext34 = orient_a_to_b(poles3,poles4)
-		sext41 = orient_a_to_b(poles4,poles1)	
+		sext41 = orient_a_to_b(poles4,poles1)
 		if sext12[0]!=poles1[0] and sext12[0]==poles1[-1]:
 			weights1=weights1[::-1]
 		if sext23[0]!=poles2[0] and sext23[0]==poles2[-1]:
@@ -1233,7 +1252,7 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 			weights4=weights4[::-1]
 		p00 = sext12[0]
 		p01 = sext12[1]
-		p02 = sext12[2]	
+		p02 = sext12[2]
 		p03 = sext12[3]
 		p04 = sext12[4]
 		p05 = sext12[5]
@@ -1256,9 +1275,9 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		p41 = p51 + (p40 - p50)
 		p44 = p45 + (p54 - p55)
 		p12 = p02 + (p10 - p00)
-		p13 = p03 + (p15 - p05)	
+		p13 = p03 + (p15 - p05)
 		p24 = p25 + (p04 - p05)
-		p34 = p35 + (p54 - p55)	
+		p34 = p35 + (p54 - p55)
 		p42 = p52 + (p40 - p50)
 		p43 = p53 + (p45 - p55)
 		p21 = p20 + (p01 - p00)
@@ -1290,7 +1309,7 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		w51 = weights3[4]
 		w50 = weights3[5]
 		w40 = weights4[1]
-		w30 = weights4[2]		
+		w30 = weights4[2]
 		w20 = weights4[3]
 		w10 = weights4[4]
 		# maybe i should average instead of multiply? needs testing.
@@ -1365,7 +1384,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		poles6_0=fp.Poly6_0.Poles
 		poles4_1=fp.Poly4_1.Poles
 		poles6_2=fp.Poly6_2.Poles
-		poles4_3=fp.Poly4_3.Poles	
+		poles4_3=fp.Poly4_3.Poles
 		weights6_0=fp.Poly6_0.Weights
 		weights4_1=fp.Poly4_1.Weights
 		weights6_2=fp.Poly6_2.Weights
@@ -1373,7 +1392,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		sext12 = orient_a_to_b(poles6_0,poles4_1)
 		quad23 = orient_a_to_b(poles4_1,poles6_2)
 		sext34 = orient_a_to_b(poles6_2,poles4_3)
-		quad41 = orient_a_to_b(poles4_3,poles6_0)	
+		quad41 = orient_a_to_b(poles4_3,poles6_0)
 		if sext12[0]!=poles6_0[0] and sext12[0]==poles6_0[-1]:
 			weights6_0=weights6_0[::-1]
 		if quad23[0]!=poles4_1[0] and quad23[0]==poles4_1[-1]:
@@ -1384,7 +1403,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 			weights4_3=weights4_3[::-1]
 		p00 = sext12[0]
 		p01 = sext12[1]
-		p02 = sext12[2]	
+		p02 = sext12[2]
 		p03 = sext12[3]
 		p04 = sext12[4]
 		p05 = sext12[5]
@@ -1403,7 +1422,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		p21 = p31 + (p20 - p30)
 		p24 = p25 + (p34 - p35)
 		p12 = p02 + (p10 - p00)
-		p13 = p03 + (p15 - p05)	
+		p13 = p03 + (p15 - p05)
 		p22 = p32 + (p20 - p30)
 		p23 = p33 + (p25 - p35)
 		fp.Poles = [p00, p01, p02, p03, p04, p05,
@@ -1435,8 +1454,8 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		w13 = w03*w15
 		w14 = w04*w15
 		w21 = w31*w20
-		w22 = w32*w20		
-		w23 = w33*w25		
+		w22 = w32*w20
+		w23 = w33*w25
 		w24 = w34*w25
 		fp.Weights = [w00, w01, w02, w03, w04, w05,
 					w10, w11, w12, w13, w14, w15,
@@ -1497,7 +1516,7 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 
 		p00 = sext12[0]
 		p01 = sext12[1]
-		p02 = sext12[2]	
+		p02 = sext12[2]
 		p03 = sext12[3]
 		p04 = sext12[4]
 		p05 = sext12[5]
@@ -1544,7 +1563,7 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 		w30 = weights4_0[0]
 		w20 = weights4_0[1]
 		w10 = weights4_0[2]
-		
+
 		# maybe i should average instead of multiply? needs testing.
 		# currently based on the idea all weights are between 0 and 1.
 		# previous used cumulative neighbor mulitplication. this drives weights too low.
@@ -1554,8 +1573,8 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 		w13 = w03*w15*0.5
 		w14 = w04*w15*0.5
 		w21 = w31*w20*0.25
-		w22 = w32*w20*0.25		
-		w23 = w33*w25*0.25		
+		w22 = w32*w20*0.25
+		w23 = w33*w25*0.25
 		w24 = w34*w25*0.25
 		fp.Weights = [w00, w01, w02, w03, w04, w05,
 					w10, w11, w12, w13, w14, w15,
@@ -1569,17 +1588,17 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 		Legs[7]=Part.LineSegment(p14,p15)
 		Legs[8]=Part.LineSegment(p20,p21)
 		Legs[9]=Part.LineSegment(p24,p25)
-		
+
 		for i in range(10,16):
 			Legs[i]=Part.LineSegment(fp.Poles[i-10],fp.Poles[i-4])
-		
+
 		Legs[16]=Part.LineSegment(p10,p20)
 		Legs[17]=Part.LineSegment(p11,p21)
 		Legs[18]=Part.LineSegment(p14,p24)
 		Legs[19]=Part.LineSegment(p15,p25)
 		Legs[20]=Part.LineSegment(p20,p30)
 		Legs[21]=Part.LineSegment(p25,p35)
-		
+
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
@@ -1661,7 +1680,7 @@ class ControlPoly6_Bezier:
 		fp.Legs=[Leg0, Leg1, Leg2, Leg3, Leg4]
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
-	
+
 ### curve derived objects (+curve to input)
 class ControlPoly6_FilletBezier:
 	def __init__(self, obj , cubiccurve4_0, cubiccurve4_1):
@@ -1684,27 +1703,27 @@ class ControlPoly6_FilletBezier:
 		'''Do something when doing a recomputation, this method is mandatory'''
 		poles_0 = fp.CubicCurve4_0.Poly.Poles
 		poles_1 = fp.CubicCurve4_1.Poly.Poles
-		
+
 		weights_0 = fp.CubicCurve4_0.Poly.Weights
 		weights_1 = fp.CubicCurve4_1.Poly.Weights
-		
+
 		blend_0 = orient_a_to_b(poles_0,poles_1)
 
 		blend_1_flip = orient_a_to_b(poles_1,poles_0)
 		blend_1 = blend_1_flip[::-1]
-		
+
 		if blend_0[0] != poles_0[0] and blend_0[0] == poles_0[-1]:
 			weights_0=weights_0[::-1]
 		if blend_1[0] != poles_1[0] and blend_1[0] == poles_1[-1]:
 			weights_1=weights_1[::-1]
-		
+
 		scale_0 = fp.Scale_0
 		scale_1 = fp.Scale_1
 		scale_2 = fp.Scale_2
 		scale_3 = fp.Scale_3
-		
+
 		blendG3 = blendG3_poly_2x4_1x6(blend_0, weights_0, blend_1, weights_1, scale_0, scale_1, scale_2, scale_3)
-		
+
 		fp.Poles = blendG3[0]
 		fp.Weights = blendG3[1]
 		fp.Scale_1 = blendG3[2]
@@ -1730,7 +1749,7 @@ class Point_onCurve:
                 upper = 1.0
                 step = 0.01
                 obj.addProperty("App::PropertyFloatConstraint","u","Point_onCurve","parameter along curve").u = (u, lower, upper, step)
-		obj.addProperty("App::PropertyVector","Position","Point_onCurve","position vector").Position	
+		obj.addProperty("App::PropertyVector","Position","Point_onCurve","position vector").Position
 		obj.Proxy = self
 
 	def execute(self, fp):
@@ -1785,7 +1804,7 @@ class ControlPoly4_segment:
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
-				
+
 ### NURBS surfaces (+grid to input)
 
 class CubicSurface_44:
@@ -1923,7 +1942,7 @@ class CubicSurface_64:
 #	03 13 23 33
 #	02 12 22 32
 #	01 11 21 31
-#	00 10 20 30 	
+#	00 10 20 30 
 #u,v=0,0		u=1
 #
 # So the pole list is  list of pole columns
@@ -1942,13 +1961,15 @@ class CubicSurface_64:
 #	10 11 12 13
 #	00 01 02 03
 #
-# this will be annoying to rewrite.	
+# this will be annoying to rewrite.
 #
 # 12/20/2017 migrating to FreeCAD 0.17.12847 found grid rotation bug:
-# ControlGrid64_2Grid44, was working for all input pairs on 0.17.11699, but now rotating input grids in the class causes bad output. still ok when no rotations are required	
-		
-#### surface derived objects (+surf to input)		
-		
+# ControlGrid64_2Grid44, was working for all input pairs on 0.17.11699, 
+# but now rotating input grids in the class causes bad output. 
+# still ok when no rotations are required
+
+#### surface derived objects (+surf to input)
+
 class ControlGrid44_EdgeSegment:
 	def __init__(self, obj , NL_Surface, NL_Curve):
 		''' Add the properties '''
@@ -1997,7 +2018,7 @@ class ControlGrid44_EdgeSegment:
 
 		# create surface segment. this works very nicely most of the time, but! 
 		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instad of a whole grid.
-		
+
 		print 'sgdir: ', segdir 
 		print 't0 ', t0
 		print 't1 ', t1
@@ -2070,7 +2091,7 @@ class ControlGrid44_2EdgeSegments:
 		FreeCAD.Console.PrintMessage("\nControlGrid44_2EdgeSegments class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Surface","ControlGrid44_2EdgeSegments","Base Surface").NL_Surface = NL_Surface
 		obj.addProperty("App::PropertyLink","NL_Curve_a","ControlGrid44_2EdgeSegments","reference Curve a").NL_Curve_a = NL_Curve_a
-		obj.addProperty("App::PropertyLink","NL_Curve_b","ControlGrid44_2EdgeSegments","reference Curve b").NL_Curve_b = NL_Curve_b		
+		obj.addProperty("App::PropertyLink","NL_Curve_b","ControlGrid44_2EdgeSegments","reference Curve b").NL_Curve_b = NL_Curve_b
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_2EdgeSegments","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_2EdgeSegments","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_2EdgeSegments","Weights").Weights
@@ -2084,12 +2105,12 @@ class ControlGrid44_2EdgeSegments:
 		curve_a=fp.NL_Curve_a.Shape.Curve
 		a0 = curve_a.StartPoint
 		a1 = curve_a.EndPoint
-		
+
 		curve_b=fp.NL_Curve_b.Shape.Curve
 		b0 = curve_b.StartPoint
 		b1 = curve_b.EndPoint
-		
-		
+
+
 		# determine u or v segmentation and get parameter span fron cutting points for curve a
 		param_a0=surface.parameter(a0)
 		#print 'param_a0: ', param_a0
@@ -2142,12 +2163,12 @@ class ControlGrid44_2EdgeSegments:
 		if t0<0:
 			t0=0
 		if t1>1:
-			t1=1			
-			
-			
+			t1=1
+
+
 		# create surface segment. this works very nicely most of the time, but! 
 		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instad of a whole grid.
-			
+
 		if segdira=='u' and segdirb=='v':
 			surface.segment(s0,s1,t0,t1)
 		if segdira=='v' and segdirb=='u':
@@ -2160,12 +2181,12 @@ class ControlGrid44_2EdgeSegments:
 			print 'segdira: ', segdira
 			print 'segdirb: ', segdirb
 			print 's0 ', s0
-			print 's1 ', s1		
+			print 's1 ', s1
 			print 't0 ', t0
 			print 't1 ', t1
 			print 'poles_2dArray', poles_2dArray
-			
-			
+
+
 		fp.Poles = [poles_2dArray[3][0],
 					poles_2dArray[3][1],
 					poles_2dArray[3][2],
@@ -2182,7 +2203,7 @@ class ControlGrid44_2EdgeSegments:
 					poles_2dArray[0][1],
 					poles_2dArray[0][2],
 					poles_2dArray[0][3]]
-					
+
 		weights_2dArray = surface.getWeights()
 		fp.Weights = [weights_2dArray[3][0],
 					weights_2dArray[3][1],
@@ -2220,7 +2241,7 @@ class ControlGrid44_2EdgeSegments:
 			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
-		
+
 class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is the logical position
 	def __init__(self, obj , Grid_0, Grid_1):
 		''' Add the properties '''
@@ -2244,7 +2265,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		# -extract and line up grid rows in pairs
 		# -blend: upgrade, stitch, scale
 		# -stack each blend poly back into a grid
-		
+
 		# extract corner points
 		corners_0=[fp.Grid_0.Poles[0],fp.Grid_0.Poles[3],fp.Grid_0.Poles[15],fp.Grid_0.Poles[12]]
 		corners_1=[fp.Grid_1.Poles[0],fp.Grid_1.Poles[3],fp.Grid_1.Poles[15],fp.Grid_1.Poles[12]]
@@ -2256,7 +2277,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 				if equalVectors(corners_0[i],corners_1[j],0.000001):
 					seam_index[found]=[i,j]
 					found=found+1
-					
+
 		# rotate the grids so that the seam is on the right side for Grid_0 and the left side for Grid_1
 		# in the ideal case, no rotation is required:
 		# seam_index[0]=[1,0], and
@@ -2264,7 +2285,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		# to rotate each grid individually, split seam_index data into one set for each grid
 		seam_0 = [seam_index[0][0],seam_index[1][0]]
 		seam_1 = [seam_index[0][1],seam_index[1][1]]
-		
+
 		# left grid correction rotation
 		if seam_0 == [1,2]:
 			rotate_0 = 0
@@ -2274,11 +2295,11 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 			rotate_0 = 2 
 		if seam_0 == [0,1]:
 			rotate_0 = 3 
-		
+
 		print 'seam_0 ', seam_0
 		print 'seam_1 ', seam_1
-		
-		# right grid correction rotation		
+
+		# right grid correction rotation
 		if seam_1 == [0,3] or seam_1 == [3,0]:
 			rotate_1 = 0 # times 90 degrees clockwise
 		if seam_1 == [0,1] or seam_1 == [1,0]:
@@ -2287,14 +2308,14 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 			rotate_1 = 2 
 		if seam_1 == [3,2] or seam_1 == [2,3]:
 			rotate_1 = 3
-						
+
 		print 'rotate left: ', rotate_0
 		print 'rotate right: ', rotate_1
-		
+
 		# get grid data back into array
 		lin_poles_0 = fp.Grid_0.Poles
 		lin_weights_0 = fp.Grid_0.Weights
-		
+
 		lin_poles_1 = fp.Grid_1.Poles
 		lin_weights_1 = fp.Grid_1.Weights
 
@@ -2303,66 +2324,66 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 					[lin_poles_0[4], lin_poles_0[5], lin_poles_0[6], lin_poles_0[7]],
 					[lin_poles_0[8], lin_poles_0[9], lin_poles_0[10], lin_poles_0[11]],
 					[lin_poles_0[12], lin_poles_0[13], lin_poles_0[14], lin_poles_0[15]]]
-		
+
 		weights_0 = [[lin_weights_0[0], lin_weights_0[1], lin_weights_0[2], lin_weights_0[3]],
 					[lin_weights_0[4], lin_weights_0[5], lin_weights_0[6], lin_weights_0[7]],
 					[lin_weights_0[8], lin_weights_0[9], lin_weights_0[10], lin_weights_0[11]],
-					[lin_weights_0[12], lin_weights_0[13], lin_weights_0[14], lin_weights_0[15]]]		
-		
+					[lin_weights_0[12], lin_weights_0[13], lin_weights_0[14], lin_weights_0[15]]]
+
 		poles_1 = [[lin_poles_1[0], lin_poles_1[1], lin_poles_1[2], lin_poles_1[3]],
 					[lin_poles_1[4], lin_poles_1[5], lin_poles_1[6], lin_poles_1[7]],
 					[lin_poles_1[8], lin_poles_1[9], lin_poles_1[10], lin_poles_1[11]],
 					[lin_poles_1[12], lin_poles_1[13], lin_poles_1[14], lin_poles_1[15]]]
-		
+
 		weights_1 = [[lin_weights_1[0], lin_weights_1[1], lin_weights_1[2], lin_weights_1[3]],
 					[lin_weights_1[4], lin_weights_1[5], lin_weights_1[6], lin_weights_1[7]],
 					[lin_weights_1[8], lin_weights_1[9], lin_weights_1[10], lin_weights_1[11]],
 					[lin_weights_1[12], lin_weights_1[13], lin_weights_1[14], lin_weights_1[15]]]
-		
+
 		#print 'poles_0', poles_0
 		#print 'poles_1', poles_1
-		
+
 		# apply rotation correction. vector type gets stripped in numpy
 		uv_poles_0_temp = np.rot90(poles_0,rotate_0).tolist()
 		uv_weights_0 = np.rot90(weights_0,rotate_0).tolist()
-		
+
 		uv_poles_1_temp = np.rot90(poles_1,rotate_1).tolist()
 		uv_weights_1 = np.rot90(weights_1,rotate_1).tolist()
-		
+
 		#print 'uv_poles_0_temp', uv_poles_0_temp
 		#print 'uv_poles_1_temp', uv_poles_1_temp
 		#print 'uv_poles_0_temp[0][0] ', uv_poles_0_temp[0][0]
 		#print 'uv_poles_0_temp[3][3] ', uv_poles_0_temp[3][3]
-		
+
 		# get ready to recast to vector
 		uv_poles_0 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
 		uv_poles_1 = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-		
+
 		for i in range(0,4):
 			for j in range(0,4):
 				uv_poles_0[i][j]= Base.Vector(uv_poles_0_temp[i][j][0],uv_poles_0_temp[i][j][1],uv_poles_0_temp[i][j][2])
 			#print uv_poles_0
-			
+
 		for i in range(0,4):
 			for j in range(0,4):
 				uv_poles_1[i][j]= Base.Vector(uv_poles_1_temp[i][j][0],uv_poles_1_temp[i][j][1],uv_poles_1_temp[i][j][2])
 			#print uv_poles_1
-			
-		
+
+
 		#print 'uv_poles_0', uv_poles_0
-		#print 'uv_poles_1', uv_poles_1		
-		
+		#print 'uv_poles_1', uv_poles_1
+
 		#b=Base.Vector(a[0],a[1],a[2])
-		
+
 		# run ControlPoly6_FilletBezier or equivalent internal function on each pair runnning across the seam
 		row_0 = blend_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
 		blend_poles_0 = row_0[0]
 		blend_weights_0 = row_0[1]
-		
+
 		row_1 = blend_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
 		blend_poles_1 = row_1[0]
 		blend_weights_1 = row_1[1]
-		
+
 		row_2 = blend_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
 		blend_poles_2 = row_2[0]
 		blend_weights_2 = row_2[1]
@@ -2370,7 +2391,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		row_3 = blend_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
 		blend_poles_3 = row_3[0]
 		blend_weights_3 = row_3[1]
-		
+
 		# stack the ControlPoly6s into a 64 grid - poles and weights
 		fp.Poles=[blend_poles_0[0],
 				blend_poles_0[1],
@@ -2395,7 +2416,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 				blend_poles_3[2],
 				blend_poles_3[3],
 				blend_poles_3[4],
-				blend_poles_3[5]]	
+				blend_poles_3[5]]
 
 		fp.Weights=[blend_weights_0[0],
 				blend_weights_0[1],
@@ -2420,9 +2441,9 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 				blend_weights_3[2],
 				blend_weights_3[3],
 				blend_weights_3[4],
-				blend_weights_3[5]]	
-	
-		# build the leg list for viz		
+				blend_weights_3[5]]
+
+		# build the leg list for viz
 		Legs=[0]*38
 		for i in range(0,5):
 			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
@@ -2450,13 +2471,13 @@ class SubGrid33_2Grid64s_old:
 		obj.addProperty("App::PropertyLink","Grid_1","SubGrid33_2Grid64s","second reference 6X4 grid").Grid_1 = Grid_1
 		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid33_2Grid64s","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","u_row0_poles","SubGrid33_2Grid64s","u_row0_poles").u_row0_poles
-		obj.addProperty("App::PropertyVectorList","u_row1_poles","SubGrid33_2Grid64s","u_row1_poles").u_row1_poles		
+		obj.addProperty("App::PropertyVectorList","u_row1_poles","SubGrid33_2Grid64s","u_row1_poles").u_row1_poles
 		obj.addProperty("App::PropertyVectorList","v_col0_poles","SubGrid33_2Grid64s","v_col0_poles").v_col0_poles
-		obj.addProperty("App::PropertyVectorList","v_col1_poles","SubGrid33_2Grid64s","v_col1_poles").v_col1_poles		
+		obj.addProperty("App::PropertyVectorList","v_col1_poles","SubGrid33_2Grid64s","v_col1_poles").v_col1_poles
 		obj.addProperty("App::PropertyFloatList","u_row0_weights","SubGrid33_2Grid64s","u_row0_weights").u_row0_weights
-		obj.addProperty("App::PropertyFloatList","u_row1_weights","SubGrid33_2Grid64s","u_row1_weights").u_row1_weights		
+		obj.addProperty("App::PropertyFloatList","u_row1_weights","SubGrid33_2Grid64s","u_row1_weights").u_row1_weights
 		obj.addProperty("App::PropertyFloatList","v_col0_weights","SubGrid33_2Grid64s","v_col0_weights").v_col0_weights
-		obj.addProperty("App::PropertyFloatList","v_col1_weights","SubGrid33_2Grid64s","v_col1_weights").v_col1_weights		
+		obj.addProperty("App::PropertyFloatList","v_col1_weights","SubGrid33_2Grid64s","v_col1_weights").v_col1_weights
 		obj.Proxy = self
 
 
@@ -2468,7 +2489,7 @@ class SubGrid33_2Grid64s_old:
 		# -set 'v' row - imagine the future surface as uvn (n is normal).
 		# -build a corner focused 33 grid using the same logic as the corner focused 66 grid. 
 		# the $10 question here is whether this even maintains G1? maybe...it has been many steps since the bezier surface was segmented.
-		
+
 		# extract corner points
 		corners_0=[fp.Grid_0.Poles[0],fp.Grid_0.Poles[5],fp.Grid_0.Poles[18],fp.Grid_0.Poles[23]]
 		corners_1=[fp.Grid_1.Poles[0],fp.Grid_1.Poles[5],fp.Grid_1.Poles[18],fp.Grid_1.Poles[23]]
@@ -2483,11 +2504,11 @@ class SubGrid33_2Grid64s_old:
 			print 'common point of grids not found. If this object was working, this is an evaluation error'
 		#print 'common ', common
 		# tested-runs-
-		
+
 		# the two '6s' fo each grid should form a V when looking at the future grid
 		# a is the left leg of the V, i.e. common[0] = 0 or 3
 		# b is the right leg of the V i.e. common[1] = 2 or 1
-		
+
 		# check input grid order, swap grids if necessary
 		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
 			print 'swapping grid order'
@@ -2503,41 +2524,41 @@ class SubGrid33_2Grid64s_old:
 					if corners_0[i] == corners_1[j]:
 						common=[i,j]
 			print 'common ', common
-		
+
 		if common[0] == 0:
 			fp.u_row0_poles = [fp.Grid_0.Poles[0],fp.Grid_0.Poles[1],fp.Grid_0.Poles[2]]
 			fp.u_row0_weights = [fp.Grid_0.Weights[0],fp.Grid_0.Weights[1],fp.Grid_0.Weights[2]]
 			fp.u_row1_poles = [fp.Grid_0.Poles[6],fp.Grid_0.Poles[7],fp.Grid_0.Poles[8]]
-			fp.u_row1_weights = [fp.Grid_0.Weights[6],fp.Grid_0.Weights[7],fp.Grid_0.Weights[8]]			
-		
+			fp.u_row1_weights = [fp.Grid_0.Weights[6],fp.Grid_0.Weights[7],fp.Grid_0.Weights[8]]
+
 		if common[0] == 3:
 			fp.u_row0_poles = [fp.Grid_0.Poles[23],fp.Grid_0.Poles[22],fp.Grid_0.Poles[21]]
 			fp.u_row0_weights = [fp.Grid_0.Weights[23],fp.Grid_0.Weights[22],fp.Grid_0.Weights[21]]
 			fp.u_row1_poles = [fp.Grid_0.Poles[17],fp.Grid_0.Poles[16],fp.Grid_0.Poles[15]]
-			fp.u_row1_weights = [fp.Grid_0.Weights[17],fp.Grid_0.Weights[16],fp.Grid_0.Weights[15]]					
-		
+			fp.u_row1_weights = [fp.Grid_0.Weights[17],fp.Grid_0.Weights[16],fp.Grid_0.Weights[15]]
+
 		if common[1] == 1:
 			fp.v_col0_poles = [fp.Grid_1.Poles[5],fp.Grid_1.Poles[4],fp.Grid_1.Poles[3]]
 			fp.v_col0_weights = [fp.Grid_1.Weights[5],fp.Grid_1.Weights[4],fp.Grid_1.Weights[3]]
 			fp.v_col1_poles = [fp.Grid_1.Poles[11],fp.Grid_1.Poles[10],fp.Grid_1.Poles[9]]
-			fp.v_col1_weights = [fp.Grid_1.Weights[11],fp.Grid_1.Weights[10],fp.Grid_1.Weights[9]]					
-			
+			fp.v_col1_weights = [fp.Grid_1.Weights[11],fp.Grid_1.Weights[10],fp.Grid_1.Weights[9]]
+
 		if common[1] == 2:
 			fp.v_col0_poles = [fp.Grid_1.Poles[18],fp.Grid_1.Poles[19],fp.Grid_1.Poles[20]]
 			fp.v_col0_weights = [fp.Grid_1.Weights[18],fp.Grid_1.Weights[19],fp.Grid_1.Weights[20]]
 			fp.v_col1_poles = [fp.Grid_1.Poles[12],fp.Grid_1.Poles[13],fp.Grid_1.Poles[14]]
-			fp.v_col1_weights = [fp.Grid_1.Weights[12],fp.Grid_1.Weights[13],fp.Grid_1.Weights[14]]					
-			
-		
+			fp.v_col1_weights = [fp.Grid_1.Weights[12],fp.Grid_1.Weights[13],fp.Grid_1.Weights[14]]
+
+
 		Legs=[0]*10
 
 		Legs[0]=Part.LineSegment(fp.u_row0_poles[0], fp.u_row0_poles[1])
 		Legs[1]=Part.LineSegment(fp.u_row0_poles[1], fp.u_row0_poles[2])
-		
+
 		Legs[2]=Part.LineSegment(fp.u_row0_poles[0], fp.u_row1_poles[0])
 		Legs[3]=Part.LineSegment(fp.u_row0_poles[1], fp.u_row1_poles[1])
 		Legs[4]=Part.LineSegment(fp.u_row0_poles[2], fp.u_row1_poles[2])
-		
+
 		Legs[5]=Part.LineSegment(fp.v_col0_poles[0], fp.v_col0_poles[1])
 		Legs[6]=Part.LineSegment(fp.v_col0_poles[1], fp.v_col0_poles[2])
 
@@ -2559,7 +2580,7 @@ class SubGrid33_2Grid64:
 		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid33_2Grid64","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","SubGrid33_2Grid64","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","SubGrid33_2Grid64","Weights").Weights
-	
+
 		obj.Proxy = self
 
 	def execute(self, fp):
@@ -2570,7 +2591,7 @@ class SubGrid33_2Grid64:
 		# -set 'v' row - imagine the future surface as uvn (n is normal).
 		# -build a corner focused 33 grid using similar logic as the corner focused 66 grid. 
 		#the $10 question here is whether this even maintains G1? maybe...it has been many steps since the bezier surface was segmented.
-		
+
 		# extract corner points
 		corners_0=[fp.Grid_0.Poles[0],fp.Grid_0.Poles[5],fp.Grid_0.Poles[18],fp.Grid_0.Poles[23]]
 		corners_1=[fp.Grid_1.Poles[0],fp.Grid_1.Poles[5],fp.Grid_1.Poles[18],fp.Grid_1.Poles[23]]
@@ -2584,11 +2605,11 @@ class SubGrid33_2Grid64:
 			print 'common point of grids not found. If this object was working previously, this is an evaluation error'
 		print 'common ', common
 		# tested-runs-
-		
+
 		# the two 6 point sides of each grid should form a V when looking at the future grid
 		# a is the left leg of the V, i.e. common[0] = 0 or 3
 		# b is the right leg of the V i.e. common[1] = 2 or 1
-		
+
 		# check input grid order, swap grids if necessary
 		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
 			print 'swapping grid order'
@@ -2604,96 +2625,96 @@ class SubGrid33_2Grid64:
 					if equalVectors(corners_0[i],corners_1[j],0.000001):
 						common=[i,j]
 			print 'common ', common
-		
+
 		if common[0] == 0:
 			v_col0_poles = [fp.Grid_0.Poles[0],fp.Grid_0.Poles[1],fp.Grid_0.Poles[2]]
 			v_col0_weights = [fp.Grid_0.Weights[0],fp.Grid_0.Weights[1],fp.Grid_0.Weights[2]]
 			v_col1_poles = [fp.Grid_0.Poles[6],fp.Grid_0.Poles[7],fp.Grid_0.Poles[8]]
-			v_col1_weights = [fp.Grid_0.Weights[6],fp.Grid_0.Weights[7],fp.Grid_0.Weights[8]]			
-		
+			v_col1_weights = [fp.Grid_0.Weights[6],fp.Grid_0.Weights[7],fp.Grid_0.Weights[8]]
+
 		if common[0] == 3:
 			v_col0_poles = [fp.Grid_0.Poles[23],fp.Grid_0.Poles[22],fp.Grid_0.Poles[21]]
 			v_col0_weights = [fp.Grid_0.Weights[23],fp.Grid_0.Weights[22],fp.Grid_0.Weights[21]]
 			v_col1_poles = [fp.Grid_0.Poles[17],fp.Grid_0.Poles[16],fp.Grid_0.Poles[15]]
-			v_col1_weights = [fp.Grid_0.Weights[17],fp.Grid_0.Weights[16],fp.Grid_0.Weights[15]]					
-		
+			v_col1_weights = [fp.Grid_0.Weights[17],fp.Grid_0.Weights[16],fp.Grid_0.Weights[15]]
+
 		if common[1] == 1:
 			u_row0_poles = [fp.Grid_1.Poles[5],fp.Grid_1.Poles[4],fp.Grid_1.Poles[3]]
 			u_row0_weights = [fp.Grid_1.Weights[5],fp.Grid_1.Weights[4],fp.Grid_1.Weights[3]]
 			u_row1_poles = [fp.Grid_1.Poles[11],fp.Grid_1.Poles[10],fp.Grid_1.Poles[9]]
-			u_row1_weights = [fp.Grid_1.Weights[11],fp.Grid_1.Weights[10],fp.Grid_1.Weights[9]]					
-			
+			u_row1_weights = [fp.Grid_1.Weights[11],fp.Grid_1.Weights[10],fp.Grid_1.Weights[9]]
+
 		if common[1] == 2:
 			u_row0_poles = [fp.Grid_1.Poles[18],fp.Grid_1.Poles[19],fp.Grid_1.Poles[20]]
 			u_row0_weights = [fp.Grid_1.Weights[18],fp.Grid_1.Weights[19],fp.Grid_1.Weights[20]]
 			u_row1_poles = [fp.Grid_1.Poles[12],fp.Grid_1.Poles[13],fp.Grid_1.Poles[14]]
-			u_row1_weights = [fp.Grid_1.Weights[12],fp.Grid_1.Weights[13],fp.Grid_1.Weights[14]]					
-			
+			u_row1_weights = [fp.Grid_1.Weights[12],fp.Grid_1.Weights[13],fp.Grid_1.Weights[14]]
+
 		u_tan_ratio = (u_row0_poles[1]-u_row0_poles[0]).Length / (v_col1_poles[0]-v_col0_poles[0]).Length
 		v_tan_ratio = (v_col0_poles[1]-v_col0_poles[0]).Length / (u_row1_poles[0]-u_row0_poles[0]).Length
-		
+
 		p00 = u_row0_poles[0]
 		p01 = u_row0_poles[1]
-		p02 = u_row0_poles[2]		
+		p02 = u_row0_poles[2]
 		p10 = v_col0_poles[1]
 		p20 = v_col0_poles[2]
 		p11_u = p01 + (u_row0_poles[1]-u_row1_poles[1])*v_tan_ratio
 		p12 = p02 + (u_row0_poles[2]-u_row1_poles[2])*v_tan_ratio
 		p11_v = p10 + (v_col0_poles[1]-v_col1_poles[1])*u_tan_ratio
-		p21 = p20 + (v_col0_poles[2]-v_col1_poles[2])*u_tan_ratio	
+		p21 = p20 + (v_col0_poles[2]-v_col1_poles[2])*u_tan_ratio
 		p11 = (p11_u + p11_v) * 0.5
 		p22_u = p12 + (p21-p11)
-		p22_v = p21 + (p12-p11)		
+		p22_v = p21 + (p12-p11)
 		p22_temp = (p22_u + p22_v) * 0.5
-		
+
 		p22 = p22_temp + fp.adjust_0 * (p01-p00) + fp.adjust_1 * (p10-p00)
-		
+
 		fp.Poles = [p00, p01, p02, p10, p11, p12, p20, p21, p22]
-		
+
 		w00 = u_row0_weights[0]
 		w01 = u_row0_weights[1]
-		w02 = u_row0_weights[2]		
+		w02 = u_row0_weights[2]
 		w10 = v_col0_weights[1]
-		w20 = v_col0_weights[2]		
-		
+		w20 = v_col0_weights[2]
+
 		w11 = w01 * w10
 		w12 = w02 * w10
 		w21 = w01 * w20
 		w22 = w02 * w20
-		
+
 		fp.Weights = [w00, w01, w02, w10, w11, w12, w20, w21, w22]
-		
+
 		Legs=[0]*12
-		
+
 		Legs[0]=Part.LineSegment(p00,p01)
 		Legs[1]=Part.LineSegment(p01,p02)
-		
+
 		Legs[2]=Part.LineSegment(p00,p10)
 		Legs[3]=Part.LineSegment(p10,p20)
-		
+
 		Legs[4]=Part.LineSegment(p01,p11)
 		Legs[5]=Part.LineSegment(p02,p12)
-		
+
 		Legs[6]=Part.LineSegment(p10,p11)
 		Legs[7]=Part.LineSegment(p20,p21)
-		
+
 		Legs[8]=Part.LineSegment(p11,p12)
 		Legs[9]=Part.LineSegment(p11,p21)
 
 		Legs[10]=Part.LineSegment(p12,p22)
 		Legs[11]=Part.LineSegment(p21,p22)
-		
+
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
-		
+
 class ControlGrid66_4Sub_old:
 	def __init__(self, obj , SubGrid_0, SubGrid_1, SubGrid_2, SubGrid_3):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGrid66_4Sub class Init\n")
 		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Sub","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
 		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Sub","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
-		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2	
-		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3		
+		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2
+		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Sub","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Sub","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Sub","Weights").Weights
@@ -2707,32 +2728,32 @@ class ControlGrid66_4Sub_old:
 		p03 = fp.SubGrid_1.v_col_poles[2]
 		p04 = fp.SubGrid_1.v_col_poles[1]
 		p05 = fp.SubGrid_1.v_col_poles[0]
-		
+
 		p15 = fp.SubGrid_1.u_row_poles[1]
 		p25 = fp.SubGrid_1.u_row_poles[2]
 		p35 = fp.SubGrid_2.v_col_poles[2]
 		p45 = fp.SubGrid_2.v_col_poles[1]
 		p55 = fp.SubGrid_2.v_col_poles[0]
-		
+
 		p54 = fp.SubGrid_2.u_row_poles[1]
 		p53 = fp.SubGrid_2.u_row_poles[2]
 		p52 = fp.SubGrid_3.v_col_poles[2]
 		p51 = fp.SubGrid_3.v_col_poles[1]
 		p50 = fp.SubGrid_3.v_col_poles[0]
-		
+
 		p40 = fp.SubGrid_3.u_row_poles[1]
 		p30 = fp.SubGrid_3.u_row_poles[2]
 		p20 = fp.SubGrid_0.v_col_poles[2]
 		p10 = fp.SubGrid_0.v_col_poles[1]
-		
+
 		p11 = p01 + (p10 - p00)
 		p14 = p04 + (p15 - p05)
 		p41 = p51 + (p40 - p50)
 		p44 = p45 + (p54 - p55)
 		p12 = p02 + (p10 - p00)
-		p13 = p03 + (p15 - p05)	
+		p13 = p03 + (p15 - p05)
 		p24 = p25 + (p04 - p05)
-		p34 = p35 + (p54 - p55)	
+		p34 = p35 + (p54 - p55)
 		p42 = p52 + (p40 - p50)
 		p43 = p53 + (p45 - p55)
 		p21 = p20 + (p01 - p00)
@@ -2806,7 +2827,7 @@ class ControlGrid66_4Sub_old:
 		for i in range(20,25):
 			Legs[i]=Part.LineSegment(fp.Poles[i+4],fp.Poles[i+5])
 		for i in range(25,30):
-			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])	
+			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])
 		for i in range(30,36):
 			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
 		for i in range(36,42):
@@ -2817,7 +2838,7 @@ class ControlGrid66_4Sub_old:
 			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
 		for i in range(54,60):
 			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		
+
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
@@ -2827,8 +2848,8 @@ class ControlGrid66_4Sub:
 		FreeCAD.Console.PrintMessage("\nControlGrid66_4Sub class Init\n")
 		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Sub","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
 		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Sub","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
-		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2	
-		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3		
+		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2
+		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Sub","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Sub","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Sub","Weights").Weights
@@ -2842,24 +2863,24 @@ class ControlGrid66_4Sub:
 		p03 = fp.SubGrid_1.Poles[6]
 		p04 = fp.SubGrid_1.Poles[3]
 		p05 = fp.SubGrid_1.Poles[0]
-		
+
 		p15 = fp.SubGrid_1.Poles[1]
 		p25 = fp.SubGrid_1.Poles[2]
 		p35 = fp.SubGrid_2.Poles[6]
 		p45 = fp.SubGrid_2.Poles[3]
 		p55 = fp.SubGrid_2.Poles[0]
-		
+
 		p54 = fp.SubGrid_2.Poles[1]
 		p53 = fp.SubGrid_2.Poles[2]
 		p52 = fp.SubGrid_3.Poles[6]
 		p51 = fp.SubGrid_3.Poles[3]
 		p50 = fp.SubGrid_3.Poles[0]
-		
+
 		p40 = fp.SubGrid_3.Poles[1]
 		p30 = fp.SubGrid_3.Poles[2]
 		p20 = fp.SubGrid_0.Poles[6]
 		p10 = fp.SubGrid_0.Poles[3]
-		
+
 		p11 = fp.SubGrid_0.Poles[4]
 		p12 = fp.SubGrid_0.Poles[5]
 		p13 = fp.SubGrid_1.Poles[7]
@@ -2868,8 +2889,8 @@ class ControlGrid66_4Sub:
 		p24 = fp.SubGrid_1.Poles[5]
 		p34 = fp.SubGrid_2.Poles[7]
 		p44 = fp.SubGrid_2.Poles[4]
-		
-		p43 = fp.SubGrid_2.Poles[5]		
+
+		p43 = fp.SubGrid_2.Poles[5]
 		p42 = fp.SubGrid_3.Poles[7]
 		p41 = fp.SubGrid_3.Poles[4]
 
@@ -2887,31 +2908,31 @@ class ControlGrid66_4Sub:
 					p30, p31, p32, p33, p34, p35,
 					p40, p41, p42, p43, p44, p45,
 					p50, p51, p52, p53, p54, p55]
-					
+
 		w00 = fp.SubGrid_0.Weights[0]
 		w01 = fp.SubGrid_0.Weights[1]
 		w02 = fp.SubGrid_0.Weights[2]
 		w03 = fp.SubGrid_1.Weights[6]
 		w04 = fp.SubGrid_1.Weights[3]
 		w05 = fp.SubGrid_1.Weights[0]
-		
+
 		w15 = fp.SubGrid_1.Weights[1]
 		w25 = fp.SubGrid_1.Weights[2]
 		w35 = fp.SubGrid_2.Weights[6]
 		w45 = fp.SubGrid_2.Weights[3]
 		w55 = fp.SubGrid_2.Weights[0]
-		
+
 		w54 = fp.SubGrid_2.Weights[1]
 		w53 = fp.SubGrid_2.Weights[2]
 		w52 = fp.SubGrid_3.Weights[6]
 		w51 = fp.SubGrid_3.Weights[3]
 		w50 = fp.SubGrid_3.Weights[0]
-		
+
 		w40 = fp.SubGrid_3.Weights[1]
 		w30 = fp.SubGrid_3.Weights[2]
 		w20 = fp.SubGrid_0.Weights[6]
 		w10 = fp.SubGrid_0.Weights[3]
-		
+
 		w11 = fp.SubGrid_0.Weights[4]
 		w12 = fp.SubGrid_0.Weights[5]
 		w13 = fp.SubGrid_1.Weights[7]
@@ -2920,8 +2941,8 @@ class ControlGrid66_4Sub:
 		w24 = fp.SubGrid_1.Weights[5]
 		w34 = fp.SubGrid_2.Weights[7]
 		w44 = fp.SubGrid_2.Weights[4]
-		
-		w43 = fp.SubGrid_2.Weights[5]		
+
+		w43 = fp.SubGrid_2.Weights[5]
 		w42 = fp.SubGrid_3.Weights[7]
 		w41 = fp.SubGrid_3.Weights[4]
 
@@ -2951,7 +2972,7 @@ class ControlGrid66_4Sub:
 		for i in range(20,25):
 			Legs[i]=Part.LineSegment(fp.Poles[i+4],fp.Poles[i+5])
 		for i in range(25,30):
-			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])	
+			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])
 		for i in range(30,36):
 			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
 		for i in range(36,42):
@@ -2962,7 +2983,7 @@ class ControlGrid66_4Sub:
 			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
 		for i in range(54,60):
 			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		
+
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
@@ -2983,34 +3004,34 @@ class ControlGrid64_3_1Grid44:
 		grid_44 = fp.ControlGrid44
 		# get the target corner
 		corner = fp.Corner
-		
+
 		if corner == 0:
 			rotate = 0
 		elif corner == 1:
 			rotate = 1
 		elif corner == 2:
-			rotate = 2			
+			rotate = 2
 		elif corner == 3:
 			rotate = 3
-			
+
 		# rotate the grid so that the corner is in the 00 position
 				# get grid data back into array
 		lin_poles = grid_44.Poles
 		lin_weights = grid_44.Weights
-		
+
 		# first shot: simple partition.this is an array of rows
 		Apoles = [[lin_poles[0], lin_poles[1], lin_poles[2], lin_poles[3]],
 					[lin_poles[4], lin_poles[5], lin_poles[6], lin_poles[7]],
 					[lin_poles[8], lin_poles[9], lin_poles[10], lin_poles[11]],
 					[lin_poles[12], lin_poles[13], lin_poles[14], lin_poles[15]]]
-		
+
 		Aweights = [[lin_weights[0], lin_weights[1], lin_weights[2], lin_weights[3]],
 					[lin_weights[4], lin_weights[5], lin_weights[6], lin_weights[7]],
 					[lin_weights[8], lin_weights[9], lin_weights[10], lin_weights[11]],
-					[lin_weights[12], lin_weights[13], lin_weights[14], lin_weights[15]]]		
-		
+					[lin_weights[12], lin_weights[13], lin_weights[14], lin_weights[15]]]
+
 		#print 'Apoles', Apoles
-		
+
 		# apply rotation correction. vector type gets stripped in numpy
 		uv_poles_temp = np.rot90(Apoles,rotate).tolist()
 		uv_weights = np.rot90(Aweights,rotate).tolist()
@@ -3018,17 +3039,17 @@ class ControlGrid64_3_1Grid44:
 		#print 'uv_poles_temp', uv_poles_temp
 		#print 'uv_poles_temp[0][0] ', uv_poles_temp[0][0]
 		#print 'uv_poles_temp[3][3] ', uv_poles_temp[3][3]
-		
+
 		# get ready to recast to vector
 		uv_poles = [[0,0,0,0],[0,0,0,0],[0,0,0,0],[0,0,0,0]]
-		
+
 		for i in range(0,4):
 			for j in range(0,4):
 				uv_poles[i][j]= Base.Vector(uv_poles_temp[i][j][0],uv_poles_temp[i][j][1],uv_poles_temp[i][j][2])
 			#print uv_poles
-		
+
 		#print 'uv_poles', uv_poles
-		
+
 		set_poles = [ uv_poles[0][0],
 		uv_poles[0][1],
 		uv_poles[0][2],
@@ -3045,7 +3066,7 @@ class ControlGrid64_3_1Grid44:
 		uv_poles[3][1],
 		uv_poles[3][2],
 		uv_poles[3][3]]
-		
+
 		set_weights = [ uv_weights[0][0],
 		uv_weights[0][1],
 		uv_weights[0][2],
@@ -3062,8 +3083,8 @@ class ControlGrid64_3_1Grid44:
 		uv_weights[3][1],
 		uv_weights[3][2],
 		uv_weights[3][3]]
-		
-		
+
+
 		#first degenerate topology try. naive Grid44 to Grid64 triangle mapping with some midpoints. p22=p23=p24=p25=set_poles[10]. this causes folding.
 		#second iteration: add tiny spacing around p22, p23, p24, p25. this will break G1 slightly. The goal is to balance G1 loss versus folding over.
 		#as these point 'un-degenerate' it is tempting to reintroduce curvature matching. On the other hand, aligning them for 0 curvature may help get G1 back.
@@ -3074,24 +3095,24 @@ class ControlGrid64_3_1Grid44:
 		p03=set_poles[1]
 		p04=set_poles[2]
 		p05=set_poles[3]
-		
+
 		p10=set_poles[13]
 		p11=set_poles[9]
-		
+
 		p14=set_poles[6]
 		p15=set_poles[7]
-		
+
 
 		p20=set_poles[14]
-		''' # 1st strategy		
+		''' # 1st strategy
 		p21=set_poles[10]
 		p22=set_poles[10]
 		p23=set_poles[10]
 		p24=set_poles[10]
 		'''
 		p25=set_poles[11]
-		
-		
+
+
 		# 2nd strategy
 		''' this was better, sure, but it stills folds. going to set the whole corner planar, but non collapsed for third try.
 		degen_tan_factor=0.5 #initial was 0.75
@@ -3102,29 +3123,29 @@ class ControlGrid64_3_1Grid44:
 		p22=p21+(p14-p21)*degen_curv_factor
 		#trim tangent
 		p24=p25+(set_poles[10]-p25)*degen_tan_factor
-		# add a segment control line snippet towards the third control point of the underlying 44 grid		
+		# add a segment control line snippet towards the third control point of the underlying 44 grid
 		p23=p24+(p11-p24)*degen_curv_factor
 		'''
-		
+
 		#third strategy
 		p21=p20+(set_poles[10]-p20)*.5 # trim tangent
 		p22=p21+(set_poles[10]-p21)*.5 # 0 curvature along tangent trim
-		
+
 		p24=p25+(set_poles[10]-p25)*.5 # trim tangent
 		p23=p24+(set_poles[10]-p24)*.5 # 0 curvature along tangent trim
-		
-				
+
+
 		p30=set_poles[15]
 		p31=set_poles[15]
 		p32=set_poles[15]
 		p33=set_poles[15]
 		p34=set_poles[15]
 		p35=set_poles[15]
-		
+
 		p12=(set_poles[5]+p11).multiply(0.5)
 		p13=(set_poles[5]+p14).multiply(0.5)
-					
-		
+
+
 		fp.Poles = [p00, p01, p02, p03, p04, p05,
 					p10, p11, p12, p13, p14, p15,
 					p20, p21, p22, p23, p24, p25,
@@ -3136,40 +3157,40 @@ class ControlGrid64_3_1Grid44:
 		w03=set_weights[1]
 		w04=set_weights[2]
 		w05=set_weights[3]
-		
+
 		w10=set_weights[13]
 		w11=set_weights[9]
-		
+
 		w14=set_weights[6]
 		w15=set_weights[7]
-		
+
 		w20=set_weights[14]
 		w21=set_weights[10]
 		w22=set_weights[10]
 		w23=set_weights[10]
 		w24=set_weights[10]
 		w25=set_weights[11]
-		
+
 		w30=set_weights[15]
 		w31=set_weights[15]
 		w32=set_weights[15]
 		w33=set_weights[15]
 		w34=set_weights[15]
 		w35=set_weights[15]
-		
+
 		w12=(w02+w21)/2
 		w13=(w03+w24)/2
-					
+
 		fp.Weights = [w00, w01, w02, w03, w04, w05,
 					w10, w11, w12, w13, w14, w15,
 					w20, w21, w22, w23, w24, w25,
 					w30, w31, w32, w33, w34, w35]
 		Legs=[0]*33 # last used Legs index below + 1
-		
+
 		#rows
 		for i in range(0,5):
 			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		#Legs[0,1,2,3,4] used	
+		#Legs[0,1,2,3,4] used
 		for i in range(6,11):
 			Legs[i-1]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
 		#Legs[5,6,7,8,9] used
@@ -3177,19 +3198,19 @@ class ControlGrid64_3_1Grid44:
 			Legs[i-2]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
 		#Legs[10,11,12,13,14] used
 		#skip top row
-		
+
 		#columns
 		for i in range(0,6):
 			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
-		#Legs[15,16,17,18,19,20] used	
+		#Legs[15,16,17,18,19,20] used
 		for i in range(6,12):
 			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
 		#Legs[21,22,23,24,25,26] used
 		for i in range(12,18):
 			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
 		#Legs[27,28,29,30,31,32] used
-		
-		
+
+
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
@@ -3202,24 +3223,24 @@ class SubGrid63_2Surf64:
 		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid63_2Surf64","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","SubGrid63_2Surf64","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","SubGrid63_2Surf64","Weights").Weights
-	
+
 		obj.Proxy = self
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		
+
 		# get grids form the surfaces
 		Grid_0=fp.Surf_0.Grid
 		Grid_1=fp.Surf_1.Grid
-		
+
 		#get the FreeCAD surface form the NL surface object
 		Surf_0 = fp.Surf_0.Shape.Surface
 		Surf_1 = fp.Surf_1.Shape.Surface
-		
+
 		# extract corner points
 		corners_0=[Grid_0.Poles[0],Grid_0.Poles[5],Grid_0.Poles[18],Grid_0.Poles[23]]
 		corners_1=[Grid_1.Poles[0],Grid_1.Poles[5],Grid_1.Poles[18],Grid_1.Poles[23]]
-		
+
 		# find the common point that defines the corner
 		common = 'not_found_yet'
 		for i in range(0,4):
@@ -3229,22 +3250,22 @@ class SubGrid63_2Surf64:
 		if common == 'not_found_yet':
 			print 'common point of grids not found. If this object was working previously, this is an evaluation error'
 		print 'common ', common
-		
+
 		# the two 6 point sides of each grid should form a V when looking at the future grid
 		# a is the left leg of the V, i.e. common[0] = 0 or 3
 		# b is the right leg of the V i.e. common[1] = 2 or 1
-		
+
 		# check input grid order, swap grids if necessary
 		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
 			print 'swap surfaces - internal only?'
 			temp_grid=Grid_0
 			Grid_0=Grid_1
 			Grid_1=temp_grid
-			
+
 			temp_surf=Surf_0
 			Surf_0=Surf_1
 			Surf_1=temp_surf
-			
+
 			# get the corners again, based on swapped grids
 			corners_0=[Grid_0.Poles[0],Grid_0.Poles[5],Grid_0.Poles[18],Grid_0.Poles[23]]
 			corners_1=[Grid_1.Poles[0],Grid_1.Poles[5],Grid_1.Poles[18],Grid_1.Poles[23]]
@@ -3254,8 +3275,8 @@ class SubGrid63_2Surf64:
 					if equalVectors(corners_0[i], corners_1[j], 0.000001):
 						common=[i,j]
 			print 'common ', common
-		
-		
+
+
 		# cut surfaces in half, insert knots to re-establish Poly6 along u
 		if common[0]==0:
 			Surf_0.segment(0,0.5,0,1)
@@ -3263,74 +3284,74 @@ class SubGrid63_2Surf64:
 			#print 'pole count surf_0 = ', Surf_0.getPoles().__len__()
 			Surf_0.insertUKnots([1.0/6.0],[1],0.000001)
 			#print 'Surf_0 UKnotSequence after bump = ', Surf_0.UKnotSequence
-			
+
 		if common[0]==3:
 			Surf_0.segment(0.5,1,0,1)
 			#print 'Surf_0 UKnotSequence after cut = ', Surf_0.UKnotSequence
 			#print 'pole count surf_0 = ', Surf_0.getPoles().__len__()
 			Surf_0.insertUKnots([5.0/6.0],[1],0.000001)
 			#print 'Surf_0 UKnotSequence after bump = ', Surf_0.UKnotSequence
-			
+
 		if common[1]==2:
 			Surf_1.segment(0,0.5,0,1)
 			#print 'Surf_1 UKnotSequence after cut = ', Surf_0.UKnotSequence
 			#print 'pole count surf_1 = ', Surf_1.getPoles().__len__()
 			Surf_1.insertUKnots([1.0/6.0],[1],0.000001)
 			#print 'Surf_1 UKnotSequence after bump = ', Surf_0.UKnotSequence
-			
+
 		if common[1]==1:
-			Surf_1.segment(0.5,1,0,1)		
-			#print 'Surf_1 UKnotSequence after cut = ', Surf_0.UKnotSequence	
+			Surf_1.segment(0.5,1,0,1)
+			#print 'Surf_1 UKnotSequence after cut = ', Surf_0.UKnotSequence
 			#print 'pole count surf_1 = ', Surf_1.getPoles().__len__()
 			Surf_1.insertUKnots([5.0/6.0],[1],0.000001)
 			#print 'Surf_1 UKnotSequence after bump = ', Surf_0.UKnotSequence
-		
+
 		# insert knots along v to establish Poly6 along v
 		Surf_0.insertVKnots([1.0/3.0,2.0/3.0],[1,1],0.000001)
 		Surf_1.insertVKnots([1.0/3.0,2.0/3.0],[1,1],0.000001)
-		
+
 		Poles66_0=Surf_0.getPoles()
 		#print 'len Poles66_0 = ', Poles66_0.__len__()
 		Weights66_0=Surf_0.getWeights()
-		
+
 		Poles66_1=Surf_1.getPoles()
 		#print 'len Poles66_1 = ', Poles66_1.__len__()
 		Weights66_1=Surf_1.getWeights()
-		
+
 		if common[0] == 0:
 			v_col0_poles = [Poles66_0[0][0],Poles66_0[1][0],Poles66_0[2][0],Poles66_0[3][0],Poles66_0[4][0],Poles66_0[5][0]]
 			v_col0_weights = [Weights66_0[0][0],Weights66_0[1][0],Weights66_0[2][0],Weights66_0[3][0],Weights66_0[4][0],Weights66_0[5][0]]
 			v_col1_poles = [Poles66_0[0][1],Poles66_0[1][1],Poles66_0[2][1],Poles66_0[3][1],Poles66_0[4][1],Poles66_0[5][1]]
-			v_col1_weights = [Weights66_0[0][1],Weights66_0[1][1],Weights66_0[2][1],Weights66_0[3][1],Weights66_0[4][1],Weights66_0[5][1]]	
+			v_col1_weights = [Weights66_0[0][1],Weights66_0[1][1],Weights66_0[2][1],Weights66_0[3][1],Weights66_0[4][1],Weights66_0[5][1]]
 			v_col2_poles = [Poles66_0[0][2],Poles66_0[1][2],Poles66_0[2][2],Poles66_0[3][2],Poles66_0[4][2],Poles66_0[5][2]]
-			v_col2_weights = [Weights66_0[0][2],Weights66_0[1][2],Weights66_0[2][2],Weights66_0[3][2],Weights66_0[4][2],Weights66_0[5][2]]	
-			
+			v_col2_weights = [Weights66_0[0][2],Weights66_0[1][2],Weights66_0[2][2],Weights66_0[3][2],Weights66_0[4][2],Weights66_0[5][2]]
+
 		if common[0] == 3:
 			v_col0_poles = [Poles66_0[5][5],Poles66_0[4][5],Poles66_0[3][5],Poles66_0[2][5],Poles66_0[1][5],Poles66_0[0][5]]
 			v_col0_weights = [Weights66_0[5][5],Weights66_0[4][5],Weights66_0[3][5],Weights66_0[2][5],Weights66_0[1][5],Weights66_0[0][5]]
 			v_col1_poles = [Poles66_0[5][4],Poles66_0[4][4],Poles66_0[3][4],Poles66_0[2][4],Poles66_0[1][4],Poles66_0[0][4]]
-			v_col1_weights = [Weights66_0[5][4],Weights66_0[4][4],Weights66_0[3][4],Weights66_0[2][4],Weights66_0[1][4],Weights66_0[0][4]]	
+			v_col1_weights = [Weights66_0[5][4],Weights66_0[4][4],Weights66_0[3][4],Weights66_0[2][4],Weights66_0[1][4],Weights66_0[0][4]]
 			v_col2_poles = [Poles66_0[5][3],Poles66_0[4][3],Poles66_0[3][3],Poles66_0[2][3],Poles66_0[1][3],Poles66_0[0][3]]
-			v_col2_weights = [Weights66_0[5][3],Weights66_0[4][3],Weights66_0[3][3],Weights66_0[2][3],Weights66_0[1][3],Weights66_0[0][3]]	
-			
+			v_col2_weights = [Weights66_0[5][3],Weights66_0[4][3],Weights66_0[3][3],Weights66_0[2][3],Weights66_0[1][3],Weights66_0[0][3]]
+
 		if common[1] == 1:
 			u_row0_poles = [Poles66_1[5][0],Poles66_1[4][0],Poles66_1[3][0],Poles66_1[2][0],Poles66_1[1][0],Poles66_1[0][0]]
 			u_row0_weights = [Weights66_1[5][0],Weights66_1[4][0],Weights66_1[3][0],Weights66_1[2][0],Weights66_1[1][0],Weights66_1[0][0]]
 			u_row1_poles = [Poles66_1[5][1],Poles66_1[4][1],Poles66_1[3][1],Poles66_1[2][1],Poles66_1[1][1],Poles66_1[0][1]]
-			u_row1_weights = [Weights66_1[5][1],Weights66_1[4][1],Weights66_1[3][1],Weights66_1[2][1],Weights66_1[1][1],Weights66_1[0][1]]	
+			u_row1_weights = [Weights66_1[5][1],Weights66_1[4][1],Weights66_1[3][1],Weights66_1[2][1],Weights66_1[1][1],Weights66_1[0][1]]
 			u_row2_poles = [Poles66_1[5][2],Poles66_1[4][2],Poles66_1[3][2],Poles66_1[2][2],Poles66_1[1][2],Poles66_1[0][2]]
-			u_row2_weights = [Weights66_1[5][2],Weights66_1[4][2],Weights66_1[3][2],Weights66_1[2][2],Weights66_1[1][2],Weights66_1[0][2]]					
-			
+			u_row2_weights = [Weights66_1[5][2],Weights66_1[4][2],Weights66_1[3][2],Weights66_1[2][2],Weights66_1[1][2],Weights66_1[0][2]]
+
 		if common[1] == 2:
 			u_row0_poles = [Poles66_1[0][5],Poles66_1[1][5],Poles66_1[2][5],Poles66_1[3][5],Poles66_1[4][5],Poles66_1[5][5]]
 			u_row0_weights = [Weights66_1[0][5],Weights66_1[1][5],Weights66_1[2][5],Weights66_1[3][5],Weights66_1[4][5],Weights66_1[5][5]]
 			u_row1_poles = [Poles66_1[0][4],Poles66_1[1][4],Poles66_1[2][4],Poles66_1[3][4],Poles66_1[4][4],Poles66_1[5][4]]
-			u_row1_weights = [Weights66_1[0][4],Weights66_1[1][4],Weights66_1[2][4],Weights66_1[3][4],Weights66_1[4][4],Weights66_1[5][4]]	
+			u_row1_weights = [Weights66_1[0][4],Weights66_1[1][4],Weights66_1[2][4],Weights66_1[3][4],Weights66_1[4][4],Weights66_1[5][4]]
 			u_row2_poles = [Poles66_1[0][3],Poles66_1[1][3],Poles66_1[2][3],Poles66_1[3][3],Poles66_1[4][3],Poles66_1[5][3]]
-			u_row2_weights = [Weights66_1[0][3],Weights66_1[1][3],Weights66_1[2][3],Weights66_1[3][3],Weights66_1[4][3],Weights66_1[5][3]]	
+			u_row2_weights = [Weights66_1[0][3],Weights66_1[1][3],Weights66_1[2][3],Weights66_1[3][3],Weights66_1[4][3],Weights66_1[5][3]]
 
 		# sorta checked 07/08/2017? rows and cols still dubious
-		
+
 		# set known edges
 		p00 = u_row0_poles[0]
 		p01 = u_row0_poles[1]
@@ -3338,39 +3359,39 @@ class SubGrid63_2Surf64:
 		p03 = u_row0_poles[3]
 		p04 = u_row0_poles[4]
 		p05 = u_row0_poles[5]
-		
+
 		w00 = u_row0_weights[0]
 		w01 = u_row0_weights[1]
-		w02 = u_row0_weights[2]		
+		w02 = u_row0_weights[2]
 		w03 = u_row0_weights[3]
 		w04 = u_row0_weights[4]
 		w05 = u_row0_weights[5]
-		
+
 		p10 = v_col0_poles[1]
 		p20 = v_col0_poles[2]
 		p30 = v_col0_poles[3]
 		p40 = v_col0_poles[4]
 		p50 = v_col0_poles[5]
-		
+
 		w10 = v_col0_weights[1]
 		w20 = v_col0_weights[2]
 		w30 = v_col0_weights[3]
 		w40 = v_col0_weights[4]
 		w50 = v_col0_weights[5]
-		
+
 		# set weights
 		w11 = w01 * w10
 		w12 = w02 * w10
 		w13 = w03 * w10
 		w14 = w04 * w10
 		w15 = w05 * w10
-		
+
 		w21 = w01 * w20
 		w22 = w02 * w20
 		w23 = w03 * w20
 		w24 = w04 * w20
 		w25 = w05 * w20
-		
+
 		w31 = w01 * w30
 		w32 = w02 * w30
 		w33 = w03 * w30
@@ -3387,42 +3408,42 @@ class SubGrid63_2Surf64:
 		w52 = w02 * w50
 		w53 = w03 * w50
 		w54 = w04 * w50
-		w55 = w05 * w50	
-		
+		w55 = w05 * w50
+
 		fp.Weights = [w00, w01, w02, w03, w04, w05,
 					w10, w11, w12, w13, w14, w15,
 					w20, w21, w22, w23, w24, w25,
 					w30, w31, w32, w33, w34, w35,
 					w40, w41, w42, w43, w44, w45,
 					w50, w51, w52, w53, w54, w55,]
-		
-		
+
+
 		# establish tangent ratios for G1
-		
+
 		u_tan_ratio = (p01-p00).Length / (v_col1_poles[0]-p00).Length
 		v_tan_ratio = (p10-p00).Length / (u_row1_poles[0]-p00).Length
-		
-		
+
+
 		# build first row and column of inner control points.
-		
+
 		p11_u = p01 + (p01-u_row1_poles[1])*v_tan_ratio
 		p11_v = p10 + (p10-v_col1_poles[1])*u_tan_ratio
 		p11 = (p11_u + p11_v) * 0.5
-		
+
 		p12 = p02 + (p02-u_row1_poles[2])*v_tan_ratio
 		p13 = p03 + (p03-u_row1_poles[3])*v_tan_ratio
 		p14 = p04 + (p04-u_row1_poles[4])*v_tan_ratio
 		p15 = p05 + (p05-u_row1_poles[5])*v_tan_ratio
-		
+
 		p21 = p20 + (p20-v_col1_poles[2])*u_tan_ratio
 		p31 = p30 + (p30-v_col1_poles[3])*u_tan_ratio
 		p41 = p40 + (p40-v_col1_poles[4])*u_tan_ratio
 		p51 = p50 + (p50-v_col1_poles[5])*u_tan_ratio
-		
-		
+
+
 		# build the second row and column as projections of the input grids
 		# there is some redundancy here, as first inner row/column points are recalculated in the curvature matching function
-		
+
 		# p22 using u_rows : surf_1 points with surf_0 tangent ratio
 		proj_u_rows_u2 = match_r_6P_6P_Cubic(u_row0_poles[2], u_row1_poles[2], u_row2_poles[2], v_tan_ratio)
 		if equalVectors(proj_u_rows_u2[0], p12, 0.0000001):
@@ -3450,20 +3471,20 @@ class SubGrid63_2Surf64:
 			p23_h = proj_u_rows_u3[1]
 		else:
 			print 'failed to match tangent segment on p23_h calculation'
-		
+
 		# p24 using u_rows: surf_1 points with surf_0 tangent ratio
 		proj_u_rows_u4 = match_r_6P_6P_Cubic(u_row0_poles[4], u_row1_poles[4], u_row2_poles[4], v_tan_ratio)
 		if equalVectors(proj_u_rows_u4[0], p14, 0.0000001):
 			p24_h = proj_u_rows_u4[1]
 		else:
-			print 'failed to match tangent segment on p24_h calculation'		
-		
+			print 'failed to match tangent segment on p24_h calculation'
+
 		# p25 using u_rows: surf_1 points with surf_0 tangent ratio
 		proj_u_rows_u5 = match_r_6P_6P_Cubic(u_row0_poles[5], u_row1_poles[5], u_row2_poles[5], v_tan_ratio)
 		if equalVectors(proj_u_rows_u5[0], p15, 0.0000001):
 			p25_h = proj_u_rows_u5[1]
 		else:
-			print 'failed to match tangent segment on p25_h calculation'		
+			print 'failed to match tangent segment on p25_h calculation'
 
 		# p32 using v_cols : surf_0 points with surf_1 tangent ratio
 		proj_v_cols_v3 = match_r_6P_6P_Cubic(v_col0_poles[3], v_col1_poles[3], v_col2_poles[3], u_tan_ratio)
@@ -3476,75 +3497,75 @@ class SubGrid63_2Surf64:
 		if equalVectors(proj_v_cols_v4[0], p41, 0.0000001):
 			p42_h = proj_v_cols_v4[1]
 		else:
-			print 'failed to match tangent segment on p42_h calculation'			
+			print 'failed to match tangent segment on p42_h calculation'
 		# p52 using v_cols : surf_0 points with surf_1 tangent ratio
 		proj_v_cols_v5 = match_r_6P_6P_Cubic(v_col0_poles[5], v_col1_poles[5], v_col2_poles[5], u_tan_ratio)
 		if equalVectors(proj_v_cols_v5[0], p51, 0.0000001):
 			p52_h = proj_v_cols_v5[1]
 		else:
-			print 'failed to match tangent segment on p52_h calculation'				
-		
+			print 'failed to match tangent segment on p52_h calculation'
+
 		v00 = Base.Vector(0,0,0)
-		
+
 		fp.Poles = [p00, p01, p02, p03, p04, p05,
 					p10, p11, p12, p13, p14, p15,
 					p20, p21, p22, p23_h, p24_h, p25_h,
 					p30, p31, p32_h, v00, v00, v00,
 					p40, p41, p42_h, v00, v00, v00,
 					p50, p51, p52_h, v00, v00, v00]
-		
-		
-		
 
-		
+
+
+
+
 		Legs=[0]*30
-		
+
 		Legs[0]=Part.LineSegment(p00,p01)
 		Legs[1]=Part.LineSegment(p01,p02)
 		Legs[2]=Part.LineSegment(p02,p03)
 		Legs[3]=Part.LineSegment(p03,p04)
 		Legs[4]=Part.LineSegment(p04,p05)
-		
+
 		Legs[5]=Part.LineSegment(p00,p10)
 		Legs[6]=Part.LineSegment(p10,p20)
 		Legs[7]=Part.LineSegment(p20,p30)
 		Legs[8]=Part.LineSegment(p30,p40)
 		Legs[9]=Part.LineSegment(p40,p50)
-		
+
 		Legs[10]=Part.LineSegment(p01,p11_u)
 		Legs[11]=Part.LineSegment(p02,p12)
 		Legs[12]=Part.LineSegment(p03,p13)
 		Legs[13]=Part.LineSegment(p04,p14)
 		Legs[14]=Part.LineSegment(p05,p15)
-		
+
 		Legs[15]=Part.LineSegment(p10,p11_v)
 		Legs[16]=Part.LineSegment(p20,p21)
 		Legs[17]=Part.LineSegment(p30,p31)
 		Legs[18]=Part.LineSegment(p40,p41)
 		Legs[19]=Part.LineSegment(p50,p51)
-		
+
 		Legs[20]=Part.LineSegment(p11,p12)
 		Legs[21]=Part.LineSegment(p12,p13)
 		Legs[22]=Part.LineSegment(p13,p14)
 		Legs[23]=Part.LineSegment(p14,p15)
-		
+
 		Legs[24]=Part.LineSegment(p11,p21)
 		Legs[25]=Part.LineSegment(p21,p31)
 		Legs[26]=Part.LineSegment(p31,p41)
 		Legs[27]=Part.LineSegment(p41,p51)
-		
+
 		Legs[28]=Part.LineSegment(p12,p22_u_isect)
-		
+
 		#Legs[29]=Part.LineSegment(p13,p23_h)  # these points can collapse. need to test before making lines.
 		#Legs[30]=Part.LineSegment(p14,p24_h) 
 		#Legs[31]=Part.LineSegment(p15, p25_h)
-		
+
 		Legs[29]=Part.LineSegment(p21,p22_v_isect)
-		
+
 		#Legs[33]=Part.LineSegment(p31, p32_h)
 		#Legs[34]=Part.LineSegment(p41, p42_h)
 		#Legs[35]=Part.LineSegment(p51, p52_h)
-		
+
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
@@ -3563,71 +3584,71 @@ class ControlGridNStar66_NSub:
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
 		return L1_scale
-		
+
 	def StarRow2_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		L1Scale_Sub0_v = self.getL1Scale(fp.StarGrid[Sub_0_i][2][0], fp.StarGrid[Sub_0_i][8][0], fp.StarGrid[Sub_0_i][14][0])
 		L1Scale_Sub1_u = self.getL1Scale(fp.StarGrid[Sub_1_i][12][0], fp.StarGrid[Sub_1_i][13][0], fp.StarGrid[Sub_1_i][14][0])
 		L1Scale_Mid = 0.5 * (L1Scale_Sub0_v + L1Scale_Sub1_u)
 		Mid_p2 = fp.StarGrid[Sub_0_i][17][0] + L1Scale_Mid * (fp.StarGrid[Sub_0_i][11][0]-fp.StarGrid[Sub_0_i][5][0])
-		
-		fp.StarGrid[Sub_0_i][17][0] = Mid_p2		
+
+		fp.StarGrid[Sub_0_i][17][0] = Mid_p2
 		fp.StarGrid[Sub_1_i][32][0] = Mid_p2
 		fp.StarGrid[Sub_0_i][16][0] = fp.StarGrid[Sub_0_i][16][0] + L1Scale_Mid * (fp.StarGrid[Sub_0_i][10][0]-fp.StarGrid[Sub_0_i][4][0])
 		fp.StarGrid[Sub_1_i][26][0] = fp.StarGrid[Sub_1_i][26][0] + L1Scale_Mid * (fp.StarGrid[Sub_1_i][25][0]-fp.StarGrid[Sub_1_i][24][0])
-		
+
 		L1Scale_15 = 0.5 * (L1Scale_Sub0_v + L1Scale_Mid)
 		L1Scale_20 = 0.5 * (L1Scale_Sub1_u + L1Scale_Mid)
 		fp.StarGrid[Sub_0_i][15][0] = fp.StarGrid[Sub_0_i][15][0] + L1Scale_15 * (fp.StarGrid[Sub_0_i][9][0]-fp.StarGrid[Sub_0_i][3][0])
 		fp.StarGrid[Sub_1_i][20][0] = fp.StarGrid[Sub_1_i][20][0] + L1Scale_20 * (fp.StarGrid[Sub_1_i][19][0]-fp.StarGrid[Sub_1_i][18][0])
-		
+
 		# control leg visualization
 		Legs_Row2 = []
 		Legs_Row2_i = [[[9,15],[10,16],[11,17],[14,15],[15,16],[16,17]],[[14,20],[19,20],[20,26],[25,26],[26,32]]]
 		for i in Legs_Row2_i[0]:
 			Legs_Row2.append(Part.LineSegment(fp.StarGrid[Sub_0_i][i[0]][0],fp.StarGrid[Sub_0_i][i[1]][0]))
-			
+
 		for i in Legs_Row2_i[1]:
 			Legs_Row2.append(Part.LineSegment(fp.StarGrid[Sub_1_i][i[0]][0],fp.StarGrid[Sub_1_i][i[1]][0]))
-		
+
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row2 # this explicit assignment works. it modifies the subclass instance property from within the parent class function.
 		return 0
-		
+
 	def StarRow2_SubLoop(self, fp, N):
 		# loop in pairs from first element to last
 		for i in range(N-1):
 			self.StarRow2_2Sub(fp, i, i+1)
-		
+
 		# close sequence by looping back a pair from last to first element
 		self.StarRow2_2Sub(fp, N-1, 0)
 		return 0
-	
+
 	def StarDiag3_Sub(self, fp, Sub_i):
 		fp.StarGrid[Sub_i][21][0] = fp.StarGrid[Sub_i][20][0] + fp.StarGrid[Sub_i][15][0] - fp.StarGrid[Sub_i][14][0]
-		
+
 		# control leg visualization
 		Legs_Diag3 = [0,0]
 		Legs_Diag3[0] = Part.LineSegment(fp.StarGrid[Sub_i][15][0], fp.StarGrid[Sub_i][21][0])
 		Legs_Diag3[1] = Part.LineSegment(fp.StarGrid[Sub_i][20][0], fp.StarGrid[Sub_i][21][0])
-		
+
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag3
 		return 0
-		
+
 	def StarDiag3_SubLoop(self, fp, N):
 		# loop from first element to last. no pairs, no loop back required.
 		for i in range(N):
 			self.StarDiag3_Sub(fp, i)
-		return 0	
-		
+		return 0
+
 	def StarRow3_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		# prepare seam point
 		Mid_p2 = fp.StarGrid[Sub_0_i][17][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0])
-		
+
 		# apply seam point locally
 		fp.StarGrid[Sub_0_i][23][0] = Mid_p2
 		fp.StarGrid[Sub_1_i][33][0] = Mid_p2
-		
+
 		# average to seam neighbor locally
 		fp.StarGrid[Sub_0_i][22][0] = fp.StarGrid[Sub_0_i][16][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_0_i][23][0]-fp.StarGrid[Sub_0_i][17][0])
 		fp.StarGrid[Sub_1_i][27][0] = fp.StarGrid[Sub_1_i][26][0] + 0.5 * (fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0]+fp.StarGrid[Sub_1_i][33][0]-fp.StarGrid[Sub_1_i][32][0])
@@ -3636,14 +3657,14 @@ class ControlGridNStar66_NSub:
 		Legs_Row3_i = [[[16,22],[17,23],[21,22],[22,23]],[[21,27],[26,27],[27,33]]]
 		for i in Legs_Row3_i[0]:
 			Legs_Row3.append(Part.LineSegment(fp.StarGrid[Sub_0_i][i[0]][0],fp.StarGrid[Sub_0_i][i[1]][0]))
-			
+
 		for i in Legs_Row3_i[1]:
 			Legs_Row3.append(Part.LineSegment(fp.StarGrid[Sub_1_i][i[0]][0],fp.StarGrid[Sub_1_i][i[1]][0]))
-	
+
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row3 
 		return 0
-	
+
 	def StarRow3_SubLoop(self, fp, N):
 		# loop in pairs from first element to last
 		for i in range(N-1):
@@ -3651,23 +3672,23 @@ class ControlGridNStar66_NSub:
 		# close sequence by looping back a pair from last to first element
 		self.StarRow3_2Sub(fp, N-1, 0)
 		return 0
-	
+
 	def StarDiag4_3Sub(self, fp, Sub_prev_i, Sub_i, Sub_next_i):
 		# parallelogram diagonal
 		#Sub_28_raw = fp.StarGrid[Sub_i][27][0] + (fp.StarGrid[Sub_i][22][0]-fp.StarGrid[Sub_i][21][0])
-		
+
 		# components of the parallelogram diagonals, scaled by opposite edge on adjacent grid
 		u_28_i = fp.StarGrid[Sub_i][22][0] - fp.StarGrid[Sub_i][21][0]
 		v_28_i = fp.StarGrid[Sub_i][27][0] - fp.StarGrid[Sub_i][21][0]
-		
+
 		u_28_prev_i = fp.StarGrid[Sub_prev_i][27][0] - fp.StarGrid[Sub_prev_i][21][0]
 		v_28_next_i = fp.StarGrid[Sub_next_i][22][0] - fp.StarGrid[Sub_next_i][21][0]
-		
+
 		scaled_u_28_i = u_28_i * ( 1 +  ( u_28_prev_i.Length - u_28_i.Length ) / ( 3.0 * u_28_i.Length ) )
 		scaled_v_28_i = v_28_i * ( 1 +  ( v_28_next_i.Length - v_28_i.Length ) / ( 3.0 * v_28_i.Length ) )
-		
+
 		Sub_28_raw = fp.StarGrid[Sub_i][21][0] + scaled_u_28_i +scaled_v_28_i
-		
+
 		# scaling factor. based on N? 
 		# no. need to fix this. the scaling factor needs to achieve alignment between neighboring subgrids if they align,
 		# and a smooth rotation if they do not align.
@@ -3681,29 +3702,29 @@ class ControlGridNStar66_NSub:
 		 scale = 1.5
 
 		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (Sub_28_raw - fp.StarGrid[Sub_i][21][0])
-		
+
 		Plane_prev = Part.Plane(fp.StarGrid[Sub_i][33][0],fp.StarGrid[Sub_i][23][0],fp.StarGrid[Sub_prev_i][33][0])
 		Plane_next = Part.Plane(fp.StarGrid[Sub_i][33][0],fp.StarGrid[Sub_i][23][0],fp.StarGrid[Sub_next_i][23][0])
-		
+
 		Sub_28_prev_param = Plane_prev.parameter(Sub_28_scaled)
 		Sub_28_prev_proj = Plane_prev.value(Sub_28_prev_param[0],Sub_28_prev_param[1])
-		
+
 		Sub_28_next_param = Plane_next.parameter(Sub_28_scaled)
 		Sub_28_next_proj = Plane_next.value(Sub_28_next_param[0],Sub_28_next_param[1])
-		
+
 		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj) # best first round result for N=3, bad for recursion. N=5 is distorte din the center
 		# fp.StarGrid[Sub_i][28][0] = 0.0 * Sub_28_scaled + 0.5 * (Sub_28_prev_proj + Sub_28_next_proj) # N=3 round 1 shmushed, but good result on round 2. round 3 too pointy. unlear for N=5
-		
+
 		# control leg visualization
 		Legs_Diag4 = [0,0]
 		Legs_Diag4[0] = Part.LineSegment(fp.StarGrid[Sub_i][22][0],fp.StarGrid[Sub_i][28][0])
 		Legs_Diag4[1] = Part.LineSegment(fp.StarGrid[Sub_i][27][0],fp.StarGrid[Sub_i][28][0])
-		
+
 		# update instance property. direct assigment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag4
 		return 0
-	
+
 	def StarDiag4_SubLoop(self, fp, N):
 		# loop in triples from first element to second to last
 		for i in range(N-2):
@@ -3721,36 +3742,36 @@ class ControlGridNStar66_NSub:
 		for i in range(N):
 			Poles_28_total = Poles_28_total + fp.StarGrid[i][28][0]
 
-		SquishCenter = (1.0 / N) * Poles_28_total		
-			
+		SquishCenter = (1.0 / N) * Poles_28_total
+
 		# do cross products in pairs around the loops to get a list of normal direction approximations
 		cross_total = Base.Vector(0,0,0)
 		for i in range(N-1):
 			cross_total = cross_total + (fp.StarGrid[i][28][0]-SquishCenter).cross(fp.StarGrid[i+1][28][0]-SquishCenter)
-		# close sequence by looping back	
+		# close sequence by looping back
 		cross_total = cross_total + (fp.StarGrid[N-1][28][0]-SquishCenter).cross(fp.StarGrid[0][28][0]-SquishCenter)
-		
+
 		# define squish plane from squish center and squish normal
 		Squish_Plane = Part.Plane(SquishCenter, cross_total)
-		
+
 		# project all diag4 points to this plane.
 		projections = [0] * N
 		for i in range(N):
 			param = Squish_Plane.parameter(fp.StarGrid[i][28][0])
 			fp.StarGrid[i][28][0] = Squish_Plane.value(param[0],param[1])
-	
+
 	def StarRow4_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		# pull up the seam at row 4
 		Mid_p4 = 0.5 * (fp.StarGrid[Sub_0_i][28][0] + fp.StarGrid[Sub_1_i][28][0])
 		fp.StarGrid[Sub_0_i][29][0] = Mid_p4
 		fp.StarGrid[Sub_1_i][34][0] = Mid_p4
-		
+
 		# control leg visualization
 		Legs_Row4 = [0,0,0]
 		Legs_Row4[0] = Part.LineSegment(fp.StarGrid[Sub_0_i][23][0],fp.StarGrid[Sub_0_i][29][0])
 		Legs_Row4[1] = Part.LineSegment(fp.StarGrid[Sub_0_i][28][0],fp.StarGrid[Sub_0_i][29][0])
-		Legs_Row4[2] = Part.LineSegment(fp.StarGrid[Sub_1_i][28][0],fp.StarGrid[Sub_1_i][34][0])		
-		
+		Legs_Row4[2] = Part.LineSegment(fp.StarGrid[Sub_1_i][28][0],fp.StarGrid[Sub_1_i][34][0])
+
 		# update instance property. direct assigment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row4
@@ -3762,7 +3783,7 @@ class ControlGridNStar66_NSub:
 			self.StarRow4_2Sub(fp, i, i+1)
 		# close sequence by looping back a pair from last to first element
 		self.StarRow4_2Sub(fp, N-1, 0)
-		return 0	
+		return 0
 
 	def StarCenter(self, fp, N):
 		# we are going to average all poles [29] around the loop to define the center
@@ -3770,25 +3791,25 @@ class ControlGridNStar66_NSub:
 		Vector_total = Base.Vector(0,0,0)
 		for i in range(N):
 			Vector_total = Vector_total + fp.StarGrid[i][29][0]
-		
+
 		StarCenter = (1.0 / N) * Vector_total 
-		
+
 		# Apply center point to all Poles lists
 		for i in range(N):
 			fp.StarGrid[i][35][0] = StarCenter
-		
+
 		# control leg visualization
 		Legs_Row5 = []
 		for i in range(N):
 			Legs_Row5.append(Part.LineSegment(fp.StarGrid[i][29][0],fp.StarGrid[i][35][0]))
-		
+
 		# update instance property. direct assigment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row5
-		
+
 		return 0
 
-	def execute(self, fp):	
+	def execute(self, fp):
 		# refresh properties back to linked SubGrids every time the Star gets recomputed
 		# determine number of SubGrids
 		fp.N=len(fp.SubList)
@@ -3807,8 +3828,8 @@ class ControlGridNStar66_NSub:
 			fp.StarGrid[n] = StarGrid_n
 		# a specific Pole is now addressed as StarGrid[n][i][0]
 		# a specific Weight is now addresses as StarGrid[n][i][1]
-		
-		
+
+
 		fp.Legs = []
 		self.StarRow2_SubLoop(fp, fp.N)
 		self.StarDiag3_SubLoop(fp, fp.N)
@@ -3819,12 +3840,12 @@ class ControlGridNStar66_NSub:
 			print "Squish Diagonal 4"
 		else:
 			print "no Squish Diagonal 4!"
-		
+
 		self.StarRow4_SubLoop(fp, fp.N)
 		self.StarCenter(fp, fp.N)
-		
+
 		fp.Shape = Part.Shape(fp.Legs)
-		
+
 		# convert all vectors in StarGrid to lists. this allows saving the PythonObject attribute. The data needs to be fed back to Base.Vector() downstream.
 		for n in range(fp.N):
 			#set size of single SubGrid
@@ -3842,9 +3863,9 @@ class CubicNStarSurface_NStar66:
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nCubicNStarSurface_NStar66 Init\n")
 		obj.addProperty("App::PropertyLink","NStarGrid","CubicNStarSurface_NStar66","control grid star").NStarGrid = NStarGrid
-		obj.addProperty("Part::PropertyGeometryList","NSurf","CubicNStarSurface_NStar66","N Cubic Surfaces").NSurf	
+		obj.addProperty("Part::PropertyGeometryList","NSurf","CubicNStarSurface_NStar66","N Cubic Surfaces").NSurf
 		obj.Proxy = self
-		
+
 	def HomogeneousGrids(self, fp, N):
 		HomogeneousGrids = [0] * N
 		for i in range(N):
@@ -3852,9 +3873,9 @@ class CubicNStarSurface_NStar66:
 			for j in range(36):
 				# convert the float list from NStarGrid back to Base.Vector.
 				HGrid_i[j] = [Base.Vector(fp.NStarGrid.StarGrid[i][j][0][0],fp.NStarGrid.StarGrid[i][j][0][1],fp.NStarGrid.StarGrid[i][j][0][2]), fp.NStarGrid.StarGrid[i][j][1]] 
-			HomogeneousGrids[i] = HGrid_i	
-		return HomogeneousGrids	
-		
+			HomogeneousGrids[i] = HGrid_i
+		return HomogeneousGrids
+
 	def makeNSurf(self, fp, HomogeneousGrids, N):
 		NSurf = [0] * N
 		for i in range(N):
@@ -3864,13 +3885,13 @@ class CubicNStarSurface_NStar66:
 	def execute(self,fp):
 		# cast [x ,y, z] in linked NstarGrid back to Base.Vector
 		HomogeneousGrids = self.HomogeneousGrids(fp, fp.NStarGrid.N)
-		
+
 		#loop over the homogeneous grids to make the surfaces
 		NSurf = self.makeNSurf(fp, HomogeneousGrids, fp.NStarGrid.N)
 		fp.NSurf = NSurf
 
 		fp.Shape = Part.Shape(fp.NSurf)
-	
+
 class StarTrim_CubicNStar:
 	def __init__(self, obj , CubicNStar):
 		''' Add the properties '''
@@ -3881,9 +3902,9 @@ class StarTrim_CubicNStar:
 		obj.addProperty("Part::PropertyGeometryList","NSurf_lag","StarTrim_CubicNStar","N Cubic Surfaces, lagging edge section").NSurf_lag
 		obj.addProperty("Part::PropertyGeometryList","NSurf_center","StarTrim_CubicNStar","N Cubic Surfaces, center section").NSurf_center
 		obj.Proxy = self
-	
-	def execute(self, fp):		
-		
+
+	def execute(self, fp):
+
 		N = fp.CubicNStar.NStarGrid.N
 
 		NSurf_main = [0] * N
@@ -3892,21 +3913,21 @@ class StarTrim_CubicNStar:
 			surf_main.segment(0.0, 0.5, 0.0, 0.5)
 			NSurf_main[i] = surf_main
 		fp.NSurf_main = NSurf_main
-		
+
 		NSurf_lead = [0] * N
 		for i in range(N):
 			surf_lead = fp.CubicNStar.NSurf[i]
 			surf_lead.segment(0.5, 1.0, 0.0, 0.5)
 			NSurf_lead[i] = surf_lead
 		fp.NSurf_lead = NSurf_lead
-		
+
 		NSurf_lag = [0] * N
 		for i in range(N):
 			surf_lag = 	fp.CubicNStar.NSurf[i]
 			surf_lag.segment(0.0, 0.5, 0.5, 1.0)
 			NSurf_lag[i] = surf_lag
 		fp.NSurf_lag = NSurf_lag
-		
+
 		NSurf_center = [0] * N
 		for i in range(N):
 			surf_center = 	fp.CubicNStar.NSurf[i]
@@ -3915,9 +3936,9 @@ class StarTrim_CubicNStar:
 			surf_center.insertVKnots([5.0/6.0],[1],0.000001)
 			NSurf_center[i] = surf_center
 		fp.NSurf_center = NSurf_center
-		
+
 		trim = fp.NSurf_main + fp.NSurf_lead + fp.NSurf_lag
-		
+
 		fp.Shape = Part.Shape(trim)
 
 class ControlGridNStar66_StarTrim: # quick and dirty test for star center refinement. uses a list of subgrids within the single linked StarTrim, instead of a linklist. 
@@ -3931,76 +3952,76 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		fp.addProperty("App::PropertyPythonObject","StarGrid","ControlGridNStar66_StarTrim","Poles").StarGrid
 		fp.addProperty("App::PropertyInteger","SquishDiag4","ControlGridNStar66_NSub","SquishDiag4").SquishDiag4 = 0
 		fp.Proxy = self
-		
-		
+
+
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)
 		return L1_scale
-		
+
 	def StarRow2_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		L1Scale_Sub0_v = self.getL1Scale(fp.StarGrid[Sub_0_i][2][0], fp.StarGrid[Sub_0_i][8][0], fp.StarGrid[Sub_0_i][14][0])
 		L1Scale_Sub1_u = self.getL1Scale(fp.StarGrid[Sub_1_i][12][0], fp.StarGrid[Sub_1_i][13][0], fp.StarGrid[Sub_1_i][14][0])
 		L1Scale_Mid = 0.5 * (L1Scale_Sub0_v + L1Scale_Sub1_u)
 		Mid_p2 = fp.StarGrid[Sub_0_i][17][0] + L1Scale_Mid * (fp.StarGrid[Sub_0_i][11][0]-fp.StarGrid[Sub_0_i][5][0])
-		
-		fp.StarGrid[Sub_0_i][17][0] = Mid_p2		
+
+		fp.StarGrid[Sub_0_i][17][0] = Mid_p2
 		fp.StarGrid[Sub_1_i][32][0] = Mid_p2
 		fp.StarGrid[Sub_0_i][16][0] = fp.StarGrid[Sub_0_i][16][0] + L1Scale_Mid * (fp.StarGrid[Sub_0_i][10][0]-fp.StarGrid[Sub_0_i][4][0])
 		fp.StarGrid[Sub_1_i][26][0] = fp.StarGrid[Sub_1_i][26][0] + L1Scale_Mid * (fp.StarGrid[Sub_1_i][25][0]-fp.StarGrid[Sub_1_i][24][0])
-		
+
 		L1Scale_15 = 0.5 * (L1Scale_Sub0_v + L1Scale_Mid)
 		L1Scale_20 = 0.5 * (L1Scale_Sub1_u + L1Scale_Mid)
 		fp.StarGrid[Sub_0_i][15][0] = fp.StarGrid[Sub_0_i][15][0] + L1Scale_15 * (fp.StarGrid[Sub_0_i][9][0]-fp.StarGrid[Sub_0_i][3][0])
 		fp.StarGrid[Sub_1_i][20][0] = fp.StarGrid[Sub_1_i][20][0] + L1Scale_20 * (fp.StarGrid[Sub_1_i][19][0]-fp.StarGrid[Sub_1_i][18][0])
-		
+
 		# control leg visualization
 		Legs_Row2 = []
 		Legs_Row2_i = [[[9,15],[10,16],[11,17],[14,15],[15,16],[16,17]],[[14,20],[19,20],[20,26],[25,26],[26,32]]]
 		for i in Legs_Row2_i[0]:
 			Legs_Row2.append(Part.LineSegment(fp.StarGrid[Sub_0_i][i[0]][0],fp.StarGrid[Sub_0_i][i[1]][0]))
-			
+
 		for i in Legs_Row2_i[1]:
 			Legs_Row2.append(Part.LineSegment(fp.StarGrid[Sub_1_i][i[0]][0],fp.StarGrid[Sub_1_i][i[1]][0]))
-		
+
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row2 # this explicit assignment works. it modifies the subclass instance property from within the parent class function.
 		return 0
-		
+
 	def StarRow2_SubLoop(self, fp, N):
 		# loop in pairs from first element to last
 		for i in range(N-1):
 			self.StarRow2_2Sub(fp, i, i+1)
-		
+
 		# close sequence by looping back a pair from last to first element
 		self.StarRow2_2Sub(fp, N-1, 0)
 		return 0
-	
+
 	def StarDiag3_Sub(self, fp, Sub_i):
 		fp.StarGrid[Sub_i][21][0] = fp.StarGrid[Sub_i][20][0] + fp.StarGrid[Sub_i][15][0] - fp.StarGrid[Sub_i][14][0]
-		
+
 		# control leg visualization
 		Legs_Diag3 = [0,0]
 		Legs_Diag3[0] = Part.LineSegment(fp.StarGrid[Sub_i][15][0], fp.StarGrid[Sub_i][21][0])
 		Legs_Diag3[1] = Part.LineSegment(fp.StarGrid[Sub_i][20][0], fp.StarGrid[Sub_i][21][0])
-		
+
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag3
 		return 0
-		
+
 	def StarDiag3_SubLoop(self, fp, N):
 		# loop from first element to last. no pairs, no loop back required.
 		for i in range(N):
 			self.StarDiag3_Sub(fp, i)
-		return 0	
-		
+		return 0
+
 	def StarRow3_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		# prepare seam point
 		Mid_p2 = fp.StarGrid[Sub_0_i][17][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0])
-		
+
 		# apply seam point locally
 		fp.StarGrid[Sub_0_i][23][0] = Mid_p2
 		fp.StarGrid[Sub_1_i][33][0] = Mid_p2
-		
+
 		# average to seam neighbor locally
 		fp.StarGrid[Sub_0_i][22][0] = fp.StarGrid[Sub_0_i][16][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_0_i][23][0]-fp.StarGrid[Sub_0_i][17][0])
 		fp.StarGrid[Sub_1_i][27][0] = fp.StarGrid[Sub_1_i][26][0] + 0.5 * (fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0]+fp.StarGrid[Sub_1_i][33][0]-fp.StarGrid[Sub_1_i][32][0])
@@ -4009,14 +4030,14 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		Legs_Row3_i = [[[16,22],[17,23],[21,22],[22,23]],[[21,27],[26,27],[27,33]]]
 		for i in Legs_Row3_i[0]:
 			Legs_Row3.append(Part.LineSegment(fp.StarGrid[Sub_0_i][i[0]][0],fp.StarGrid[Sub_0_i][i[1]][0]))
-			
+
 		for i in Legs_Row3_i[1]:
 			Legs_Row3.append(Part.LineSegment(fp.StarGrid[Sub_1_i][i[0]][0],fp.StarGrid[Sub_1_i][i[1]][0]))
-	
+
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row3 
 		return 0
-	
+
 	def StarRow3_SubLoop(self, fp, N):
 		# loop in pairs from first element to last
 		for i in range(N-1):
@@ -4024,23 +4045,23 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		# close sequence by looping back a pair from last to first element
 		self.StarRow3_2Sub(fp, N-1, 0)
 		return 0
-	
+
 	def StarDiag4_3Sub(self, fp, Sub_prev_i, Sub_i, Sub_next_i):
 		# parallelogram diagonal
 		#Sub_28_raw = fp.StarGrid[Sub_i][27][0] + (fp.StarGrid[Sub_i][22][0]-fp.StarGrid[Sub_i][21][0])
-		
+
 		# components of the parallelogram diagonals, scaled by opposite edge on adjacent grid
 		u_28_i = fp.StarGrid[Sub_i][22][0] - fp.StarGrid[Sub_i][21][0]
 		v_28_i = fp.StarGrid[Sub_i][27][0] - fp.StarGrid[Sub_i][21][0]
-		
+
 		u_28_prev_i = fp.StarGrid[Sub_prev_i][27][0] - fp.StarGrid[Sub_prev_i][21][0]
 		v_28_next_i = fp.StarGrid[Sub_next_i][22][0] - fp.StarGrid[Sub_next_i][21][0]
-		
+
 		scaled_u_28_i = u_28_i * ( 1 +  ( u_28_prev_i.Length - u_28_i.Length ) / ( 3.0 * u_28_i.Length ) )
 		scaled_v_28_i = v_28_i * ( 1 +  ( v_28_next_i.Length - v_28_i.Length ) / ( 3.0 * v_28_i.Length ) )
-		
+
 		Sub_28_raw = fp.StarGrid[Sub_i][21][0] + scaled_u_28_i +scaled_v_28_i
-		
+
 		# scaling factor. based on N? 
 		# no. need to fix this. the scaling factor needs to achieve alignment between neighboring subgrids if they align,
 		# and a smooth rotation if they do not align.
@@ -4051,32 +4072,32 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		if fp.N == 5:
 		 scale = 1.00 # this is a mess. a single factor doesn't do it. oh well, moving on.
 
-		
-		
-		
+
+
+
 		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (Sub_28_raw - fp.StarGrid[Sub_i][21][0])
-		
+
 		Plane_prev = Part.Plane(fp.StarGrid[Sub_i][33][0],fp.StarGrid[Sub_i][23][0],fp.StarGrid[Sub_prev_i][33][0])
 		Plane_next = Part.Plane(fp.StarGrid[Sub_i][33][0],fp.StarGrid[Sub_i][23][0],fp.StarGrid[Sub_next_i][23][0])
-		
+
 		Sub_28_prev_param = Plane_prev.parameter(Sub_28_scaled)
 		Sub_28_prev_proj = Plane_prev.value(Sub_28_prev_param[0],Sub_28_prev_param[1])
-		
+
 		Sub_28_next_param = Plane_next.parameter(Sub_28_scaled)
 		Sub_28_next_proj = Plane_next.value(Sub_28_next_param[0],Sub_28_next_param[1])
-		
+
 		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj)
-		
+
 		# control leg visualization
 		Legs_Diag4 = [0,0]
 		Legs_Diag4[0] = Part.LineSegment(fp.StarGrid[Sub_i][22][0],fp.StarGrid[Sub_i][28][0])
 		Legs_Diag4[1] = Part.LineSegment(fp.StarGrid[Sub_i][27][0],fp.StarGrid[Sub_i][28][0])
-		
+
 		# update instance property. direct assigment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Diag4
 		return 0
-		
+
 	def StarDiag4_SubLoop(self, fp, N):
 		# loop in triples from first element to second to last
 		for i in range(N-2):
@@ -4094,36 +4115,36 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		for i in range(N):
 			Poles_28_total = Poles_28_total + fp.StarGrid[i][28][0]
 
-		SquishCenter = (1.0 / N) * Poles_28_total		
-			
+		SquishCenter = (1.0 / N) * Poles_28_total
+
 		# do cross products in pairs around the loops to get a list of normal direction approximations
 		cross_total = Base.Vector(0,0,0)
 		for i in range(N-1):
 			cross_total = cross_total + (fp.StarGrid[i][28][0]-SquishCenter).cross(fp.StarGrid[i+1][28][0]-SquishCenter)
-		# close sequence by looping back	
+		# close sequence by looping back
 		cross_total = cross_total + (fp.StarGrid[N-1][28][0]-SquishCenter).cross(fp.StarGrid[0][28][0]-SquishCenter)
-		
+
 		# define squish plane from squish center and squish normal
 		Squish_Plane = Part.Plane(SquishCenter, cross_total)
-		
+
 		# project all diag4 points to this plane.
 		projections = [0] * N
 		for i in range(N):
 			param = Squish_Plane.parameter(fp.StarGrid[i][28][0])
 			fp.StarGrid[i][28][0] = Squish_Plane.value(param[0],param[1])
-	
+
 	def StarRow4_2Sub(self, fp, Sub_0_i, Sub_1_i):
 		# pull up the seam at row 4
 		Mid_p4 = 0.5 * (fp.StarGrid[Sub_0_i][28][0] + fp.StarGrid[Sub_1_i][28][0])
 		fp.StarGrid[Sub_0_i][29][0] = Mid_p4
 		fp.StarGrid[Sub_1_i][34][0] = Mid_p4
-		
+
 		# control leg visualization
 		Legs_Row4 = [0,0,0]
 		Legs_Row4[0] = Part.LineSegment(fp.StarGrid[Sub_0_i][23][0],fp.StarGrid[Sub_0_i][29][0])
 		Legs_Row4[1] = Part.LineSegment(fp.StarGrid[Sub_0_i][28][0],fp.StarGrid[Sub_0_i][29][0])
-		Legs_Row4[2] = Part.LineSegment(fp.StarGrid[Sub_1_i][28][0],fp.StarGrid[Sub_1_i][34][0])		
-		
+		Legs_Row4[2] = Part.LineSegment(fp.StarGrid[Sub_1_i][28][0],fp.StarGrid[Sub_1_i][34][0])
+
 		# update instance property. direct assigment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row4
@@ -4135,7 +4156,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 			self.StarRow4_2Sub(fp, i, i+1)
 		# close sequence by looping back a pair from last to first element
 		self.StarRow4_2Sub(fp, N-1, 0)
-		return 0	
+		return 0
 
 	def StarCenter(self, fp, N):
 		# we are going to average all poles [29] around the loop to define the center
@@ -4143,28 +4164,28 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		Vector_total = Base.Vector(0,0,0)
 		for i in range(N):
 			Vector_total = Vector_total + fp.StarGrid[i][29][0]
-		
+
 		StarCenter = (1.0 / N) * Vector_total 
-		
+
 		# Apply center point to all Poles lists
 		for i in range(N):
 			fp.StarGrid[i][35][0] = StarCenter
-		
+
 		# control leg visualization
 		Legs_Row5 = []
 		for i in range(N):
 			Legs_Row5.append(Part.LineSegment(fp.StarGrid[i][29][0],fp.StarGrid[i][35][0]))
-		
+
 		# update instance property. direct assigment
 		Legs = fp.Legs
 		fp.Legs = Legs + Legs_Row5
-		
+
 		return 0
 
-	def execute(self, fp):	
+	def execute(self, fp):
 		# instead of a list of Subgrid Links, we have a single link to a list of surface segments. we have to make our own SubGrids
-		
-		
+
+
 		# this version works directly from NSurf_Center. this isn't directly equivalent, because the curvature row/col is not 'collapsed' to the tangent row/col, as it would be in a fresh SubGrid63
 		# refresh properties back to linked Startrim every time the Star gets recomputed
 		# determine number of SubGrids in the StarTrim
@@ -4180,13 +4201,13 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 			for v in range(6):
 				for u in range(6):
 					Poles[v*6+u] = PoleArray[u][v]
-					
+
 			WeightArray = fp.StarTrim.NSurf_center[n].getWeights()
 			Weights = [0] *36
 			for v in range(6):
 				for u in range(6):
 					Weights[v*6+u] = WeightArray[u][v]
-			
+
 			StarGrid_n = [0] * 36
 			for i in range(36):
 				# set Pole/Weight format [Base.Vector(), Float]
@@ -4198,8 +4219,8 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 			fp.StarGrid[n] = StarGrid_n
 		# a specific Pole is now addressed as StarGrid[n][i][0]
 		# a specific Weight is now addresses as StarGrid[n][i][1]
-		
-		
+
+
 		# now that we effectilvely have a list of N Subgrids, make an NStar control grid
 		fp.Legs = []
 		# self.StarRow2_SubLoop(fp, fp.N) # skip row 2 since we carry in the curvature rows? just go right to row 3?
@@ -4209,9 +4230,9 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		self.StarDiag4_squish(fp, fp.N)
 		self.StarRow4_SubLoop(fp, fp.N)
 		self.StarCenter(fp, fp.N)
-		
+
 		fp.Shape = Part.Shape(fp.Legs)
-		
+
 		# convert all vectors in StarGrid to lists. this allows saving the PythonObject attribute. The data needs to be fed back to Base.Vector() downstream.
 		for n in range(fp.N):
 			#set size of single SubGrid
