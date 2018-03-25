@@ -3,25 +3,25 @@ import FreeCAD
 from FreeCAD import Base
 from FreeCAD import Gui
 
-class ControlGridNStar66_NSub:		
+class ControlGridNStar66_NSub:
 	def __init__(self, fp , SubList):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGridNStar66_NSub class Init\n")
 		fp.addProperty("App::PropertyLinkList","SubList","ControlGridNStar66_NSub","Reference Sub Grids").SubList = SubList
-		fp.addProperty("Part::PropertyGeometryList","Legs","ControlGridNStar66_NSub","control segments").Legs	
-		self.normalproperty = 'a normal non fancy string property' # this line runs, but the property is not accessible thru freecad python console.
+		fp.addProperty("Part::PropertyGeometryList","Legs","ControlGridNStar66_NSub","control segments").Legs
+		self.normalproperty = 'a normal non-fancy string property' # this line runs, but the property is not accessible through freecad python console.
 		fp.Proxy = self
-		
+
 	def execute(self, fp):
-	
+
 		# clear unneeded properties
 		#for i in range
 		#fp.removeProperty("Poles_%d" % i)
-	
+
 		for i, sub in enumerate(fp.SubList):
 			fp.addProperty('App::PropertyVectorList', "Poles_%d" % i, "ControlGridNStar66_NSub", "Poles_%d" % i)
 			fp.addProperty('App::PropertyFloatList', "Weights_%d" % i, "ControlGridNStar66_NSub", "Weights_%d" % i)
-			
+
 		print 'pull data from each linked sub grid:'
 		for i, sub in enumerate(fp.SubList):
 			print "Sub Grid %d pole[0] = " % i, fp.SubList[i].Poles[0]
@@ -32,7 +32,7 @@ class ControlGridNStar66_NSub:
 		for i, sub in enumerate(fp.SubList):
 			Poles[i] = fp.SubList[i].Poles
 			Weights[i] = fp.SubList[i].Weights
-		
+
 		# manipulate lists in Poles and weights....
 
 		# set Poles[i] to to Poles_i and Weights[i] to Weights_i
@@ -57,5 +57,5 @@ a.ViewObject.Proxy=0 # just set it to something different from None (this assign
 a.ViewObject.LineWidth = 1.00
 a.ViewObject.LineColor = (1.00,0.67,0.00)
 a.ViewObject.PointSize = 2.00
-a.ViewObject.PointColor = (1.00,1.00,0.00)		
+a.ViewObject.PointColor = (1.00,1.00,0.00)
 FreeCAD.ActiveDocument.recompute()

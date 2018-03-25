@@ -1,7 +1,7 @@
 #    This file is part of Silk
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
-#	
+#
 #    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
 #
 #    Silk is free software: you can redistribute it and/or modify
@@ -37,7 +37,7 @@ class StarTrim_CubicNStar():
 		a.ViewObject.DisplayMode = u"Shaded"
 		a.ViewObject.ShapeColor = (0.33,0.67,1.00)
 		FreeCAD.ActiveDocument.recompute()
-	
+
 	def GetResources(self):
 		return {'Pixmap' :  path_Silk_icons + '/StarTrim_CubicNStar.svg', 'MenuText': 'StarTrim_CubicNStar', 'ToolTip': 'StarTrim_CubicNStar'}
 

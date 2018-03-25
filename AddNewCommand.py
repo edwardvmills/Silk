@@ -1,8 +1,8 @@
 #    This file is part of Silk
 #    (c) Edward Mills 2016-2017
 #    edwardvmills@gmail.com
-#	
-#    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench) 
+#
+#    NURBS Surface modeling tools focused on low degree and seam continuity (FreeCAD Workbench)
 #
 #    Silk is free software: you can redistribute it and/or modify
 #    it under the terms of the GNU General Public License as published by
@@ -30,7 +30,7 @@ path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 class AddNewCommand():
 	def Activated(self):
 		Past the Contents of a functioning FreeCAD macro here
-	
+
 	def GetResources(self):
 		return {'Pixmap' :  path_Silk_icons + '/AddNewCommand.svg', 'MenuText': 'AddNewCommand', 'ToolTip': 'AddNewCommand'}
 
