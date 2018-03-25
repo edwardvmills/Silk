@@ -1,5 +1,5 @@
 #    ArachNURBS
-#    (c) Edward Mills 2016-2017
+#    (c) Edward Mills 2016-2018
 #    edwardvmills@gmail.com
 #    
 #    ArachNURBS is a library of functions and classes to manipulate NURBS
@@ -54,7 +54,7 @@ import numpy as np
 ## They are obtained from the FreeCAD functions .getPoles() and .getWeights()
 ## NOTE: Poles in FreeCAD, such as returned by .getPoles(), refer only to xyz coordinates of a control point,
 ## THROUGHOUT the following functions, pole means [[x,y,z],w]
-## lists are probably not efficient, but until FreeCAD has fully integrated homogenous coordinates
+## lists are probably not efficient, but until FreeCAD has fully integrated homogeneous coordinates
 ## for all NURBS functions, this is easier for me :)
 ## Right now, the computation of these scripts is ridiculously fast compared
 ## to the time taken to generate the surfaces using the FreeCAD Part.BSplineSurface() function
@@ -269,7 +269,9 @@ def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic
 			i=i+1;
 	return  NURBS_Cubic_64_surf
 
-def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
+def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
+	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
+	
 	WeightedPoles_0=[[poles_0[0],weights_0[0]], [poles_0[1],weights_0[1]], [poles_0[2],weights_0[2]], [poles_0[3],weights_0[3]]]
 	CubicCurve4_0= Bezier_Cubic_curve(WeightedPoles_0) 
 	CubicCurve6_0=CubicCurve4_0
@@ -377,6 +379,11 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count
+		elif C0 == 0.0:
+			if math.fabs((C0_seg - C0)) > .000001:
+				print 'segmentation has collapsed the curve'
+				print 'C0', C0, 'C0_check', C0_seg
+				print 'Cubic_Bezier_dCds step ', loop_count			
 		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
@@ -433,6 +440,11 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the 
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count
+		elif C0 == 0.0:
+			if math.fabs((C0_seg - C0)) > .000001:
+				print 'segmentation has collapsed the curve'
+				print 'C0', C0, 'C0_check', C0_seg
+				print 'Cubic_Bezier_dCds step ', loop_count			
 		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
@@ -459,7 +471,9 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the 
 		dCds = dCds_seg
 	return dCds
 
-def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
+def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
+	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
+	
 	# IN PROGRESS - starting with a copy of blend_poly_2x4_1x6
 	# step1: clean up the source function
 	# step2: make the inner scaling clearer in the context of the blend poly. right now it is applied to the 6P version of the original polys
@@ -682,7 +696,8 @@ def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 
 	return matchSet
 
-## direct functions currently unused in the Classes / unavailable through the Silk FreeCAD workbench (they are kept here because they were successfully used in the pre-parametric version of the tools):
+## direct functions currently unused in the Classes / unavailable through the Silk FreeCAD workbench 
+## (they are kept here because they were successfully used in the pre-parametric version of the tools):
 
 def isect_test(curve, surf, u):		# provides information about a curve point at parameter u as a surface intersection candidate.
 	test_point = curve.value(u)											# point on curve
@@ -1314,7 +1329,7 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		w10 = weights4[4]
 		# maybe i should average instead of multiply? needs testing.
 		# currently based on the idea all wights are between 0 and 1.
-		# previous used cumulative neighbor mulitplication. this drives weights too low.
+		# previous used cumulative neighbor multiplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10
 		w12 = w02*w10 
@@ -1963,10 +1978,6 @@ class CubicSurface_64:
 #
 # this will be annoying to rewrite.
 #
-# 12/20/2017 migrating to FreeCAD 0.17.12847 found grid rotation bug:
-# ControlGrid64_2Grid44, was working for all input pairs on 0.17.11699, 
-# but now rotating input grids in the class causes bad output. 
-# still ok when no rotations are required
 
 #### surface derived objects (+surf to input)
 
@@ -2790,7 +2801,7 @@ class ControlGrid66_4Sub_old:
 		w10 = fp.SubGrid_0.v_col_weights[1]
 		# maybe i should average instead of multiply? needs testing.
 		# currently based on the idea all wights are between 0 and 1.
-		# previous used cumulative neighbor mulitplication. this drives weights too low.
+		# previous used cumulative neighbor multiplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10
 		w12 = w02*w10 
@@ -3712,8 +3723,11 @@ class ControlGridNStar66_NSub:
 		Sub_28_next_param = Plane_next.parameter(Sub_28_scaled)
 		Sub_28_next_proj = Plane_next.value(Sub_28_next_param[0],Sub_28_next_param[1])
 
-		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj) # best first round result for N=3, bad for recursion. N=5 is distorte din the center
-		# fp.StarGrid[Sub_i][28][0] = 0.0 * Sub_28_scaled + 0.5 * (Sub_28_prev_proj + Sub_28_next_proj) # N=3 round 1 shmushed, but good result on round 2. round 3 too pointy. unlear for N=5
+		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj) 
+		# best first round result for N=3, bad for recursion. N=5 is distorted in the center
+		
+		# fp.StarGrid[Sub_i][28][0] = 0.0 * Sub_28_scaled + 0.5 * (Sub_28_prev_proj + Sub_28_next_proj) 
+		# N=3 round 1 shmushed, but good result on round 2. round 3 too pointy. unclear for N=5
 
 		# control leg visualization
 		Legs_Diag4 = [0,0]
