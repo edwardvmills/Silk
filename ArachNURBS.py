@@ -355,7 +355,8 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
                                                     # at the beginning of a cubic bezier curve defined by the given poles
 	# calculate start point curvature directly from poles
 	C0 = Cubic_Bezier_curvature(pole0[0], pole1[0], pole2[0])
-		
+	if math.fabs(C0) < 1.0e-9:
+		C0= 0.0 
 	# prepare cubic bezier object to subdivide
 	Curve = Bezier_Cubic_curve([pole0, pole1, pole2, pole3])
 
@@ -371,16 +372,19 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
+		if math.fabs(C0_seg) < 1.0e-5:
+			C0_seg= 0.0 
 		# if the start curvature changes dramatically after segmentation, the new values are invalid
 		# not a valid test when C0 = 0.0 to begin with
 		if C0 != 0.0:
-			if math.fabs((C0_seg - C0)/C0) > tol:
+			if math.fabs((C0_seg - C0)/C0) > 2*tol:
 				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count
 		elif C0 == 0.0:
 			if math.fabs((C0_seg - C0)) > .000001:
+				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count			
@@ -399,13 +403,15 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
 		#print 'step ', loop_count, '  dCds_seg ', dCds_seg
 		if loop_count > 1:
 			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
-		dCds_last = dCds_seg
-		t_seg = t_seg / 2.0
+		if segment_degen != 'true':
+			dCds_last = dCds_seg
+		t_seg = t_seg * 0.75
 		loop_count=loop_count + 1
 	#print 'step ', loop_count, '  dCds_seg ', dCds_seg, '  error ', error
 	if error > tol:
-		# print 'no dCds found within ', tol
-		dCds = 'NONE'
+		print 'no dCds found within ', tol, ' Cubic_Bezier_dCds'
+		dCds = dCds_last
+		print 'returning dCds = ', dCds, ' within ', error, ' Cubic_Bezier_dCds'
 	else:
 		dCds = dCds_seg
 	return dCds
@@ -414,7 +420,8 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the 
                                                                 # at the beginning of a cubic 6P curve defined by the given poles
 	# calculate start point curvature directly from poles.
 	C0 = Cubic_6P_curvature(pole0[0], pole1[0], pole2[0])
-		
+	if math.fabs(C0) < 1.0e-5:
+		C0= 0.0		
 	# prepare cubic bezier object to subdivide
 	Curve = NURBS_Cubic_6P_curve([pole0, pole1, pole2, pole3, pole4, pole5])
 
@@ -432,16 +439,19 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the 
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
+		if math.fabs(C0_seg) < 1.0e-9:
+			C0_seg= 0.0 		
 		# if the start curvature changes dramatically after segmentation, the new values are invalid
 		# not a valid test when C0 = 0.0 to begin with
 		if C0 != 0.0:
-			if math.fabs((C0_seg - C0)/C0) > tol:
+			if math.fabs((C0_seg - C0)/C0) > 2*tol:
 				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count
 		elif C0 == 0.0:
 			if math.fabs((C0_seg - C0)) > .000001:
+				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count			
@@ -460,20 +470,22 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the 
 		#print 'step ', loop_count, '  dCds_seg ', dCds_seg
 		if loop_count > 1:
 			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
-		dCds_last = dCds_seg
-		t_seg = t_seg / 2.0
+		if segment_degen != 'true':
+			dCds_last = dCds_seg
+		t_seg = t_seg * 0.75
 		loop_count=loop_count + 1
 	#print 'step ', loop_count, '  dCds_seg ', dCds_seg, '  error ', error
 	if error > tol:
-		#print 'no dCds found within ', tol
-		dCds = 'NONE'
+		print 'no dCds found within ', tol, ' Cubic_6P_dCds'
+		dCds = dCds_last
+		print 'returning dCds = ', dCds, ' within ', error, ' Cubic_6P_dCds'
 	else:
 		dCds = dCds_seg
 	return dCds
 
 def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
 	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
-	
+
 	# IN PROGRESS - starting with a copy of blend_poly_2x4_1x6
 	# step1: clean up the source function
 	# step2: make the inner scaling clearer in the context of the blend poly. right now it is applied to the 6P version of the original polys
@@ -489,6 +501,13 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	# set end point dC/ds targets
 	dCds0 = Cubic_Bezier_dCds(WeightedPoles_0[0], WeightedPoles_0[1], WeightedPoles_0[2], WeightedPoles_0[3])
 	dCds1 = Cubic_Bezier_dCds(WeightedPoles_1[3], WeightedPoles_1[2], WeightedPoles_1[1], WeightedPoles_1[0])
+	print "dCds inputs: " "dCds0, ", dCds0, " dCds1, ", dCds1
+	
+	if math.fabs(dCds0) < 5.0e-6:
+		dCds0 = 0.0
+	if math.fabs(dCds1) < 5.0e-6:
+		dCds1 = 0.0		
+
 	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1
 
 	# convert 4P inputs to 6P
@@ -581,7 +600,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	dir_0_prev = 0.0
 	dir_1_prev = 0.0
 	nudge_prev = 'none'
-	step_stage_complete = 0
+	#step_stage_complete = 0
 	loop_count = 0
 	tol= 0.01
 	while (error > tol  and loop_count < 200 ):
@@ -619,6 +638,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 								WeightedPoles_6_i[0])
 
 		# do G3 seeking stuff
+		
 		if dCds0 != 0.0:
 			error_0 = (dCds6_0i - dCds0) / math.fabs(dCds0)
 		elif dCds0 == 0.0:
@@ -634,8 +654,8 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			print "dCds1, ", dCds1, "returned from Cubic_6P_dCds()"
 		
 		error = math.fabs(error_0) + math.fabs(error_1)
-		error = math.fabs(error_0) + math.fabs(error_1)
-		# determine the required direction for each endpoint.
+
+		# determine the required adjustment direction for each endpoint.
 		if error_0 > tol / 2.0:
 			direction_0 = 1.0
 		elif error_0 < -tol / 2.0:
@@ -648,6 +668,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			direction_1 = -1.0
 		else:
 			direction_1 = 0.0
+			
 		# plan the next action
 		if 	math.fabs(error_0) >= math.fabs(error_1):
 			nudge = 0
@@ -655,23 +676,27 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		elif 	math.fabs(error_0) < math.fabs(error_1):
 			nudge = 1
 			dir = direction_1
+			
 		# compare the next planned action to the last executed action
 		if nudge == nudge_prev and dir != dir_prev:
 			# if we are undoing the previous action, reduce step size
 			step_size = step_size / 2.0
-			step_stage_complete = 0
+			#step_stage_complete = 0
+			
 		# execute planned action
 		if 	math.fabs(error_0) >= math.fabs(error_1):
 			scale_1i = scale_1i + direction_0 * step_size
 			dir_prev = direction_0
 			nudge_prev = 0
+			
 		elif 	math.fabs(error_0) < math.fabs(error_1):
 			scale_2i = scale_2i + direction_1 * step_size
 			dir_prev = direction_1
 			nudge_prev = 1
+			
 		# G3 loop message
 		print loop_count, " : ", "[", scale_1i, " , ", scale_2i, "] [", dCds6_0i, " , ", dCds6_1i, "] [", error_0, " , ", error_1, "]    ", nudge_prev, " "
-		#print loop_count, " : ",  " [", dCds6_0i, " , ", dCds6_1i, "]    ", error
+
 		loop_count=loop_count + 1
 	return [poles,weights,scale_1i,scale_2i]
 			
