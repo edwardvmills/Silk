@@ -351,15 +351,15 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 
 	return [poles,weights]
 
-def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of change of curvature per unit length (chord) 
-                                                    # at the beginning of a cubic bezier curve defined by the given poles
+def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  
+	# calculate the rate of change of curvature per unit length (chord) 
+     # at the beginning of a cubic bezier curve defined by the given poles
 	# calculate start point curvature directly from poles
 	C0 = Cubic_Bezier_curvature(pole0[0], pole1[0], pole2[0])
-	if math.fabs(C0) < 1.0e-9:
-		C0= 0.0 
+	if math.fabs(C0) < 1.0e-6:
+		C0= 0.0
 	# prepare cubic bezier object to subdivide
 	Curve = Bezier_Cubic_curve([pole0, pole1, pole2, pole3])
-
 	# setup refinement loop
 	t_seg = 0.05	# initial segmentation value
 	segment_degen = 'false'
@@ -372,12 +372,12 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
 		Poles = Curve.getPoles()
 		# check start curvature after segmentation
 		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
-		if math.fabs(C0_seg) < 1.0e-5:
+		if math.fabs(C0_seg) < 1.0e-6:
 			C0_seg= 0.0 
-		# if the start curvature changes dramatically after segmentation, the new values are invalid
-		# not a valid test when C0 = 0.0 to begin with
+		# if the start curvature changes dramatically after segmentation,
+		# the new values are invalid. not a valid test when C0 = 0.0 to begin with
 		if C0 != 0.0:
-			if math.fabs((C0_seg - C0)/C0) > 2*tol:
+			if math.fabs((C0_seg - C0)/C0) > 5*tol:
 				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
@@ -391,11 +391,11 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
 		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
-		
+		'''
 		#if the start curvature and first cut curvature are both 0, then dCds is 0
 		if math.fabs(C0-Cs) <= 0.000001 and loop_count == 0:
 			return 0.0
-		
+		'''
 		# calculate chord length of current segment
 		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
 		s = S.Length
@@ -405,92 +405,41 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  # calculate the rate of chan
 			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
 		if segment_degen != 'true':
 			dCds_last = dCds_seg
-		t_seg = t_seg * 0.75
+		t_seg = t_seg * 0.9
 		loop_count=loop_count + 1
 	#print 'step ', loop_count, '  dCds_seg ', dCds_seg, '  error ', error
 	if error > tol:
-		print 'no dCds found within ', tol, ' Cubic_Bezier_dCds'
+		#print 'no dCds found within ', tol, ' Cubic_Bezier_dCds'
 		dCds = dCds_last
-		print 'returning dCds = ', dCds, ' within ', error, ' Cubic_Bezier_dCds'
+		#print 'returning dCds = ', dCds, ' within ', error, ' Cubic_Bezier_dCds'
 	else:
 		dCds = dCds_seg
 	return dCds
 
-def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    # calculate the rate of change of curvature per unit length (chord)
-                                                                # at the beginning of a cubic 6P curve defined by the given poles
+def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):    
+	# calculate the rate of change of curvature per unit length (chord)
+    # at the beginning of a cubic 6P curve defined by the given poles
+	
 	# calculate start point curvature directly from poles.
 	C0 = Cubic_6P_curvature(pole0[0], pole1[0], pole2[0])
 	if math.fabs(C0) < 1.0e-5:
 		C0= 0.0		
-	# prepare cubic bezier object to subdivide
+	# prepare cubic 6P object to segment
 	Curve = NURBS_Cubic_6P_curve([pole0, pole1, pole2, pole3, pole4, pole5])
+	# cut the 6P below the first internal knot
+	Curve.segment(0,.25)
+	poles = Curve.getPoles()
+	weights = Curve.getWeights()
+	# rebuild the weighted poles
+	WeightedPoles = WeightedPoles =[[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]]]
+	# pass the weighted poles down to the Bezier dCds function
+	dCds = Cubic_Bezier_dCds(WeightedPoles[0], WeightedPoles[1], WeightedPoles[2], WeightedPoles[3])
 
-	# setup refinement loop
-	t_seg = 0.05	# initial segmentation value
-	segment_degen = 'false'
-	tol= 0.01
-	error = 1.0
-	loop_count = 0
-	dCds_last = 'not_ready'
-	while (error > tol  and loop_count < 100 and segment_degen != 'true'):
-		# after the initial cut, the curve will no longer be 6P!
-		Curve.segment(0,t_seg)
-		# we are now back to Bezier! do i need to check?
-		Poles = Curve.getPoles()
-		# check start curvature after segmentation
-		C0_seg = Cubic_Bezier_curvature(Poles[0], Poles[1], Poles[2])
-		if math.fabs(C0_seg) < 1.0e-9:
-			C0_seg= 0.0 		
-		# if the start curvature changes dramatically after segmentation, the new values are invalid
-		# not a valid test when C0 = 0.0 to begin with
-		if C0 != 0.0:
-			if math.fabs((C0_seg - C0)/C0) > 2*tol:
-				segment_degen = 'true'
-				print 'segmentation has collapsed the curve'
-				print 'C0', C0, 'C0_check', C0_seg
-				print 'Cubic_Bezier_dCds step ', loop_count
-		elif C0 == 0.0:
-			if math.fabs((C0_seg - C0)) > .000001:
-				segment_degen = 'true'
-				print 'segmentation has collapsed the curve'
-				print 'C0', C0, 'C0_check', C0_seg
-				print 'Cubic_Bezier_dCds step ', loop_count			
-		
-		# calculate curvature at the end of the current segment
-		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
-		
-		#if the start curvature and first cut curvature are both 0, then dCds is 0
-		if math.fabs(C0-Cs) <= 0.000001 and loop_count == 0:
-			return 0.0
-		
-		# calculate chord length of current segment
-		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
-		s = S.Length
-		dCds_seg = (Cs-C0)/s
-		#print 'step ', loop_count, '  dCds_seg ', dCds_seg
-		if loop_count > 1:
-			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
-		if segment_degen != 'true':
-			dCds_last = dCds_seg
-		t_seg = t_seg * 0.75
-		loop_count=loop_count + 1
-	#print 'step ', loop_count, '  dCds_seg ', dCds_seg, '  error ', error
-	if error > tol:
-		print 'no dCds found within ', tol, ' Cubic_6P_dCds'
-		dCds = dCds_last
-		print 'returning dCds = ', dCds, ' within ', error, ' Cubic_6P_dCds'
-	else:
-		dCds = dCds_seg
 	return dCds
 
 def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
-	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
-
-	# IN PROGRESS - starting with a copy of blend_poly_2x4_1x6
-	# step1: clean up the source function
-	# step2: make the inner scaling clearer in the context of the blend poly. right now it is applied to the 6P version of the original polys
-	# step3: determine target dC/ds at each end (write external function to calculate this)
-	# step4: march the inner scales until dC/ds matches at both ends
+	# blend two cubic bezier into a 6 point cubic NURBS. 
+	# this function assumes poles_0 flow into poles_1 without checking.
 
 	# rebuild both bezier inputs from the poles and weights
 	WeightedPoles_0=[[poles_0[0],weights_0[0]], [poles_0[1],weights_0[1]], [poles_0[2],weights_0[2]], [poles_0[3],weights_0[3]]]
@@ -499,17 +448,30 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) 
 
 	# set end point dC/ds targets
+	
+	C0 = Cubic_6P_curvature(WeightedPoles_0[0][0], WeightedPoles_0[1][0], WeightedPoles_0[2][0])
+	C1 = Cubic_6P_curvature(WeightedPoles_1[3][0], WeightedPoles_1[2][0], WeightedPoles_1[1][0])
+	DC = math.fabs(C0-C1)
+	
 	dCds0 = Cubic_Bezier_dCds(WeightedPoles_0[0], WeightedPoles_0[1], WeightedPoles_0[2], WeightedPoles_0[3])
 	dCds1 = Cubic_Bezier_dCds(WeightedPoles_1[3], WeightedPoles_1[2], WeightedPoles_1[1], WeightedPoles_1[0])
-	print "dCds inputs: " "dCds0, ", dCds0, " dCds1, ", dCds1
+	DdCds = math.fabs(dCds0-dCds1)
+	
+		# quick, cheap, and very incomplete symmetry test.
+	if DC < 1.0e-8 and DdCds < 1.0e-8:
+		symmetric = 1
+	else:
+		symmetric = 0
+	
+	#print "dCds inputs: " "dCds0, ", dCds0, " dCds1, ", dCds1
 	
 	if math.fabs(dCds0) < 5.0e-6:
 		dCds0 = 0.0
 	if math.fabs(dCds1) < 5.0e-6:
 		dCds1 = 0.0		
 
-	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1
-
+	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric
+	
 	# convert 4P inputs to 6P
 	CubicCurve6_0=CubicCurve4_0
 	CubicCurve6_0.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
@@ -596,13 +558,15 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	scale_1i = 2.0
 	scale_2i = 2.0
 	error = 1.0
-	step_size = 0.5
+	step_size = 0.1
 	dir_0_prev = 0.0
 	dir_1_prev = 0.0
 	nudge_prev = 'none'
+	streak_0_count = 0
+	streak_1_count = 0
 	#step_stage_complete = 0
 	loop_count = 0
-	tol= 0.01
+	tol= 5.0e-3
 	while (error > tol  and loop_count < 200 ):
 		# reset for next iteration
 		L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
@@ -640,64 +604,111 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		# do G3 seeking stuff
 		
 		if dCds0 != 0.0:
-			error_0 = (dCds6_0i - dCds0) / math.fabs(dCds0)
+			error_0 = (dCds6_0i - dCds6_0) / math.fabs(dCds0)
 		elif dCds0 == 0.0:
-			error_0 = (dCds6_0i - dCds0)
+			error_0 = (dCds6_0i - dCds6_0)
 		else:
 			print "dCds0, ", dCds0, "returned from Cubic_6P_dCds()"
 		
 		if dCds1 != 0.0:
-			error_1 = (dCds6_1i - dCds1) / math.fabs(dCds1)
+			error_1 = (dCds6_1i - dCds6_1) / math.fabs(dCds1)
 		elif dCds1 == 0.0:	
-			error_1 = (dCds6_1i - dCds1)
+			error_1 = (dCds6_1i - dCds6_1)
 		else:
 			print "dCds1, ", dCds1, "returned from Cubic_6P_dCds()"
 		
+		# success criteria for normal exit
+		if math.fabs(error_0) <= tol and math.fabs(error_1) <= tol:
+			print "final ", loop_count, " : ", "[", scale_1i, " , ", scale_2i, "] [", dCds6_0i, " , ", dCds6_1i, "] [", error_0, " , ", error_1, "]    "
+			return [poles,weights,scale_1i,scale_2i]
+		
 		error = math.fabs(error_0) + math.fabs(error_1)
+		
+		# establish bounds for the errors based on initial guess
+		if loop_count == 0:
+			error_0_max = error_0
+			error_1_max = error_1
+		
+		# if the loop takes BOTH errors beyond the initial bounds, undo last action, and reduce step size.
+		if loop_count != 0 and math.fabs(error_0) > math.fabs(error_0_max) and math.fabs(error_1) > math.fabs(error_1_max):
+			#undo last action
+			if 	nudge_prev == 0:
+				scale_1i = scale_1i - dir_prev * step_size
+				
+			elif 	nudge_prev == 1:
+				scale_2i = scale_2i - dir_prev * step_size
+				
+			# reduce step size
+			step_size = step_size / 2.0
+			#print "div - error grew"
 
 		# determine the required adjustment direction for each endpoint.
 		if error_0 > tol / 2.0:
-			direction_0 = 1.0
+			direction_0 = 1
 		elif error_0 < -tol / 2.0:
-			direction_0 = -1.0
+			direction_0 = -1
 		else:
-			direction_0 = 0.0
+			direction_0 = 0
 		if error_1 > tol / 2.0:
-			direction_1 = 1.0
+			direction_1 = 1
 		elif error_1 < -tol / 2.0:
-			direction_1 = -1.0
+			direction_1 = -1
 		else:
-			direction_1 = 0.0
+			direction_1 = 0
 			
 		# plan the next action
 		if 	math.fabs(error_0) >= math.fabs(error_1):
 			nudge = 0
 			dir = direction_0
+			streak_0_count = streak_0_count + 1
+			streak_1_count = 0
 		elif 	math.fabs(error_0) < math.fabs(error_1):
 			nudge = 1
 			dir = direction_1
+			streak_1_count = streak_1_count + 1
+			streak_0_count = 0
+		
+		if symmetric == 1 and direction_0 == direction_1:
+			nudge = 2
+			direction_2 = direction_0
+		elif symmetric == 1 and direction_0 != direction_1:
+			nudge = 0
+			direction = 0
+			symmetric = 0
+			print "symmetry assumption has broken down."
 			
 		# compare the next planned action to the last executed action
 		if nudge == nudge_prev and dir != dir_prev:
 			# if we are undoing the previous action, reduce step size
 			step_size = step_size / 2.0
-			#step_stage_complete = 0
+			#print "div - direct undo"
 			
-		# execute planned action
-		if 	math.fabs(error_0) >= math.fabs(error_1):
+		# execute planned action, unless it is the same action 5 times in a row.
+		if 	(nudge == 0 and streak_0_count <= 5) or streak_1_count > 4:
 			scale_1i = scale_1i + direction_0 * step_size
 			dir_prev = direction_0
 			nudge_prev = 0
+			streak_1_count = 0
 			
-		elif 	math.fabs(error_0) < math.fabs(error_1):
+		elif (nudge == 1 and streak_1_count <= 5) or streak_0_count > 4:
 			scale_2i = scale_2i + direction_1 * step_size
 			dir_prev = direction_1
 			nudge_prev = 1
+			streak_0_count = 0
+			
+		elif nudge == 2:
+			scale_1i = scale_1i + direction_0 * step_size
+			scale_2i = scale_2i + direction_1 * step_size
+			dir_prev = direction_2
+			nudge_prev = 2
+		
 			
 		# G3 loop message
-		print loop_count, " : ", "[", scale_1i, " , ", scale_2i, "] [", dCds6_0i, " , ", dCds6_1i, "] [", error_0, " , ", error_1, "]    ", nudge_prev, " "
+		#print loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]"
 
 		loop_count=loop_count + 1
+	# G3 final message
+	print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
 	return [poles,weights,scale_1i,scale_2i]
 			
 def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
@@ -2287,7 +2298,9 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		obj.addProperty("App::PropertyFloat","scale_tangent_0","ControlGrid64_2Grid44","first grid tangent scale").scale_tangent_0 = 2
 		obj.addProperty("App::PropertyFloat","scale_tangent_1","ControlGrid64_2Grid44","second grid tangent scale").scale_tangent_1 = 2
 		obj.addProperty("App::PropertyFloatList","scale_inner_0","ControlGrid64_2Grid44","first side inner scale").scale_inner_0 = [3, 3, 3, 3]
+		#obj.setEditorMode("scale_inner_0", 0)
 		obj.addProperty("App::PropertyFloatList","scale_inner_1","ControlGrid64_2Grid44","second side inner scale").scale_inner_1 = [3, 3, 3, 3]
+		#obj.setEditorMode("scale_inner_1", 0)
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_2Grid44","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_2Grid44","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_2Grid44","Weights").Weights
@@ -2412,22 +2425,34 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		#b=Base.Vector(a[0],a[1],a[2])
 
 		# run ControlPoly6_FilletBezier or equivalent internal function on each pair running across the seam
-		row_0 = blend_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
+		print "G3 on row_0"
+		row_0 = blendG3_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
 		blend_poles_0 = row_0[0]
 		blend_weights_0 = row_0[1]
-
-		row_1 = blend_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
+		fp.scale_inner_0[0] = row_0[2]
+		fp.scale_inner_1[0] = row_0[3]
+		
+		print "G3 on row_1"
+		row_1 = blendG3_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
 		blend_poles_1 = row_1[0]
 		blend_weights_1 = row_1[1]
-
-		row_2 = blend_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
+		fp.scale_inner_0[1] = row_1[2]
+		fp.scale_inner_1[1] = row_1[3]
+		
+		print "G3 on row_2"
+		row_2 = blendG3_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
 		blend_poles_2 = row_2[0]
 		blend_weights_2 = row_2[1]
-
-		row_3 = blend_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
+		fp.scale_inner_0[2] = row_2[2]
+		fp.scale_inner_1[2] = row_2[3]
+		
+		print "G3 on row_3"
+		row_3 = blendG3_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
 		blend_poles_3 = row_3[0]
 		blend_weights_3 = row_3[1]
-
+		fp.scale_inner_0[3] = row_3[2]
+		fp.scale_inner_1[3] = row_3[3]
+		
 		# stack the ControlPoly6s into a 64 grid - poles and weights
 		fp.Poles=[blend_poles_0[0],
 				blend_poles_0[1],
@@ -4283,8 +4308,4 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 				StarGrid_n_i[1] = fp.StarGrid[n][i][1]
 				StarGrid_n[i] = StarGrid_n_i
 			fp.StarGrid[n] = StarGrid_n
-
-
-
-# 
 
