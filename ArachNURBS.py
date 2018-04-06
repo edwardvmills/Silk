@@ -377,13 +377,13 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):
 		# if the start curvature changes dramatically after segmentation,
 		# the new values are invalid. not a valid test when C0 = 0.0 to begin with
 		if C0 != 0.0:
-			if math.fabs((C0_seg - C0)/C0) > 5*tol:
+			if math.fabs((C0_seg - C0)/C0) > 4*tol:
 				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
 				print 'Cubic_Bezier_dCds step ', loop_count
 		elif C0 == 0.0:
-			if math.fabs((C0_seg - C0)) > .000001:
+			if math.fabs((C0_seg - C0)) > .00001:
 				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
@@ -391,11 +391,11 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):
 		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
-		'''
-		#if the start curvature and first cut curvature are both 0, then dCds is 0
-		if math.fabs(C0-Cs) <= 0.000001 and loop_count == 0:
+		
+		#if the start curvature and first cut curvature are equal, then dCds is 0
+		if math.fabs(C0-Cs) <= 1.0e-6 and loop_count == 0:
 			return 0.0
-		'''
+				
 		# calculate chord length of current segment
 		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
 		s = S.Length
@@ -555,8 +555,8 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 
 
 	# search loop initial parameters
-	scale_1i = 2.0
-	scale_2i = 2.0
+	scale_1i = 1.5
+	scale_2i = 1.5
 	error = 1.0
 	step_size = 0.1
 	dir_0_prev = 0.0
@@ -619,7 +619,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		
 		# success criteria for normal exit
 		if math.fabs(error_0) <= tol and math.fabs(error_1) <= tol:
-			print "final ", loop_count, " : ", "[", scale_1i, " , ", scale_2i, "] [", dCds6_0i, " , ", dCds6_1i, "] [", error_0, " , ", error_1, "]    "
+			print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
 			return [poles,weights,scale_1i,scale_2i]
 		
 		error = math.fabs(error_0) + math.fabs(error_1)
@@ -660,13 +660,15 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		if 	math.fabs(error_0) >= math.fabs(error_1):
 			nudge = 0
 			dir = direction_0
-			streak_0_count = streak_0_count + 1
-			streak_1_count = 0
+			if symmetric != 1:
+				streak_0_count = streak_0_count + 1
+				streak_1_count = 0
 		elif 	math.fabs(error_0) < math.fabs(error_1):
 			nudge = 1
 			dir = direction_1
-			streak_1_count = streak_1_count + 1
-			streak_0_count = 0
+			if symmetric != 1:
+				streak_1_count = streak_1_count + 1
+				streak_0_count = 0
 		
 		if symmetric == 1 and direction_0 == direction_1:
 			nudge = 2
@@ -704,7 +706,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		
 			
 		# G3 loop message
-		#print loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]"
+		print loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]"
 
 		loop_count=loop_count + 1
 	# G3 final message
