@@ -349,7 +349,7 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 
 	current_test = NURBS_Cubic_6P_curve(WeightedPoles)
 
-	return [poles,weights]
+	return [poles,weights, scale_1, scale_2]
 
 def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  
 	# calculate the rate of change of curvature per unit length (chord) 
@@ -2297,12 +2297,13 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		FreeCAD.Console.PrintMessage("\nControlGrid64_2Grid44 class Init\n")
 		obj.addProperty("App::PropertyLink","Grid_0","ControlGrid64_2Grid44","first reference 4X4 grid").Grid_0 = Grid_0
 		obj.addProperty("App::PropertyLink","Grid_1","ControlGrid64_2Grid44","second reference 4X4 grid").Grid_1 = Grid_1
-		obj.addProperty("App::PropertyFloat","scale_tangent_0","ControlGrid64_2Grid44","first grid tangent scale").scale_tangent_0 = 2
-		obj.addProperty("App::PropertyFloat","scale_tangent_1","ControlGrid64_2Grid44","second grid tangent scale").scale_tangent_1 = 2
-		obj.addProperty("App::PropertyFloatList","scale_inner_0","ControlGrid64_2Grid44","first side inner scale").scale_inner_0 = [3, 3, 3, 3]
+		obj.addProperty("App::PropertyFloat","scale_tangent_0","ControlGrid64_2Grid44","first grid tangent scale").scale_tangent_0 = 2.0
+		obj.addProperty("App::PropertyFloat","scale_tangent_1","ControlGrid64_2Grid44","second grid tangent scale").scale_tangent_1 = 2.0
+		obj.addProperty("App::PropertyFloatList","scale_inner_0","ControlGrid64_2Grid44","first side inner scale").scale_inner_0 = [3.0, 3.0, 3.0, 3.0]
 		#obj.setEditorMode("scale_inner_0", 0)
-		obj.addProperty("App::PropertyFloatList","scale_inner_1","ControlGrid64_2Grid44","second side inner scale").scale_inner_1 = [3, 3, 3, 3]
+		obj.addProperty("App::PropertyFloatList","scale_inner_1","ControlGrid64_2Grid44","second side inner scale").scale_inner_1 = [3.0, 3.0, 3.0, 3.0]
 		#obj.setEditorMode("scale_inner_1", 0)
+		obj.addProperty("App::PropertyInteger", "autoG3", "ControlGrid64_2Grid44", "Try to set G3 along the external seams").autoG3 = 0
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_2Grid44","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_2Grid44","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_2Grid44","Weights").Weights
@@ -2427,33 +2428,55 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		#b=Base.Vector(a[0],a[1],a[2])
 
 		# run ControlPoly6_FilletBezier or equivalent internal function on each pair running across the seam
-		print "G3 on row_0"
-		row_0 = blendG3_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
-		blend_poles_0 = row_0[0]
-		blend_weights_0 = row_0[1]
-		fp.scale_inner_0[0] = row_0[2]
-		fp.scale_inner_1[0] = row_0[3]
+		if fp.autoG3 == 1:
+			print "G3 on row_0"
+			row_0 = blendG3_poly_2x4_1x6(uv_poles_0[0],
+										uv_weights_0[0],
+										uv_poles_1[0],
+										uv_weights_1[0],
+										fp.scale_tangent_0,
+										fp.scale_inner_0[0],
+										fp.scale_inner_1[0],
+										fp.scale_tangent_1)
+			blend_poles_0 = row_0[0]
+			blend_weights_0 = row_0[1]
+			
+			print "G3 on row_1"
+			row_1 = blendG3_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
+			blend_poles_1 = row_1[0]
+			blend_weights_1 = row_1[1]
+
+			print "G3 on row_2"
+			row_2 = blendG3_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
+			blend_poles_2 = row_2[0]
+			blend_weights_2 = row_2[1]
+
+			print "G3 on row_3"
+			row_3 = blendG3_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
+			blend_poles_3 = row_3[0]
+			blend_weights_3 = row_3[1]
+			
+			fp.scale_inner_0 = [row_0[2], row_1[2], row_2[2], row_3[2]]
+			fp.scale_inner_1 = [row_0[3], row_1[3], row_2[3], row_3[3]]			
 		
-		print "G3 on row_1"
-		row_1 = blendG3_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
-		blend_poles_1 = row_1[0]
-		blend_weights_1 = row_1[1]
-		fp.scale_inner_0[1] = row_1[2]
-		fp.scale_inner_1[1] = row_1[3]
+		elif fp.autoG3 == 0:
+			row_0 = blend_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
+			blend_poles_0 = row_0[0]
+			blend_weights_0 = row_0[1]
+			
+			row_1 = blend_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
+			blend_poles_1 = row_1[0]
+			blend_weights_1 = row_1[1]
+			
+			row_2 = blend_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
+			blend_poles_2 = row_2[0]
+			blend_weights_2 = row_2[1]
+
+			row_3 = blend_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
+			blend_poles_3 = row_3[0]
+			blend_weights_3 = row_3[1]
 		
-		print "G3 on row_2"
-		row_2 = blendG3_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
-		blend_poles_2 = row_2[0]
-		blend_weights_2 = row_2[1]
-		fp.scale_inner_0[2] = row_2[2]
-		fp.scale_inner_1[2] = row_2[3]
 		
-		print "G3 on row_3"
-		row_3 = blendG3_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
-		blend_poles_3 = row_3[0]
-		blend_weights_3 = row_3[1]
-		fp.scale_inner_0[3] = row_3[2]
-		fp.scale_inner_1[3] = row_3[3]
 		
 		# stack the ControlPoly6s into a 64 grid - poles and weights
 		fp.Poles=[blend_poles_0[0],
