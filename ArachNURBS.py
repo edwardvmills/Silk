@@ -297,8 +297,8 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	p4=[poles_6_1[4],weights_6_0[4]] ###
 	p5=[poles_6_1[5],weights_6_0[5]] ###
 	corner='p01p10'
-
-
+	
+	'''
 	### calculate curvature components
 	## start point
 	l0 = p1[0]-p0[0]					# first control leg
@@ -331,13 +331,53 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	H3 = Base.Vector(h3)				# make clean copy
 	H3.multiply(scale_3.__pow__(2))		# apply height scale
 
-	L1 = Base.Vector(l1) 				# make clean copy
+	L1 = p1_scl[0] - p0[0] 				# make clean copy
 	L1 = L1.multiply(scale_1)			# apply inner tangent scale
-	p2_scl = [p1[0] + H1 + L1, p2[1]]	# reposition third control point
+	p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
 
-	L3 = Base.Vector(l3) 				# make clean copy
+	L3 = p4_scl[0] - p5[0]				# make clean copy
 	L3 = L3.multiply(scale_2)			# apply inner tangent scale
-	p3_scl = [p4[0] + H3 + L3, p3[1]]	# reposition third control point
+	p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
+	'''
+	
+	### calculate curvature components
+	## start point
+	l0 = p1[0]-p0[0]					# first control leg
+	tan0=Base.Vector(l0)				# make clean copy
+	tan0.normalize()					# unit tangent direction
+	l1=Base.Vector(tan0)				# make clean copy
+	l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
+	h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
+	## end point
+	l4 = p4[0]-p5[0]					# last control leg
+	tan4=Base.Vector(l4)				# make clean copy
+	tan4.normalize()					# unit tangent direction
+	l3=Base.Vector(tan4)				# make clean copy
+	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
+	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
+	### scale first and last control legs
+	L0=Base.Vector(l0)					# make clean copy
+	L0.multiply(scale_0)				# apply tangent scale
+	p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
+	L4=Base.Vector(l4)					# make clean copy
+	L4.multiply(scale_3)				# apply tangent scale
+	p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
+	### calc new heights for inner control legs
+	H1 = Base.Vector(h1)				# make clean copy
+	H1.multiply(scale_0.__pow__(2))		# apply height scale
+	H3 = Base.Vector(h3)				# make clean copy
+	H3.multiply(scale_3.__pow__(2))		# apply height scale
+	
+	
+
+	# apply inner scales
+	L1 = p1_scl[0] - p0[0]					# rescale to new tangent (scale_0 already applied)	
+	L1 = L1.multiply(scale_1)				# apply inner tangent scale
+	p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
+	
+	L3 = p4_scl[0] - p5[0]					# rescale to new tangent (scale_3 already applied)
+	L3 = L3.multiply(scale_2)				# apply inner tangent scale
+	p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
 
 
 	poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
@@ -348,7 +388,9 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	WeightedPoles= [[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]], [poles[4],weights[4]], [poles[5],weights[5]]]
 
 	current_test = NURBS_Cubic_6P_curve(WeightedPoles)
-
+	# we need to return the scales so the function result is compatible with the
+	#'Fair' and 'G3' version of the blend function, which modify these values
+	# not a strict requirement
 	return [poles,weights, scale_1, scale_2]
 
 def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):  
@@ -377,7 +419,7 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):
 		# if the start curvature changes dramatically after segmentation,
 		# the new values are invalid. not a valid test when C0 = 0.0 to begin with
 		if C0 != 0.0:
-			if math.fabs((C0_seg - C0)/C0) > 4*tol:
+			if math.fabs((C0_seg - C0)/C0) > 5*tol:
 				segment_degen = 'true'
 				print 'segmentation has collapsed the curve'
 				print 'C0', C0, 'C0_check', C0_seg
@@ -437,7 +479,7 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):
 
 	return dCds
 
-def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
+def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	# work in progress. complete mess
 	# blend two cubic bezier into a 6 point cubic NURBS. 
 	# this function assumes poles_0 flow into poles_1 without checking.
 
@@ -457,7 +499,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	dCds1 = Cubic_Bezier_dCds(WeightedPoles_1[3], WeightedPoles_1[2], WeightedPoles_1[1], WeightedPoles_1[0])
 	DdCds = math.fabs(dCds0-dCds1)
 	
-		# quick, cheap, and very incomplete symmetry test.
+	# quick, cheap, and very incomplete symmetry test.
 	if DC < 1.0e-8 and DdCds < 1.0e-8:
 		symmetric = 1
 	else:
@@ -553,10 +595,10 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	H3 = Base.Vector(h3)				# make clean copy
 	H3.multiply(scale_3.__pow__(2))		# apply height scale
 
-
+	
 	# search loop initial parameters
-	scale_1i = 1.5
-	scale_2i = 1.5
+	scale_1i = 1.0
+	scale_2i = 1.0
 	error = 1.0
 	step_size = 0.1
 	dir_0_prev = 0.0
@@ -566,7 +608,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	streak_1_count = 0
 	#step_stage_complete = 0
 	loop_count = 0
-	tol= 5.0e-3
+	tol= 1.0e-5
 	while (error > tol  and loop_count < 200 ):
 		# reset for next iteration
 		L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
@@ -601,19 +643,22 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 								WeightedPoles_6_i[1],
 								WeightedPoles_6_i[0])
 
-		# do G3 seeking stuff
-		
+		# define current G3 error
+		# proportional in non-zero cases,? absolute if target is 0
+		# the proportional error is a problem.
+		# it prioritizes smaller errors near zero than large errors porportionally closer to the target.
+		# in practice, this causes divergent run away situations
 		if dCds0 != 0.0:
-			error_0 = (dCds6_0i - dCds6_0) / math.fabs(dCds0)
+			error_0 = (dCds6_0i - dCds6_0) * ( 1 + 1 / math.fabs(dCds0)) / 2
 		elif dCds0 == 0.0:
-			error_0 = (dCds6_0i - dCds6_0)
+			error_0 = (dCds6_0i - dCds6_0) * ( 1 + 1 / math.fabs(dCds6_0i)) / 2
 		else:
 			print "dCds0, ", dCds0, "returned from Cubic_6P_dCds()"
 		
 		if dCds1 != 0.0:
-			error_1 = (dCds6_1i - dCds6_1) / math.fabs(dCds1)
+			error_1 = (dCds6_1i - dCds6_1) * ( 1 + 1 / math.fabs(dCds1)) / 2
 		elif dCds1 == 0.0:	
-			error_1 = (dCds6_1i - dCds6_1)
+			error_1 = (dCds6_1i - dCds6_1) * ( 1 + 1 / math.fabs(dCds6_1i)) / 2 # < this has caused div by 0 errors
 		else:
 			print "dCds1, ", dCds1, "returned from Cubic_6P_dCds()"
 		
@@ -691,28 +736,258 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			dir_prev = direction_0
 			nudge_prev = 0
 			streak_1_count = 0
-			
+		
 		elif (nudge == 1 and streak_1_count <= 5) or streak_0_count > 4:
 			scale_2i = scale_2i + direction_1 * step_size
 			dir_prev = direction_1
 			nudge_prev = 1
 			streak_0_count = 0
-			
+		
 		elif nudge == 2:
 			scale_1i = scale_1i + direction_0 * step_size
 			scale_2i = scale_2i + direction_1 * step_size
 			dir_prev = direction_2
 			nudge_prev = 2
 		
-			
+		upper_limit = 3.0
+		lower_limit = 0.75
+		
+		if scale_1i > upper_limit:
+			scale_1i = upper_limit
+		if scale_2i > upper_limit:
+			scale_2i = upper_limit
+		if scale_1i < lower_limit:
+			scale_1i = lower_limit
+		if scale_2i < lower_limit:
+			scale_2i = lower_limit			
+		
 		# G3 loop message
 		print loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]"
+		
+		if (scale_1i == upper_limit and scale_2i == upper_limit) or (scale_1i == lower_limit and scale_2i == lower_limit):
+			break
+		
+		if (scale_1i == upper_limit and scale_2i == lower_limit) or (scale_1i == lower_limit and scale_2i == upper_limit):
+			break
+			
+		loop_count=loop_count + 1
+	# G3 final message
+	print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
+	
+	# make sure the final values have been applied
+	
+	L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
+	L3 = p4_scl[0] - p5[0]				# rescale to new tangent (scale_3 already applied)
+	# apply scales
+	L1 = L1.multiply(scale_1i)			# apply inner tangent scale
+	p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
+	L3 = L3.multiply(scale_2i)			# apply inner tangent scale
+	p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
+	# prepare poles and weights function output
+	poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
+	weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
+	
+	return [poles,weights,scale_1i,scale_2i]
+
+def blendFair_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	# work in progress. complete mess
+	# blend two cubic bezier into a 6 point cubic NURBS. 
+	# this function assumes poles_0 flow into poles_1 without checking.
+
+	# rebuild both bezier inputs from the poles and weights
+	WeightedPoles_0=[[poles_0[0],weights_0[0]], [poles_0[1],weights_0[1]], [poles_0[2],weights_0[2]], [poles_0[3],weights_0[3]]]
+	CubicCurve4_0= Bezier_Cubic_curve(WeightedPoles_0) 
+	WeightedPoles_1=[[poles_1[0],weights_1[0]], [poles_1[1],weights_1[1]], [poles_1[2],weights_1[2]], [poles_1[3],weights_1[3]]]
+	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) 
+
+	# set end point dC/ds targets
+	
+	C0 = Cubic_6P_curvature(WeightedPoles_0[0][0], WeightedPoles_0[1][0], WeightedPoles_0[2][0])
+	C1 = Cubic_6P_curvature(WeightedPoles_1[3][0], WeightedPoles_1[2][0], WeightedPoles_1[1][0])
+	DC = math.fabs(C0-C1)
+	
+	dCds0 = Cubic_Bezier_dCds(WeightedPoles_0[0], WeightedPoles_0[1], WeightedPoles_0[2], WeightedPoles_0[3])
+	dCds1 = Cubic_Bezier_dCds(WeightedPoles_1[3], WeightedPoles_1[2], WeightedPoles_1[1], WeightedPoles_1[0])
+	DdCds = math.fabs(dCds0-dCds1)
+	
+	# quick, cheap, and very incomplete symmetry test.
+	if DC < 1.0e-8 and DdCds < 1.0e-8:
+		symmetric = 1
+	else:
+		symmetric = 0
+	
+	#print "dCds inputs: " "dCds0, ", dCds0, " dCds1, ", dCds1
+	
+	if math.fabs(dCds0) < 5.0e-6:
+		dCds0 = 0.0
+	if math.fabs(dCds1) < 5.0e-6:
+		dCds1 = 0.0		
+
+	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric
+	
+	# convert 4P inputs to 6P
+	CubicCurve6_0=CubicCurve4_0
+	CubicCurve6_0.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
+	CubicCurve6_0.insertKnot(2.0/3.0)
+	CubicCurve6_1=CubicCurve4_1
+	CubicCurve6_1.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
+	CubicCurve6_1.insertKnot(2.0/3.0)
+
+	# extract poles and weights from 6Ps
+	poles_6_0=CubicCurve6_0.getPoles()
+	weights_6_0=CubicCurve6_0.getWeights()
+	poles_6_1=CubicCurve6_1.getPoles()
+	weights_6_1=CubicCurve6_1.getWeights()
+
+	# check Cubic_6P_dCds
+	WeightedPoles_6_0=[[poles_6_0[0],weights_6_0[0]],
+						[poles_6_0[1],weights_6_0[1]],
+						[poles_6_0[2],weights_6_0[2]],
+						[poles_6_0[3],weights_6_0[3]],
+						[poles_6_0[4],weights_6_0[4]],
+						[poles_6_0[5],weights_6_0[5]]]
+
+	dCds6_0 = Cubic_6P_dCds(WeightedPoles_6_0[0],
+							WeightedPoles_6_0[1],
+							WeightedPoles_6_0[2],
+							WeightedPoles_6_0[3],
+							WeightedPoles_6_0[4],
+							WeightedPoles_6_0[5])
+
+	WeightedPoles_6_1=[[poles_6_1[0],weights_6_1[0]],
+						[poles_6_1[1],weights_6_1[1]],
+						[poles_6_1[2],weights_6_1[2]],
+						[poles_6_1[3],weights_6_1[3]],
+						[poles_6_1[4],weights_6_1[4]],
+						[poles_6_1[5],weights_6_1[5]]]
+
+	dCds6_1 = Cubic_6P_dCds(WeightedPoles_6_1[5],
+							WeightedPoles_6_1[4],
+							WeightedPoles_6_1[3],
+							WeightedPoles_6_1[2],
+							WeightedPoles_6_1[1],
+							WeightedPoles_6_1[0])
+
+	print "dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1
+
+	# compile the blend poly. this initial form is G2, but clumped towards the outer points.
+	p0=[poles_6_0[0],weights_6_0[0]]
+	p1=[poles_6_0[1],weights_6_0[1]]
+	p2=[poles_6_0[2],weights_6_0[2]]
+	p3=[poles_6_1[3],weights_6_1[3]]
+	p4=[poles_6_1[4],weights_6_1[4]]
+	p5=[poles_6_1[5],weights_6_1[5]]
+
+	### calculate curvature components
+	## start point
+	l0 = p1[0]-p0[0]					# first control leg
+	tan0=Base.Vector(l0)				# make clean copy
+	tan0.normalize()					# unit tangent direction
+	l1=Base.Vector(tan0)				# make clean copy
+	l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
+	h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
+	## end point
+	l4 = p4[0]-p5[0]					# last control leg
+	tan4=Base.Vector(l4)				# make clean copy
+	tan4.normalize()					# unit tangent direction
+	l3=Base.Vector(tan4)				# make clean copy
+	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
+	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
+	### scale first and last control legs
+	L0=Base.Vector(l0)					# make clean copy
+	L0.multiply(scale_0)				# apply tangent scale
+	p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
+	L4=Base.Vector(l4)					# make clean copy
+	L4.multiply(scale_3)				# apply tangent scale
+	p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
+	### calc new heights for inner control legs
+	H1 = Base.Vector(h1)				# make clean copy
+	H1.multiply(scale_0.__pow__(2))		# apply height scale
+	H3 = Base.Vector(h3)				# make clean copy
+	H3.multiply(scale_3.__pow__(2))		# apply height scale
+
+	# output of the G2 portion
+	p0[0]			# start point. unchanged
+	p1_scl			# start tangent point. scaled
+	H1				# start inner tangent height. scaled
+	H3				# end inner tangent height. scaled
+	p4_scl[0]		# end  tangent point. scaled
+	p5[0]			# end point. unchanged	
+
+	
+	
+	# stuff involved in making a single fairing attempt and evaluating dCds to establish G3 error.
+	p0[0]			# start point. unchanged
+	p1_scl[0]		# start tangent point. unchanged
+	scale_1i		# start inner tangent scale : independent variable in the attempt
+	H1				# start inner tangent height. unchanged
+	p2[1]			# start inner tangent weight. unchanged
+	p3[1]			# end inner tangent weight. 
+	scale_2i		# end inner tangent scale : independent variable in the attempt
+	H3				# end inner tangent height. unchanged
+	p4_scl[0]		# end  tangent point. unchanged
+	p5[0]			# end point. unchanged
+	
+	dCds0			# input poly start curvature derivative with respect to arclength (along +t). dependent variable in the attempt
+	dCds1			# input poly end curvature derivative with respect to arclength (along -t). dependent variable in the attempt
+	
+	
+	
+	
+	# search loop initial parameters
+	scale_1i = 1.0
+	scale_2i = 1.0
+	error = 1.0
+	step_size = 0.1
+	dir_0_prev = 0.0
+	dir_1_prev = 0.0
+	nudge_prev = 'none'
+	streak_0_count = 0
+	streak_1_count = 0
+	#step_stage_complete = 0
+	loop_count = 0
+	tol= 5.0e-6
+	while (error > tol  and loop_count < 200 ):
+		# reset for next iteration
+		L1 = p1_scl[0] - p0[0]				# rescale to new tangent (scale_0 already applied)
+		L3 = p4_scl[0] - p5[0]				# rescale to new tangent (scale_3 already applied)
+		# apply scales
+		L1 = L1.multiply(scale_1i)			# apply inner tangent scale
+		p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
+		L3 = L3.multiply(scale_2i)			# apply inner tangent scale
+		p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
+		# prepare poles and weights function output
+		poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
+		weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
+		# prepare weighted poles for curvature analysis
+		WeightedPoles_6_i = [[poles[0],weights[0]],
+							[poles[1],weights[1]],
+							[poles[2],weights[2]],
+							[poles[3],weights[3]],
+							[poles[4],weights[4]],
+							[poles[5],weights[5]]]
+		# check both end curvatures
+		dCds6_0i = Cubic_6P_dCds(WeightedPoles_6_i[0],
+								WeightedPoles_6_i[1],
+								WeightedPoles_6_i[2],
+								WeightedPoles_6_i[3],
+								WeightedPoles_6_i[4],
+								WeightedPoles_6_i[5])
+
+		dCds6_1i = Cubic_6P_dCds(WeightedPoles_6_i[5],
+								WeightedPoles_6_i[4],
+								WeightedPoles_6_i[3],
+								WeightedPoles_6_i[2],
+								WeightedPoles_6_i[1],
+								WeightedPoles_6_i[0])
+
+		
 
 		loop_count=loop_count + 1
 	# G3 final message
 	print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
 	return [poles,weights,scale_1i,scale_2i]
-			
+
+	
 def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	l1 = p1 - p0
 	l2 = p2 - p1
@@ -1741,12 +2016,13 @@ class ControlPoly6_FilletBezier:
 		FreeCAD.Console.PrintMessage("\nControlPoly6_FilletBezier class Init\n")
 		obj.addProperty("App::PropertyLink","CubicCurve4_0","ControlPoly6_FilletBezier","First reference Bezier Curve").CubicCurve4_0 = cubiccurve4_0
 		obj.addProperty("App::PropertyLink","CubicCurve4_1","ControlPoly6_FilletBezier","Second reference Bezier Curve").CubicCurve4_1 = cubiccurve4_1
-		obj.addProperty("App::PropertyFloat","Scale_0","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_0 = 2.0
-		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling READ ONLY").Scale_3 = 2.0
-		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling READ ONLY").Scale_1 = 3.0
-		obj.setEditorMode("Scale_1", 1)
-		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_2 = 3.0
-		obj.setEditorMode("Scale_2", 1)
+		obj.addProperty("App::PropertyFloat","Scale_0","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_0 = 3.0
+		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling READ ONLY").Scale_3 = 3.0
+		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling READ ONLY").Scale_1 = 1.0
+		obj.setEditorMode("Scale_1", 0)
+		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_2 = 1.0
+		obj.setEditorMode("Scale_2", 0)
+		obj.addProperty("App::PropertyInteger", "autoG3", "ControlPoly6_FilletBezier", "Try to set G3 to the input polys").autoG3 = 0
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly6_FilletBezier","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly6_FilletBezier","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly6_FilletBezier","Weights").Weights = [1.0,1.0,1.0,1.0]
@@ -1775,12 +2051,17 @@ class ControlPoly6_FilletBezier:
 		scale_2 = fp.Scale_2
 		scale_3 = fp.Scale_3
 
-		blendG3 = blendG3_poly_2x4_1x6(blend_0, weights_0, blend_1, weights_1, scale_0, scale_1, scale_2, scale_3)
+		if fp.autoG3 == 0:
+			blend = blend_poly_2x4_1x6(blend_0, weights_0, blend_1, weights_1, scale_0, scale_1, scale_2, scale_3)		
+		
+		if fp.autoG3 == 1:
+			blend = blendG3_poly_2x4_1x6(blend_0, weights_0, blend_1, weights_1, scale_0, scale_1, scale_2, scale_3)
 
-		fp.Poles = blendG3[0]
-		fp.Weights = blendG3[1]
-		fp.Scale_1 = blendG3[2]
-		fp.Scale_2 = blendG3[3]
+		
+		fp.Poles = blend[0]
+		fp.Weights = blend[1]
+		fp.Scale_1 = blend[2]
+		fp.Scale_2 = blend[3]
 		
 		# prepare the lines to draw the polyline
 		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
