@@ -15,7 +15,7 @@ class ControlGridNStar66_NSub:
 		the list of poles and weights must be accessible outside the object through the FreeCAD python feature attribute interface:
 		the poles and weights must be one of the predefined attribute types. if we choose PropertyVectorList and PropertyFloatList,
 		we must then use 'variable' variable names to set N of them. This is not good practice. The other option is using a Matrix. 
-		The matrix is probably yhe way to go...later.
+		The matrix is probably the way to go...later.
 
 		I know how to read and write the entire pole table with 'variable' variable names, but i don't know how to read a single object and then write a single object.
 
