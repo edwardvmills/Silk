@@ -30,14 +30,14 @@ path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
 class Point_onCurve():
-	def Activated(self):
+	def Activated(self):  
 		selx=Gui.Selection.getSelectionEx()[0]
-		NL_Curve=selx.Object					# this is a resilient link to the underlying object
-		Pick=selx.PickedPoints[0]				# this is the point where the curve was picked
-		u=NL_Curve.Shape.Curve.parameter(Pick)	# picked point is used for an initial value
+		AN_Curve=selx.Object					# this is a resilient link to the underlying object
+		Pick=selx.PickedPoints[0]				# this is the point where the curve was picked		
+		u=AN_Curve.Shape.Curve.parameter(Pick)	# picked point is used for an initial value
 
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve")
-		AN.Point_onCurve(a,NL_Curve, u)
+		AN.Point_onCurve(a,AN_Curve, u)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.PointSize = 5.00
 		a.ViewObject.PointColor = (1.00,0.00,0.00)

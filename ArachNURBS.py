@@ -986,7 +986,6 @@ def blendFair_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale
 	# G3 final message
 	print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
 	return [poles,weights,scale_1i,scale_2i]
-
 	
 def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
 	l1 = p1 - p0
@@ -2016,11 +2015,11 @@ class ControlPoly6_FilletBezier:
 		FreeCAD.Console.PrintMessage("\nControlPoly6_FilletBezier class Init\n")
 		obj.addProperty("App::PropertyLink","CubicCurve4_0","ControlPoly6_FilletBezier","First reference Bezier Curve").CubicCurve4_0 = cubiccurve4_0
 		obj.addProperty("App::PropertyLink","CubicCurve4_1","ControlPoly6_FilletBezier","Second reference Bezier Curve").CubicCurve4_1 = cubiccurve4_1
-		obj.addProperty("App::PropertyFloat","Scale_0","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_0 = 3.0
-		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling READ ONLY").Scale_3 = 3.0
-		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling READ ONLY").Scale_1 = 1.0
+		obj.addProperty("App::PropertyFloat","Scale_0","ControlPoly6_FilletBezier","First curve tangent scaling").Scale_0 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_3","ControlPoly6_FilletBezier","Second curve tangent scaling READ ONLY").Scale_3 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_1","ControlPoly6_FilletBezier","First curve inner scaling READ ONLY").Scale_1 = 2.0
 		obj.setEditorMode("Scale_1", 0)
-		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_2 = 1.0
+		obj.addProperty("App::PropertyFloat","Scale_2","ControlPoly6_FilletBezier","Second curve inner scaling").Scale_2 = 2.0
 		obj.setEditorMode("Scale_2", 0)
 		obj.addProperty("App::PropertyInteger", "autoG3", "ControlPoly6_FilletBezier", "Try to set G3 to the input polys").autoG3 = 0
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly6_FilletBezier","control segments").Legs
@@ -2580,9 +2579,9 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		obj.addProperty("App::PropertyLink","Grid_1","ControlGrid64_2Grid44","second reference 4X4 grid").Grid_1 = Grid_1
 		obj.addProperty("App::PropertyFloat","scale_tangent_0","ControlGrid64_2Grid44","first grid tangent scale").scale_tangent_0 = 2.0
 		obj.addProperty("App::PropertyFloat","scale_tangent_1","ControlGrid64_2Grid44","second grid tangent scale").scale_tangent_1 = 2.0
-		obj.addProperty("App::PropertyFloatList","scale_inner_0","ControlGrid64_2Grid44","first side inner scale").scale_inner_0 = [3.0, 3.0, 3.0, 3.0]
+		obj.addProperty("App::PropertyFloatList","scale_inner_0","ControlGrid64_2Grid44","first side inner scale").scale_inner_0 = [2.0, 2.0, 2.0, 2.0]
 		#obj.setEditorMode("scale_inner_0", 0)
-		obj.addProperty("App::PropertyFloatList","scale_inner_1","ControlGrid64_2Grid44","second side inner scale").scale_inner_1 = [3.0, 3.0, 3.0, 3.0]
+		obj.addProperty("App::PropertyFloatList","scale_inner_1","ControlGrid64_2Grid44","second side inner scale").scale_inner_1 = [2.0, 2.0, 2.0, 2.0]
 		#obj.setEditorMode("scale_inner_1", 0)
 		obj.addProperty("App::PropertyInteger", "autoG3", "ControlGrid64_2Grid44", "Try to set G3 along the external seams").autoG3 = 0
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_2Grid44","control segments").Legs
