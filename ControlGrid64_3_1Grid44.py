@@ -41,18 +41,18 @@ class ControlGrid64_3_1Grid44():
 
 			if ((NL_Grid.Poles[0]-Pick).Length / test_scale) < 0.0001:
 				Corner = 0
-				print 'corner 0 at Grid index 0'
+				print ('corner 0 at Grid index 0')
 			elif ((NL_Grid.Poles[3]-Pick).Length / test_scale) < 0.0001:
 				Corner = 1
-				print 'corner 1 at Grid index 3'
+				print ('corner 1 at Grid index 3')
 			elif ((NL_Grid.Poles[15]-Pick).Length / test_scale) < 0.0001:
 				Corner = 2
-				print 'corner 2 at Grid index 15'	
+				print ('corner 2 at Grid index 15')
 			elif ((NL_Grid.Poles[12]-Pick).Length / test_scale) < 0.0001:
 				Corner = 3
-				print 'corner 3 at Grid index 12'	
+				print ('corner 3 at Grid index 12')
 			else:
-				print 'unable to identify which corner the grid was pick on. please select the grid by one of its corners in the 3D view'
+				print ('unable to identify which corner the grid was pick on. please select the grid by one of its corners in the 3D view')
 				
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_3_Grid44")
 			AN.ControlGrid64_3_1Grid44(a,NL_Grid, Corner)
