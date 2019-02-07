@@ -105,7 +105,7 @@ def orient_a_to_b(polesa,polesb):   # polesa and polesb are lists of poles that 
 		# curve 1 is reversed
 		return polesa[::-1]
 	else:
-		print 'curves do not share endpoints'
+		print ('curves do not share endpoints')
 		return 0
 
 def Cubic_Bezier_ddu(pole0, pole1):          # cubic derivative at curve start (pole1) based on first 
@@ -421,15 +421,15 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):
 		if C0 != 0.0:
 			if math.fabs((C0_seg - C0)/C0) > 5*tol:
 				segment_degen = 'true'
-				print 'segmentation has collapsed the curve'
-				print 'C0', C0, 'C0_check', C0_seg
-				print 'Cubic_Bezier_dCds step ', loop_count
+				print ('segmentation has collapsed the curve')
+				print ('C0', C0, 'C0_check', C0_seg)
+				print ('Cubic_Bezier_dCds step ', loop_count)
 		elif C0 == 0.0:
 			if math.fabs((C0_seg - C0)) > .00001:
 				segment_degen = 'true'
-				print 'segmentation has collapsed the curve'
-				print 'C0', C0, 'C0_check', C0_seg
-				print 'Cubic_Bezier_dCds step ', loop_count			
+				print ('segmentation has collapsed the curve')
+				print ('C0', C0, 'C0_check', C0_seg)
+				print ('Cubic_Bezier_dCds step ', loop_count)
 		
 		# calculate curvature at the end of the current segment
 		Cs =  Cubic_Bezier_curvature(Poles[3], Poles[2], Poles[1])
@@ -442,7 +442,7 @@ def Cubic_Bezier_dCds(pole0, pole1, pole2, pole3):
 		S = Base.Vector(Poles[3])-Base.Vector(Poles[0])
 		s = S.Length
 		dCds_seg = (Cs-C0)/s
-		#print 'step ', loop_count, '  dCds_seg ', dCds_seg
+		#print ('step ', loop_count, '  dCds_seg ', dCds_seg)
 		if loop_count > 1:
 			error = math.fabs((dCds_seg - dCds_last)/dCds_last)
 		if segment_degen != 'true':
@@ -512,7 +512,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	if math.fabs(dCds1) < 5.0e-6:
 		dCds1 = 0.0		
 
-	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric
+	print ("dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric)
 	
 	# convert 4P inputs to 6P
 	CubicCurve6_0=CubicCurve4_0
@@ -557,7 +557,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 							WeightedPoles_6_1[1],
 							WeightedPoles_6_1[0])
 
-	print "dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1
+	print ("dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1)
 
 	# compile the blend poly. this initial form is G2, but clumped towards the outer points.
 	p0=[poles_6_0[0],weights_6_0[0]]
@@ -653,18 +653,18 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		elif dCds0 == 0.0:
 			error_0 = (dCds6_0i - dCds6_0) * ( 1 + 1 / math.fabs(dCds6_0i)) / 2
 		else:
-			print "dCds0, ", dCds0, "returned from Cubic_6P_dCds()"
+			print ("dCds0, ", dCds0, "returned from Cubic_6P_dCds()")
 		
 		if dCds1 != 0.0:
 			error_1 = (dCds6_1i - dCds6_1) * ( 1 + 1 / math.fabs(dCds1)) / 2
 		elif dCds1 == 0.0:	
 			error_1 = (dCds6_1i - dCds6_1) * ( 1 + 1 / math.fabs(dCds6_1i)) / 2 # < this has caused div by 0 errors
 		else:
-			print "dCds1, ", dCds1, "returned from Cubic_6P_dCds()"
+			print ("dCds1, ", dCds1, "returned from Cubic_6P_dCds()")
 		
 		# success criteria for normal exit
 		if math.fabs(error_0) <= tol and math.fabs(error_1) <= tol:
-			print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
+			print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
 			return [poles,weights,scale_1i,scale_2i]
 		
 		error = math.fabs(error_0) + math.fabs(error_1)
@@ -722,7 +722,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			nudge = 0
 			direction = 0
 			symmetric = 0
-			print "symmetry assumption has broken down."
+			print ("symmetry assumption has broken down.")
 			
 		# compare the next planned action to the last executed action
 		if nudge == nudge_prev and dir != dir_prev:
@@ -762,7 +762,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			scale_2i = lower_limit			
 		
 		# G3 loop message
-		print loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]"
+		print (loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]")
 		
 		if (scale_1i == upper_limit and scale_2i == upper_limit) or (scale_1i == lower_limit and scale_2i == lower_limit):
 			break
@@ -772,7 +772,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			
 		loop_count=loop_count + 1
 	# G3 final message
-	print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
+	print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
 	
 	# make sure the final values have been applied
 	
@@ -822,7 +822,7 @@ def blendFair_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale
 	if math.fabs(dCds1) < 5.0e-6:
 		dCds1 = 0.0		
 
-	print "dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric
+	print ("dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric)
 	
 	# convert 4P inputs to 6P
 	CubicCurve6_0=CubicCurve4_0
@@ -867,7 +867,7 @@ def blendFair_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale
 							WeightedPoles_6_1[1],
 							WeightedPoles_6_1[0])
 
-	print "dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1
+	print ("dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1)
 
 	# compile the blend poly. this initial form is G2, but clumped towards the outer points.
 	p0=[poles_6_0[0],weights_6_0[0]]
@@ -984,7 +984,7 @@ def blendFair_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale
 
 		loop_count=loop_count + 1
 	# G3 final message
-	print "final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]"
+	print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
 	return [poles,weights,scale_1i,scale_2i]
 	
 def match_r_6P_6P_Cubic(p0,p1,p2,tanRatio):
@@ -1046,9 +1046,9 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 		if ((test[3]*direction) > 0):					# is the projection coming from inside the surface?
 			test_span = [test_span[0], test_u]		# > use first half of current span for the next search
 		loop_count=loop_count + 1
-	print 'step ', loop_count, '  u ', test_u, '  error ', test[2]
+	print ('step ', loop_count, '  u ', test_u, '  error ', test[2])
 	if error > tol:
-		print 'no intersection found within ', tol
+		print ('no intersection found within ', tol)
 		isect_curve_surf = 'NONE'
 	else:
 		isect_curve_surf = [test[0], test_u, test[4]]
@@ -1467,7 +1467,7 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
 			weights3=weights3[::-1]
 		# make sure this is a degenerate quadrangle, i.e. a triangle
 		if (quad31[3] != quad12[0]):
-			print 'edge loop does not form a triangle'
+			print ('edge loop does not form a triangle')
 		#no further error handling is implemented
 
 		p00 = quad12[0]
@@ -1821,7 +1821,7 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		print 'first one'
+		print ('first one')
 		poles4_0=fp.Poly4_0.Poles
 		poles6_1=fp.Poly6_1.Poles
 		poles4_2=fp.Poly4_2.Poles
@@ -2078,10 +2078,10 @@ class Point_onCurve:
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nPoint_onCurve class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Curve","Point_onCurve","reference curve").NL_Curve = NL_Curve
-                lower = 0.0
-                upper = 1.0
-                step = 0.01
-                obj.addProperty("App::PropertyFloatConstraint","u","Point_onCurve","parameter along curve").u = (u, lower, upper, step)
+		lower = 0.0
+		upper = 1.0
+		step = 0.01
+		obj.addProperty("App::PropertyFloatConstraint","u","Point_onCurve","parameter along curve").u = (u, lower, upper, step)
 		obj.addProperty("App::PropertyVector","Position","Point_onCurve","position vector").Position
 		obj.Proxy = self
 
@@ -2320,9 +2320,9 @@ class ControlGrid44_EdgeSegment:
 		p1 = curve.EndPoint
 		# determine u or v segmentation and get parameter span from cutting points
 		param0=surface.parameter(p0)
-		print 'param0: ', param0
+		print ('param0: ', param0)
 		param1=surface.parameter(p1)
-		print 'param1: ', param1
+		print ('param1: ', param1)
 		if ((param0[0]<0.001 and param1[0]<0.001) or (param0[0]>0.999 and param1[0]>0.999)): # if u is constant 0 or constant 1 along curve
 			segdir = 'v'
 			if param0[1] < param1[1]:
@@ -2348,9 +2348,9 @@ class ControlGrid44_EdgeSegment:
 		# create surface segment. this works very nicely most of the time, but! 
 		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instead of a whole grid.
 
-		print 'sgdir: ', segdir 
-		print 't0 ', t0
-		print 't1 ', t1
+		print ('sgdir: ', segdir)
+		print ('t0 ', t0)
+		print ('t1 ', t1)
 		if segdir=='u':
 			surface.segment(t0,t1,0,1)
 		if segdir=='v':
@@ -2506,14 +2506,14 @@ class ControlGrid44_2EdgeSegments:
 		# first version flips the grid along v???? need to run down 3 to 0 on v while looping 0 to 3 on u ?????
 		poles_2dArray = surface.getPoles()
 		if len(poles_2dArray[0]) == 1:
-			print 'collapsed surface segment'
-			print 'segdira: ', segdira
-			print 'segdirb: ', segdirb
-			print 's0 ', s0
-			print 's1 ', s1
-			print 't0 ', t0
-			print 't1 ', t1
-			print 'poles_2dArray', poles_2dArray
+			print ('collapsed surface segment')
+			print ('segdira: ', segdira)
+			print ('segdirb: ', segdirb)
+			print ('s0 ', s0)
+			print ('s1 ', s1)
+			print ('t0 ', t0)
+			print ('t1 ', t1)
+			print ('poles_2dArray', poles_2dArray)
 
 
 		fp.Poles = [poles_2dArray[3][0],
@@ -2628,8 +2628,8 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		if seam_0 == [0,1]:
 			rotate_0 = 3 
 
-		print 'seam_0 ', seam_0
-		print 'seam_1 ', seam_1
+		print ('seam_0 ', seam_0)
+		print ('seam_1 ', seam_1)
 
 		# right grid correction rotation
 		if seam_1 == [0,3] or seam_1 == [3,0]:
@@ -2641,8 +2641,8 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		if seam_1 == [3,2] or seam_1 == [2,3]:
 			rotate_1 = 3
 
-		print 'rotate left: ', rotate_0
-		print 'rotate right: ', rotate_1
+		print ('rotate left: ', rotate_0)
+		print ('rotate right: ', rotate_1)
 
 		# get grid data back into array
 		lin_poles_0 = fp.Grid_0.Poles
@@ -2709,7 +2709,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 
 		# run ControlPoly6_FilletBezier or equivalent internal function on each pair running across the seam
 		if fp.autoG3 == 1:
-			print "G3 on row_0"
+			print ("G3 on row_0")
 			row_0 = blendG3_poly_2x4_1x6(uv_poles_0[0],
 										uv_weights_0[0],
 										uv_poles_1[0],
@@ -2721,17 +2721,17 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 			blend_poles_0 = row_0[0]
 			blend_weights_0 = row_0[1]
 			
-			print "G3 on row_1"
+			print ("G3 on row_1")
 			row_1 = blendG3_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
 			blend_poles_1 = row_1[0]
 			blend_weights_1 = row_1[1]
 
-			print "G3 on row_2"
+			print ("G3 on row_2")
 			row_2 = blendG3_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
 			blend_poles_2 = row_2[0]
 			blend_weights_2 = row_2[1]
 
-			print "G3 on row_3"
+			print ("G3 on row_3")
 			row_3 = blendG3_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
 			blend_poles_3 = row_3[0]
 			blend_weights_3 = row_3[1]
@@ -2867,7 +2867,7 @@ class SubGrid33_2Grid64s_old:
 					common=[i,j]
 
 		if common == 'not_found_yet':
-			print 'common point of grids not found. If this object was working, this is an evaluation error'
+			print ('common point of grids not found. If this object was working, this is an evaluation error')
 		#print 'common ', common
 		# tested-runs-
 
@@ -2877,7 +2877,7 @@ class SubGrid33_2Grid64s_old:
 
 		# check input grid order, swap grids if necessary
 		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
-			print 'swapping grid order'
+			print ('swapping grid order')
 			temp=fp.Grid_0
 			fp.Grid_0=fp.Grid_1
 			fp.Grid_1=temp
@@ -2889,7 +2889,7 @@ class SubGrid33_2Grid64s_old:
 				for j in range(0,4):
 					if corners_0[i] == corners_1[j]:
 						common=[i,j]
-			print 'common ', common
+			print ('common ', common)
 
 		if common[0] == 0:
 			fp.u_row0_poles = [fp.Grid_0.Poles[0],fp.Grid_0.Poles[1],fp.Grid_0.Poles[2]]
@@ -2968,8 +2968,8 @@ class SubGrid33_2Grid64:
 				if equalVectors(corners_0[i],corners_1[j],0.000001):
 					common=[i,j]
 		if common == 'not_found_yet':
-			print 'common point of grids not found. If this object was working previously, this is an evaluation error'
-		print 'common ', common
+			print ('common point of grids not found. If this object was working previously, this is an evaluation error')
+		print ('common ', common)
 		# tested-runs-
 
 		# the two 6 point sides of each grid should form a V when looking at the future grid
@@ -2978,7 +2978,7 @@ class SubGrid33_2Grid64:
 
 		# check input grid order, swap grids if necessary
 		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
-			print 'swapping grid order'
+			print ('swapping grid order')
 			temp=fp.Grid_0
 			fp.Grid_0=fp.Grid_1
 			fp.Grid_1=temp
@@ -2990,7 +2990,7 @@ class SubGrid33_2Grid64:
 				for j in range(0,4):
 					if equalVectors(corners_0[i],corners_1[j],0.000001):
 						common=[i,j]
-			print 'common ', common
+			print ('common ', common)
 
 		if common[0] == 0:
 			v_col0_poles = [fp.Grid_0.Poles[0],fp.Grid_0.Poles[1],fp.Grid_0.Poles[2]]
@@ -3614,8 +3614,8 @@ class SubGrid63_2Surf64:
 				if equalVectors(corners_0[i], corners_1[j], 0.000001):
 					common=[i,j]
 		if common == 'not_found_yet':
-			print 'common point of grids not found. If this object was working previously, this is an evaluation error'
-		print 'common ', common
+			print ('common point of grids not found. If this object was working previously, this is an evaluation error')
+		print ('common ', common)
 
 		# the two 6 point sides of each grid should form a V when looking at the future grid
 		# a is the left leg of the V, i.e. common[0] = 0 or 3
@@ -3623,7 +3623,7 @@ class SubGrid63_2Surf64:
 
 		# check input grid order, swap grids if necessary
 		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
-			print 'swap surfaces - internal only?'
+			print ('swap surfaces - internal only?')
 			temp_grid=Grid_0
 			Grid_0=Grid_1
 			Grid_1=temp_grid
@@ -3640,7 +3640,7 @@ class SubGrid63_2Surf64:
 				for j in range(0,4):
 					if equalVectors(corners_0[i], corners_1[j], 0.000001):
 						common=[i,j]
-			print 'common ', common
+			print ('common ', common)
 
 
 		# cut surfaces in half, insert knots to re-establish Poly6 along u
@@ -3815,7 +3815,7 @@ class SubGrid63_2Surf64:
 		if equalVectors(proj_u_rows_u2[0], p12, 0.0000001):
 			p22_u = proj_u_rows_u2[1]
 		else:
-			print 'failed to match tangent segment on p22_u calculation'
+			print ('failed to match tangent segment on p22_u calculation')
 		p22_u_ext = p22_u + (p12 - p02) * 5.0
 		p22_u_ext_L = Part.LineSegment(p22_u,p22_u_ext)
 		# p22 using v_cols : surf_0 points with surf_1 tangent ratio
@@ -3823,7 +3823,7 @@ class SubGrid63_2Surf64:
 		if equalVectors(proj_v_cols_v2[0], p21, 0.0000001):
 			p22_v = proj_v_cols_v2[1]
 		else:
-			print 'failed to match tangent segment on p22_v calculation'
+			print ('failed to match tangent segment on p22_v calculation')
 		p22_v_ext = p22_v + (p21 - p20) * 5.0
 		p22_v_ext_L = Part.LineSegment(p22_v,p22_v_ext)
 		# combine both p22 versions
@@ -3836,40 +3836,40 @@ class SubGrid63_2Surf64:
 		if equalVectors(proj_u_rows_u3[0], p13, 0.0000001):
 			p23_h = proj_u_rows_u3[1]
 		else:
-			print 'failed to match tangent segment on p23_h calculation'
+			print ('failed to match tangent segment on p23_h calculation')
 
 		# p24 using u_rows: surf_1 points with surf_0 tangent ratio
 		proj_u_rows_u4 = match_r_6P_6P_Cubic(u_row0_poles[4], u_row1_poles[4], u_row2_poles[4], v_tan_ratio)
 		if equalVectors(proj_u_rows_u4[0], p14, 0.0000001):
 			p24_h = proj_u_rows_u4[1]
 		else:
-			print 'failed to match tangent segment on p24_h calculation'
+			print ('failed to match tangent segment on p24_h calculation')
 
 		# p25 using u_rows: surf_1 points with surf_0 tangent ratio
 		proj_u_rows_u5 = match_r_6P_6P_Cubic(u_row0_poles[5], u_row1_poles[5], u_row2_poles[5], v_tan_ratio)
 		if equalVectors(proj_u_rows_u5[0], p15, 0.0000001):
 			p25_h = proj_u_rows_u5[1]
 		else:
-			print 'failed to match tangent segment on p25_h calculation'
+			print ('failed to match tangent segment on p25_h calculation')
 
 		# p32 using v_cols : surf_0 points with surf_1 tangent ratio
 		proj_v_cols_v3 = match_r_6P_6P_Cubic(v_col0_poles[3], v_col1_poles[3], v_col2_poles[3], u_tan_ratio)
 		if equalVectors(proj_v_cols_v3[0], p31, 0.0000001):
 			p32_h = proj_v_cols_v3[1]
 		else:
-			print 'failed to match tangent segment on p32_h calculation'
+			print ('failed to match tangent segment on p32_h calculation')
 		# p42 using v_cols : surf_0 points with surf_1 tangent ratio
 		proj_v_cols_v4 = match_r_6P_6P_Cubic(v_col0_poles[4], v_col1_poles[4], v_col2_poles[4], u_tan_ratio)
 		if equalVectors(proj_v_cols_v4[0], p41, 0.0000001):
 			p42_h = proj_v_cols_v4[1]
 		else:
-			print 'failed to match tangent segment on p42_h calculation'
+			print ('failed to match tangent segment on p42_h calculation')
 		# p52 using v_cols : surf_0 points with surf_1 tangent ratio
 		proj_v_cols_v5 = match_r_6P_6P_Cubic(v_col0_poles[5], v_col1_poles[5], v_col2_poles[5], u_tan_ratio)
 		if equalVectors(proj_v_cols_v5[0], p51, 0.0000001):
 			p52_h = proj_v_cols_v5[1]
 		else:
-			print 'failed to match tangent segment on p52_h calculation'
+			print ('failed to match tangent segment on p52_h calculation')
 
 		v00 = Base.Vector(0,0,0)
 
@@ -4206,9 +4206,9 @@ class ControlGridNStar66_NSub:
 		self.StarDiag4_SubLoop(fp, fp.N)
 		if fp.SquishDiag4 == 1:
 			self.StarDiag4_squish(fp, fp.N)
-			print "Squish Diagonal 4"
+			print ("Squish Diagonal 4")
 		else:
-			print "no Squish Diagonal 4!"
+			print ("no Squish Diagonal 4!")
 
 		self.StarRow4_SubLoop(fp, fp.N)
 		self.StarCenter(fp, fp.N)
@@ -4563,7 +4563,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		fp.StarGrid = [0] * fp.N
 		# compile all SubGrid Poles and Weights into StarGrid attribute
 		for n in range(fp.N):
-			print 'n = ', n
+			print ('n = ', n)
 			# extract subgrid info from each StarTrim center section
 			PoleArray = fp.StarTrim.NSurf_center[n].getPoles()
 			Poles = [0] *36
@@ -4580,7 +4580,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 			StarGrid_n = [0] * 36
 			for i in range(36):
 				# set Pole/Weight format [Base.Vector(), Float]
-				print 'i = ', i
+				print ('i = ', i)
 				StarGrid_n_i = [0,0]
 				StarGrid_n_i[0] = Poles[i]
 				StarGrid_n_i[1] = Weights[i]
