@@ -51,7 +51,7 @@ class ControlGrid66():
 			FreeCAD.ActiveDocument.recompute()
 			
 		if mode=='3sided':
-			print 'triangle mode not implemented'
+			print ('triangle mode not implemented')
 			
 	def GetResources(self):
 		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66.svg', 'MenuText': 'ControlGrid66', 'ToolTip': 'ControlGrid66'}

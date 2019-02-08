@@ -38,12 +38,12 @@ class ControlPoly6():
 			except Exception: 
 				pass
 			try:
-				if sel[0].GeometryCount==5L:
+				if sel[0].GeometryCount=='5L':
 					mode='5L'
 			except Exception: 
 				pass
 			try:
-				if sel[0].GeometryCount!=5L:
+				if sel[0].GeometryCount!='5L':
 					#if isinstance(sel[0].Geometry[0], Part.ArcOfCircle):
 					mode='FirstElement'
 			except Exception: 
@@ -57,7 +57,7 @@ class ControlPoly6():
 			except Exception: 
 				pass		
 
-		print 'selection processed as ', mode, ' operation'
+		print ('selection processed as ', mode, ' operation')
 
 		if mode=='5L':
 			sketch=Gui.Selection.getSelection()[0]

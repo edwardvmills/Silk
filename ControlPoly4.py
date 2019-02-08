@@ -39,7 +39,7 @@ class ControlPoly4():
 				mode='FirstElement'
 		elif len(sel)==2:
 			mode='2N'
-		print mode
+		print (mode)
 		if mode=='3L':
 			sketch=Gui.Selection.getSelection()[0]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_3L")
