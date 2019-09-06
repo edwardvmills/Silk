@@ -38,12 +38,12 @@ class ControlPoly6():
 			except Exception: 
 				pass
 			try:
-				if sel[0].GeometryCount=='5L':
+				if sel[0].GeometryCount==5:
 					mode='5L'
 			except Exception: 
 				pass
 			try:
-				if sel[0].GeometryCount!='5L':
+				if sel[0].Shape.Curve.NbPoles!=4 or sel[0].GeometryCount!=5:
 					#if isinstance(sel[0].Geometry[0], Part.ArcOfCircle):
 					mode='FirstElement'
 			except Exception: 
