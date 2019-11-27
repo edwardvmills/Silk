@@ -34,6 +34,7 @@ class Silk (Workbench):
 		import Point_onCurve
 		import ControlPoly4_segment
 		import ControlGrid44
+		import ControlGrid44_Rotate
 		import CubicSurface_44
 		import ControlGrid44_EdgeSegment
 		import ControlGrid44_2EdgeSegments
@@ -56,6 +57,7 @@ class Silk (Workbench):
 					"Point_onCurve", 
 					"ControlPoly4_segment",
 					"ControlGrid44",
+					"ControlGrid44_Rotate",
 					"CubicSurface_44",
 					"ControlGrid44_EdgeSegment",
 					"ControlGrid44_2EdgeSegments",

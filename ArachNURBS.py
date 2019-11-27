@@ -1434,7 +1434,8 @@ class ControlGrid44_4:	# made from 4 CubicControlPoly4.
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
+class ControlGrid44_3:	# made from 3 CubicControlPoly4. 
+						#degenerate grid along one edge (4 points), and two inner points neighboring this edge.
 	def __init__(self, obj , poly0, poly1, poly2):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGrid44_3 class Init\n")
@@ -1512,6 +1513,153 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4. degenerate grid.
 
 		w10 = fp.TweakWeight11
 		w20 = fp.TweakWeight11
+
+		w11 = w01*w10
+		w12 = w02*w13
+		w21 = w31*w20
+		w22 = w23*w31
+
+
+		fp.Weights = [w00 ,w01, w02, w03,
+					w10, w11, w12, w13,
+					w20, w21, w22, w23,
+					w30, w31, w32, w33]
+		Legs=[0]*20
+		for i in range(0,3):
+			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
+		for i in range(3,6):
+			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
+		for i in range(6,9):
+			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
+		for i in range(9,12):
+			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
+		for i in range(12,15): #skip 0-4
+			Legs[i]=Part.LineSegment(fp.Poles[i-11],fp.Poles[i-7])
+		for i in range(15,17): #skip 4-8 and 5-9
+			Legs[i]=Part.LineSegment(fp.Poles[i-9],fp.Poles[i-5])
+		for i in range(17,20): #skip 8-12
+			Legs[i]=Part.LineSegment(fp.Poles[i-8],fp.Poles[i-4])
+		fp.Legs=Legs
+		fp.Shape = Part.Shape(fp.Legs)
+
+class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4. 
+								# degenerate grid along one edge (4 points). two inner points are rotated
+								# to align towards the degenerate corner.
+	def __init__(self, obj , poly0, poly1, poly2):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid44_3_Rotate class Init\n")
+		obj.addProperty("App::PropertyLink","Poly0","ControlGrid44_3_Rotate","control polygon").Poly0 = poly0
+		obj.addProperty("App::PropertyLink","Poly1","ControlGrid44_3_Rotate","control polygon").Poly1 = poly1
+		obj.addProperty("App::PropertyLink","Poly2","ControlGrid44_3_Rotate","control polygon").Poly2 = poly2
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_3_Rotate","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_3_Rotate","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_3_Rotate","Weights").Weights
+		obj.addProperty("App::PropertyFloat","TweakWeight11","ControlGrid44_3_Rotate","Weights").TweakWeight11 = 1.0
+		obj.Proxy = self
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		poles1=fp.Poly0.Poles
+		poles2=fp.Poly1.Poles
+		poles3=fp.Poly2.Poles
+		weights1=fp.Poly0.Weights
+		weights2=fp.Poly1.Weights
+		weights3=fp.Poly2.Weights
+		quad12 = orient_a_to_b(poles1,poles2)
+		quad23 = orient_a_to_b(poles2,poles3)
+		quad31 = orient_a_to_b(poles3,poles1)
+
+		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
+			weights1=weights1[::-1]
+		if quad23[0]!=poles2[0] and quad23[0]==poles2[-1]:
+			weights2=weights2[::-1]
+		if quad31[0]!=poles3[0] and quad31[0]==poles3[-1]:
+			weights3=weights3[::-1]
+		# make sure this is a degenerate quadrangle, i.e. a triangle
+		if (quad31[3] != quad12[0]):
+			print ('edge loop does not form a triangle')
+		#no further error handling is implemented
+
+		p00 = quad12[0]
+		p01 = quad12[1]
+		p02 = quad12[2]
+		p03 = quad12[3]
+
+		p13 = quad23[1]
+		p23 = quad23[2]
+		p33 = quad23[3]
+
+		p32 = quad31[1]
+		p31 = quad31[2]
+		p30 = p00
+
+		p20 = p00
+		p10 = p00
+
+		p11_Temp = p01+p31-p30
+		p12 = p02+p13-p03
+		p21_Temp = p11_Temp
+		p22 = p23+p32-p33
+
+		# define a plane going through the degenerate corner, p00, and the last two opposite points of poly0
+		Plane0_pt = p00
+		Plane0_N = (p12-p13).cross(p00-p13)
+		
+		# define a line going through p01 and p11_Temp. we will want p11 (final) to be somewhere along his line.
+		Line0_pt = p01
+		Line0_N = p11_Temp-p01
+		
+		# define a plane going through the degenerate corner, p00, and the last two opposite points of poly3
+		Plane1_pt = p00
+		Plane1_N = (p22-p23).cross(p30-p23)
+		
+		# define a line going through p31 and p21_Temp. we will want p21 (final) to be somewhere along his line.
+		Line1_pt = p31
+		Line1_N = p21_Temp-p31
+		
+		# if the plane0 and Line0 are not parallel or coincident, set p11 at the intersection.
+		# if they are, [TBD]
+		test0 = math.fabs(Plane0_N.dot(Line0_N))
+		print('test0: ',test0)
+		if test0 >= .00001 :
+			print('test0: ',test0)
+			factor0 = (Plane0_pt-Line0_pt).dot(Plane0_N) / Line0_N.dot(Plane0_N)
+			p11 = Line0_N.multiply(factor0)+Line0_pt
+		else:
+			print ('poly0 / poly2 combination: edge/plane parallel, cannot intersect for inner control point p11')
+		 
+		# if the plane1 and Line1 are not parallel or coincident, set p21 at the intersection.
+		# if they are, [TBD]
+		test1 = math.fabs(Plane1_N.dot(Line1_N))
+		print('test1: ',test1)
+		if test1 >= .00001 :
+			factor1 = (Plane1_pt-Line1_pt).dot(Plane1_N) / Line1_N.dot(Plane1_N)
+			p21 = Line1_N.multiply(factor1)+Line1_pt
+		else:
+			print ('poly2 / poly3 combination: edge/plane parallel, cannot intersect for inner control point p21')
+		 
+
+		fp.Poles = [p00 ,p01, p02, p03,
+					p10, p11, p12, p13,
+					p20, p21, p22, p23,
+					p30, p31, p32, p33]
+
+		# weights below are in progress
+		w00 = weights1[0]
+		w01 = weights1[1]
+		w02 = weights1[2]
+		w03 = weights1[3]
+
+		w13 = weights2[1]
+		w23 = weights2[2]
+		w33 = weights2[3]
+
+		w32 = weights3[1]
+		w31 = weights3[2]
+		w30 = weights3[3]
+
+		w10 = w13 #fp.TweakWeight11 # or maybe try = p13?
+		w20 = w23 #fp.TweakWeight11 # or maybe try = p23?
 
 		w11 = w01*w10
 		w12 = w02*w13
