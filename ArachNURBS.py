@@ -1542,7 +1542,7 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4. 
+class ControlGrid44_3_Rotate_OLD:	# made from 3 CubicControlPoly4. 
 								# degenerate grid along one edge (4 points). two inner points are rotated
 								# to align towards the degenerate corner.
 	def __init__(self, obj , poly0, poly1, poly2):
@@ -1576,7 +1576,7 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		if quad31[0]!=poles3[0] and quad31[0]==poles3[-1]:
 			weights3=weights3[::-1]
 		# make sure this is a degenerate quadrangle, i.e. a triangle
-		if (quad31[3] != quad12[0]):
+		if (not equalVectors(quad31[3],quad12[0],.00001)):
 			print ('edge loop does not form a triangle')
 		#no further error handling is implemented
 
@@ -1639,6 +1639,191 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 			print ('poly2 / poly3 combination: edge/plane parallel, cannot intersect for inner control point p21')
 		 
 
+		fp.Poles = [p00 ,p01, p02, p03,
+					p10, p11, p12, p13,
+					p20, p21, p22, p23,
+					p30, p31, p32, p33]
+
+		# weights below are in progress
+		w00 = weights1[0]
+		w01 = weights1[1]
+		w02 = weights1[2]
+		w03 = weights1[3]
+
+		w13 = weights2[1]
+		w23 = weights2[2]
+		w33 = weights2[3]
+
+		w32 = weights3[1]
+		w31 = weights3[2]
+		w30 = weights3[3]
+
+		w10 = w13 #fp.TweakWeight11 # or maybe try = p13?
+		w20 = w23 #fp.TweakWeight11 # or maybe try = p23?
+
+		w11 = w01*w10
+		w12 = w02*w13
+		w21 = w31*w20
+		w22 = w23*w31
+
+
+		fp.Weights = [w00 ,w01, w02, w03,
+					w10, w11, w12, w13,
+					w20, w21, w22, w23,
+					w30, w31, w32, w33]
+		Legs=[0]*20
+		for i in range(0,3):
+			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
+		for i in range(3,6):
+			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
+		for i in range(6,9):
+			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
+		for i in range(9,12):
+			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
+		for i in range(12,15): #skip 0-4
+			Legs[i]=Part.LineSegment(fp.Poles[i-11],fp.Poles[i-7])
+		for i in range(15,17): #skip 4-8 and 5-9
+			Legs[i]=Part.LineSegment(fp.Poles[i-9],fp.Poles[i-5])
+		for i in range(17,20): #skip 8-12
+			Legs[i]=Part.LineSegment(fp.Poles[i-8],fp.Poles[i-4])
+		fp.Legs=Legs
+		fp.Shape = Part.Shape(fp.Legs)
+
+class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4. 
+								# degenerate grid along one edge (4 points). Four inner points are rotated
+								# to align towards the degenerate corner.
+	def __init__(self, obj , poly0, poly1, poly2):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid44_3_Rotate class Init\n")
+		obj.addProperty("App::PropertyLink","Poly0","ControlGrid44_3_Rotate","control polygon").Poly0 = poly0
+		obj.addProperty("App::PropertyLink","Poly1","ControlGrid44_3_Rotate","control polygon").Poly1 = poly1
+		obj.addProperty("App::PropertyLink","Poly2","ControlGrid44_3_Rotate","control polygon").Poly2 = poly2
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_3_Rotate","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_3_Rotate","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_3_Rotate","Weights").Weights
+		obj.addProperty("App::PropertyFloat","TweakWeight11","ControlGrid44_3_Rotate","Weights").TweakWeight11 = 1.0
+		obj.Proxy = self
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		poles1=fp.Poly0.Poles
+		poles2=fp.Poly1.Poles
+		poles3=fp.Poly2.Poles
+		weights1=fp.Poly0.Weights
+		weights2=fp.Poly1.Weights
+		weights3=fp.Poly2.Weights
+		quad12 = orient_a_to_b(poles1,poles2)
+		quad23 = orient_a_to_b(poles2,poles3)
+		quad31 = orient_a_to_b(poles3,poles1)
+
+		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
+			weights1=weights1[::-1]
+		if quad23[0]!=poles2[0] and quad23[0]==poles2[-1]:
+			weights2=weights2[::-1]
+		if quad31[0]!=poles3[0] and quad31[0]==poles3[-1]:
+			weights3=weights3[::-1]
+		# make sure this is a degenerate quadrangle, i.e. a triangle
+		if (not equalVectors(quad31[3],quad12[0],.00001)):
+			print ('edge loop does not form a triangle')
+		#no further error handling is implemented
+
+		p00 = quad12[0]
+		p01 = quad12[1]
+		p02 = quad12[2]
+		p03 = quad12[3]
+
+		p13 = quad23[1]
+		p23 = quad23[2]
+		p33 = quad23[3]
+
+		p32 = quad31[1]
+		p31 = quad31[2]
+		p30 = p00
+
+		p20 = p00
+		p10 = p00
+
+		p11_Temp = p01+p31-p30
+		p12_Temp = p02+p13-p03
+		p21_Temp = p11_Temp
+		p22_Temp = p23+p32-p33
+
+		# check that poly0 and poly2 aren't parallel
+		# define the rotation center and axis
+		test_Rot_N = ((p01-p00).cross(p10-p00)).Length
+		print('test_Rot_N: ',test_Rot_N)
+		if test_Rot_N <= .00001 :
+			Rot_pt = p00
+			Rot_N = (p01-p00).cross(p31-p00)
+		else:
+			print('poly0 / poly2 combination: selected polys do not define a normal at the degenerate point')
+			
+		### define a target 'meridian' plane for p11 and p12
+		# contains p00, p13, and Rot_N
+		Plane1_pt = Rot_pt
+		Plane1_N = Rot_N.cross(p13-p00)
+		
+		## define a line going through p01 and p11_Temp. we will want p11 (final) to be somewhere along his line.
+		Line11_pt = p01
+		Line11_N = p11_Temp-p01
+	
+		# if plane1 and Line11 are not parallel or coincident, set p11 at the intersection.
+		# if they are, [TBD]
+		test11 = math.fabs(Plane1_N.dot(Line11_N))
+		print('test11: ',test11)
+		if test11 >= .00001 :
+			factor11 = (Plane1_pt-Line11_pt).dot(Plane1_N) / Line11_N.dot(Plane1_N)
+			p11 = Line11_N.multiply(factor11)+Line11_pt
+		else:
+			print('cannot intersect standard p11 with meridian plane 1 to produce rotated inner control point p11')
+		
+		## define a line going through p02 and p12_Temp. we will want p12 (final) to be somewhere along his line.
+		Line12_pt = p02
+		Line12_N = p12_Temp-p02
+		
+		# if plane1 and Line12 are not parallel or coincident, set p12 at the intersection.
+		# if they are, [TBD]
+		test12 = math.fabs(Plane1_N.dot(Line12_N))
+		print('test12: ',test12)
+		if test12 >= .00001 :
+			factor12 = (Plane1_pt-Line12_pt).dot(Plane1_N) / Line12_N.dot(Plane1_N)
+			p12 = Line12_N.multiply(factor12)+Line12_pt
+		else:
+			print('cannot intersect standard p12 with meridian plane 1 to produce rotated inner control point p12')
+		
+		### define a target 'meridian' plane for p21 and p22
+		# contains p00, p23, and Rot_N
+		Plane2_pt = Rot_pt
+		Plane2_N = Rot_N.cross(p23-p00)
+		
+		## define a line going through p31 and p21_Temp. we will want p21 (final) to be somewhere along his line.
+		Line21_pt = p31
+		Line21_N = p21_Temp-p31			
+		
+		# if plane2 and Line21 are not parallel or coincident, set p21 at the intersection.
+		# if they are, [TBD]
+		test21 = math.fabs(Plane2_N.dot(Line21_N))
+		print('test21: ',test21)
+		if test21 >= .00001 :
+			factor21 = (Plane2_pt-Line21_pt).dot(Plane2_N) / Line21_N.dot(Plane2_N)
+			p21 = Line21_N.multiply(factor21)+Line21_pt
+		else:
+			print('cannot intersect standard p21 with meridian plane 2 to produce rotated inner control point p21')		
+		
+		## define a line going through p32 and p22_Temp. we will want p22 (final) to be somewhere along his line.
+		Line22_pt = p32
+		Line22_N = p22_Temp-p32
+		
+		# if plane2 and Line22 are not parallel or coincident, set p22 at the intersection.
+		# if they are, [TBD]
+		test22 = math.fabs(Plane2_N.dot(Line22_N))
+		print('test22: ',test22)
+		if test22 >= .00001 :
+			factor22 = (Plane2_pt-Line22_pt).dot(Plane2_N) / Line22_N.dot(Plane2_N)
+			p22 = Line22_N.multiply(factor22)+Line22_pt
+		else:
+			print('cannot intersect standard p22 with meridian plane 2 to produce rotated inner control point p22')		
+					
 		fp.Poles = [p00 ,p01, p02, p03,
 					p10, p11, p12, p13,
 					p20, p21, p22, p23,
