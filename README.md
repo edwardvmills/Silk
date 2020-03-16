@@ -1,4 +1,5 @@
 # Silk
+[![Total alerts](https://img.shields.io/lgtm/alerts/g/edwardvmills/Silk.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/edwardvmills/Silk/alerts/) [![Language grade: Python](https://img.shields.io/lgtm/grade/python/g/edwardvmills/Silk.svg?logo=lgtm&logoWidth=18)](https://lgtm.com/projects/g/edwardvmills/Silk/context:python)  
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench)
 
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_02.png?raw=true)
