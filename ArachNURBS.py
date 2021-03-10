@@ -2690,44 +2690,55 @@ class ControlGrid44_EdgeSegment:
 			surface.segment(0,1,t0,t1) # 
 		# extract the control grid information from the surface segment
 		poles_2dArray = surface.getPoles()
+		# extract the control grid information from the surface segment
+		# first version flips the grid along v???? need to run down 3 to 0 on v while looping 0 to 3 on u ?????
+		# this is internal to ArachNURBS. segmenting directly in FreeCAD python console does not flip sontrol points.
+		# one day i need to revisit my control point ordering scheme to avoid this flip
 		print(poles_2dArray)
-		fp.Poles = [poles_2dArray[0][0],
-					poles_2dArray[0][1],
-					poles_2dArray[0][2],
-					poles_2dArray[0][3],
-					poles_2dArray[1][0],
-					poles_2dArray[1][1],
-					poles_2dArray[1][2],
-					poles_2dArray[1][3],
+		if len(poles_2dArray[0]) == 1:
+			print ('collapsed surface segment')
+			print ('segdira: ', segdira)
+			print ('segdirb: ', segdirb)
+			print ('s0 ', s0)
+			print ('s1 ', s1)
+			print ('t0 ', t0)
+			print ('t1 ', t1)
+			print ('poles_2dArray', poles_2dArray)
+		
+		fp.Poles = [poles_2dArray[3][0],
+					poles_2dArray[3][1],
+					poles_2dArray[3][2],
+					poles_2dArray[3][3],
 					poles_2dArray[2][0],
 					poles_2dArray[2][1],
 					poles_2dArray[2][2],
 					poles_2dArray[2][3],
-					poles_2dArray[3][0],
-					poles_2dArray[3][1],
-					poles_2dArray[3][2],
-					poles_2dArray[3][3]]
+					poles_2dArray[1][0],
+					poles_2dArray[1][1],
+					poles_2dArray[1][2],
+					poles_2dArray[1][3],
+					poles_2dArray[0][0],
+					poles_2dArray[0][1],
+					poles_2dArray[0][2],
+					poles_2dArray[0][3]]
 
 		weights_2dArray = surface.getWeights()
-		print(weights_2dArray)
-		fp.Weights = [weights_2dArray[0][0],
-					weights_2dArray[0][1],
-					weights_2dArray[0][2],
-					weights_2dArray[0][3],
-					weights_2dArray[1][0],
-					weights_2dArray[1][1],
-					weights_2dArray[1][2],
-					weights_2dArray[1][3],
+		fp.Weights = [weights_2dArray[3][0],
+					weights_2dArray[3][1],
+					weights_2dArray[3][2],
+					weights_2dArray[3][3],
 					weights_2dArray[2][0],
 					weights_2dArray[2][1],
 					weights_2dArray[2][2],
 					weights_2dArray[2][3],
-					weights_2dArray[3][0],
-					weights_2dArray[3][1],
-					weights_2dArray[3][2],
-					weights_2dArray[3][3]]
-
-
+					weights_2dArray[1][0],
+					weights_2dArray[1][1],
+					weights_2dArray[1][2],
+					weights_2dArray[1][3],
+					weights_2dArray[0][0],
+					weights_2dArray[0][1],
+					weights_2dArray[0][2],
+					weights_2dArray[0][3]]
 
 		Legs=[0]*24
 		for i in range(0,3):
@@ -2837,6 +2848,8 @@ class ControlGrid44_2EdgeSegments:
 			surface.segment(t0,t1,s0,s1) # 
 		# extract the control grid information from the surface segment
 		# first version flips the grid along v???? need to run down 3 to 0 on v while looping 0 to 3 on u ?????
+		# this is internal to ArachNURBS. segmenting directly in FreeCAD python console does not flip sontrol points.
+		# one day i need to revisit my control point ordering scheme to avoid this flip
 		poles_2dArray = surface.getPoles()
 		if len(poles_2dArray[0]) == 1:
 			print ('collapsed surface segment')
