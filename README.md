@@ -5,7 +5,7 @@
 ## Description
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench). Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
 
-Low Degree: the NURBS curves and surfaces are of the minimum degree suitable for the intended goal. The knot vectors are kept to a small consistent set. Often with NURBS modeling problems, the apparent solution is to increase the degree and number of knots. While this is perfectly valid, it raises the computational difficulty and organizational challenges of the control points. Silk aims to to provide tools of the absolute minimum mathematical complexity for each problem solved.
+Low Degree: the NURBS curves and surfaces are of the minimum degree suitable for the intended goal. The knot vectors are kept to a small consistent set. Often with NURBS modeling problems, the apparent solution is to increase the degree and number of knots. While this is perfectly valid, it raises the computational difficulty and organizational challenges of the control points. Silk aims to provide tools of the absolute minimum mathematical complexity for each problem solved.
 
 Seam Continuity: the goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
 
