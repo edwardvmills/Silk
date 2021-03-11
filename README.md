@@ -5,9 +5,11 @@
 ## Description
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench). Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
 
-Low Degree: the NURBS curves and surfaces are of the minimum degree suitable for the intended goal. The knot vectors are kept to a small consistent set. Often with NURBS modeling problems, the apparent solution is to increase the degree and number of knots. While this is perfectly valid, it raises the computational difficulty and organizational challenges of the control points. Silk aims to provide tools of the absolute minimum mathematical complexity for each problem solved.
+NURBS: smooth curves and surfaces whose form is controlled by a relatively small number of "control points", which sort of float close to the curves and surfaces. As their name indicates, the "control points" are what the user modifies in order to control the curves or surfaces. The "refinement" of a NURBS is controlled by its degree, and the "distance of effect" of a control point is controlled by the knot vector of the NURBS.
 
-Seam Continuity: the goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
+Low Degree: Silk NURBS curves and surfaces are of the minimum degree suitable for the intended goal. The knot vectors are kept to a small consistent set. Often with NURBS modeling problems, the apparent solution is to increase the degree and number of knots. While this is perfectly valid, it raises the computational difficulty and organizational challenges of the control points. Silk aims to provide tools of the absolute minimum mathematical complexity for each problem solved.
+
+Seam Continuity: Silk's goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
 
 ## Limitations
 Although Silk is intended to provide efficient and user friendly tools in the long term, at this time, it behaves more like a low level library with GUI access to its functions. The individual functions create individual document objects, and in the future, relevant functions might be chained together automatically to create complex nested objects. The current objects are very likely to persist, both as individual document objects, and as sub-objects in the future.
