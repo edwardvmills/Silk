@@ -32,6 +32,8 @@ class AddNewCommand():
 		# Paste the Contents of a functioning FreeCAD macro here
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/AddNewCommand.svg', 'MenuText': 'AddNewCommand', 'ToolTip': 'AddNewCommand'}
+		return {'Pixmap' : path_Silk_icons + '/AddNewCommand.svg',
+				'MenuText': 'AddNewCommand',
+				'ToolTip': 'AddNewCommand'}
 
 Gui.addCommand('AddNewCommand', AddNewCommand())
