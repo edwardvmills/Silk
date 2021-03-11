@@ -5,7 +5,13 @@
 ## Description
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench). Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
 
-Although Silk is intended to provide efficient and user friendly tools in the long term, at this time, it behaves more like a low level library with GUI access to its functions. Modeling can be done in the current state, and the resulting data structures are efficient, but the process can be laborious. The best path forward for user friendliness will depend heavily upon the outcome of several debates within the FreeCAD community on how parts, solid bodies, assemblies, and object linking is organized.
+Low Degree: the NURBS curves and surfaces are of the minimum degree sutiable for the intended goal. The knot vectors are kept to a small consistent set.
+
+Seam Continuity: the goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitons where surfaces are initially created with discontinuities.
+
+Although Silk is intended to provide efficient and user friendly tools in the long term, at this time, it behaves more like a low level library with GUI access to its functions. The individual functions create individual document objects, and in the future, relevant functions might be chained together automatically to create complex nested objects.
+
+Modeling can be done in the current state, and the resulting data structures are efficient, but the process can be laborious. The best path forward for user friendliness will depend heavily upon the outcome of several debates within the FreeCAD community on how parts, solid bodies, assemblies, and object linking are organized.
 
 In the meantime Silk does offer a few tools not otherwise available in FreeCAD (eg. 3D splines), and can in general be seen as a sandbox for surface design.
 
