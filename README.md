@@ -7,7 +7,7 @@ NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD
 
 Low Degree: the NURBS curves and surfaces are of the minimum degree sutiable for the intended goal. The knot vectors are kept to a small consistent set.
 
-Seam Continuity: the goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitons where surfaces are initially created with discontinuities.
+Seam Continuity: the goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
 
 Although Silk is intended to provide efficient and user friendly tools in the long term, at this time, it behaves more like a low level library with GUI access to its functions. The individual functions create individual document objects, and in the future, relevant functions might be chained together automatically to create complex nested objects.
 
