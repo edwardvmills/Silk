@@ -473,7 +473,7 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):
 	poles = Curve.getPoles()
 	weights = Curve.getWeights()
 	# rebuild the weighted poles
-	WeightedPoles = WeightedPoles =[[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]]]
+	WeightedPoles = [[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]]]
 	# pass the weighted poles down to the Bezier dCds function
 	dCds = Cubic_Bezier_dCds(WeightedPoles[0], WeightedPoles[1], WeightedPoles[2], WeightedPoles[3])
 
@@ -1973,7 +1973,7 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		w20 = weights4[3]
 		w10 = weights4[4]
 		# maybe i should average instead of multiply? needs testing.
-		# currently based on the idea all wights are between 0 and 1.
+		# currently based on the idea all weights are between 0 and 1.
 		# previous used cumulative neighbor multiplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10
@@ -2106,7 +2106,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		w20 = weights4_3[1]
 		w10 = weights4_3[2]
 		# maybe i should average instead of multiply? needs testing.
-		# currently based on the idea all wights are between 0 and 1.
+		# currently based on the idea all weights are between 0 and 1.
 		# previous used cumulative neighbor mulitplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10
@@ -3217,7 +3217,7 @@ class SubGrid33_2Grid64s_old:
 		#print 'common ', common
 		# tested-runs-
 
-		# the two '6s' fo each grid should form a V when looking at the future grid
+		# the two '6s' of each grid should form a V when looking at the future grid
 		# a is the left leg of the V, i.e. common[0] = 0 or 3
 		# b is the right leg of the V i.e. common[1] = 2 or 1
 
@@ -3501,7 +3501,7 @@ class ControlGrid66_4Sub_old:
 		w20 = fp.SubGrid_0.v_col_weights[2]
 		w10 = fp.SubGrid_0.v_col_weights[1]
 		# maybe i should average instead of multiply? needs testing.
-		# currently based on the idea all wights are between 0 and 1.
+		# currently based on the idea all weights are between 0 and 1.
 		# previous used cumulative neighbor multiplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10
