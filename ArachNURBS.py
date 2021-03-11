@@ -473,7 +473,7 @@ def Cubic_6P_dCds(pole0, pole1, pole2, pole3, pole4, pole5):
 	poles = Curve.getPoles()
 	weights = Curve.getWeights()
 	# rebuild the weighted poles
-	WeightedPoles = WeightedPoles =[[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]]]
+	WeightedPoles = [[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]]]
 	# pass the weighted poles down to the Bezier dCds function
 	dCds = Cubic_Bezier_dCds(WeightedPoles[0], WeightedPoles[1], WeightedPoles[2], WeightedPoles[3])
 
