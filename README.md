@@ -7,6 +7,8 @@ NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD
 
 NURBS: smooth curves and surfaces whose form is controlled by a relatively small number of "control points", which sort of float close to the curves and surfaces. As their name indicates, the "control points" are what the user modifies in order to control the curves or surfaces. The "refinement" of a NURBS is controlled by its degree, and the "distance of effect" of a control point is controlled by the knot vector of the NURBS.
 
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_03_01.png?raw=true)
+
 Low Degree: Silk NURBS curves and surfaces are of the minimum degree suitable for the intended goal. The knot vectors are kept to a small consistent set. Often with NURBS modeling problems, the apparent solution is to increase the degree and number of knots. While this is perfectly valid, it raises the computational difficulty and organizational challenges of the control points. Silk aims to provide tools of the absolute minimum mathematical complexity for each problem solved.
 
 Seam Continuity: Silk's goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
@@ -25,7 +27,7 @@ Recommended installation is through the FreeCAD [Addon Manager](https://wiki.fre
 Until documentation and tutorials are rewritten for Silk, [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) is the best source of information regarding the project. 
 The tutorials can still be followed, simply skip setup, color, and display mode instructions. All setup is handled by installing the workbench, and the object display properties have been set to reasonable defaults. ([Silk Wiki in progress](https://github.com/edwardvmills/Silk/wiki))
 
-![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_03_01.png?raw=true)
+
 
 ## Licence
 All program files (.py, .pyc, .FCMacro) are offered under the terms of the [Gnu gpl-v3.0](https://www.gnu.org/licenses/gpl-3.0.en.html)
