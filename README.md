@@ -14,10 +14,10 @@ Low Degree: Silk NURBS curves and surfaces are of the minimum degree suitable fo
 Seam Continuity: Silk's goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
 
 FreeCAD does the heavy lifting:
--providing a planar sketch interface that we can locate anywhere in 3D to manipulate simply gropups of control points
+-providing a planar sketch interface that we can locate anywhere in 3D to manipulate simply groups of control points
 -drawing the beautiful and smooth surfaces once appropriate control grids have been prepared using SIlk tools
 
-Animation below is SLOW. It demonstrates fine surface tuning through sketches with full engineering control of curve and surface continuity.
+The animation below demonstrates fine surface tuning through sketches with full engineering control of curve and surface continuity.
 
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Steering_Wheel_01_01.gif?raw=true)
 
