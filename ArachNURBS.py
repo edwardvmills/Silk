@@ -1902,6 +1902,8 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		sext23 = orient_a_to_b(poles2,poles3)
 		sext34 = orient_a_to_b(poles3,poles4)
 		sext41 = orient_a_to_b(poles4,poles1)
+		# the weight orientation check below doesn't look complete.
+		# checking first and last isn't enough. need to fix.
 		if sext12[0]!=poles1[0] and sext12[0]==poles1[-1]:
 			weights1=weights1[::-1]
 		if sext23[0]!=poles2[0] and sext23[0]==poles2[-1]:
