@@ -13,12 +13,23 @@ Low Degree: Silk NURBS curves and surfaces are of the minimum degree suitable fo
 
 Seam Continuity: Silk's goal is to allow complex models to be built from individual NURBS sections, alternatively creating new surfaces to be continuous to existing surfaces, or providing tools to to create smooth transitions where surfaces are initially created with discontinuities.
 
+FreeCAD does the heavy lifting:
+-providing a planar sketch interface that we can locate anywhere in 3D to manipulate simply gropups of control points
+-drawing the beautiful and smooth surfaces once appropriate control grids have been prepared using SIlk tools
+
+Animation below is SLOW. It demonstrates fine surface tuning through sketches with full engineering control of curve and surface continuity.
+
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Steering_Wheel_01_01.gif?raw=true)
+
+
 ## Limitations
 Although Silk is intended to provide efficient and user friendly tools in the long term, at this time, it behaves more like a low level library with GUI access to its functions. The individual functions create individual document objects, and in the future, relevant functions might be chained together automatically to create complex nested objects. The current objects are very likely to persist, both as individual document objects, and as sub-objects in the future.
 
 Modeling can be done in the current state, and the resulting data structures are efficient, but the process can be laborious. The best path forward for user friendliness will depend heavily upon the outcome of several debates within the FreeCAD community on how parts, solid bodies, assemblies, and object linking are organized.
 
 In the meantime Silk does offer a few tools not otherwise available in FreeCAD (eg. 3D splines), and can in general be seen as a sandbox for surface design.
+
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Steering_Wheel_03_05.png?raw=true)
 
 ## Installation
 Recommended installation is through the FreeCAD [Addon Manager](https://wiki.freecadweb.org/AddonManager) via `Tools -> Addon Manager`
