@@ -19,7 +19,7 @@ FreeCAD does the heavy lifting:
 
 -drawing the beautiful and smooth surfaces once appropriate control grids have been prepared using Silk tools.
 
-The animation below demonstrates fine surface tuning through sketches with full engineering control of curve and surface continuity. Notice the low numnber of control points used on the profile control sketch. Up to a certain complexity, Silk updates virtually in real time with sketch editing.
+The animation below demonstrates fine surface tuning through sketches with full engineering control of curve and surface continuity. Notice the low number of control points used on the profile control sketch. Up to a certain complexity, Silk updates virtually in real time with sketch editing.
 
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Steering_Wheel_01_01.gif?raw=true)
 
