@@ -15,9 +15,11 @@ Seam Continuity: Silk's goal is to allow complex models to be built from individ
 
 FreeCAD does the heavy lifting:
 
--providing a planar sketch interface that we can locate anywhere in 3D to manipulate simply groups of control points. Silk can use multiple sketches in different planes to construct truly 3D curves and surface edges.
+-providing a planar sketch interface that we can locate anywhere in 3D space to manipulate simple groups of very few control point (Silk can use multiple sketches in different planes to construct truly 3D curves and surface edges).
 
 -drawing the beautiful and smooth surfaces once appropriate control grids have been prepared using Silk tools.
+
+Silk merely provides methods for combining these simple sketches into control point grids, which FreeCAD converts to NURBS surfaces. 
 
 The animation below demonstrates fine surface tuning through sketches with full engineering control of curve and surface continuity. Notice the low number of control points used on the profile control sketch. Up to a certain complexity, Silk updates virtually in real time with sketch editing.
 
