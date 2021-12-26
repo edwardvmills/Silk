@@ -646,7 +646,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 		# define current G3 error
 		# proportional in non-zero cases,? absolute if target is 0
 		# the proportional error is a problem.
-		# it prioritizes smaller errors near zero than large errors porportionally closer to the target.
+		# it prioritizes smaller errors near zero than large errors proportionally closer to the target.
 		# in practice, this causes divergent run away situations
 		if dCds0 != 0.0:
 			error_0 = (dCds6_0i - dCds6_0) * ( 1 + 1 / math.fabs(dCds0)) / 2
@@ -2109,7 +2109,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		w10 = weights4_3[2]
 		# maybe i should average instead of multiply? needs testing.
 		# currently based on the idea all weights are between 0 and 1.
-		# previous used cumulative neighbor mulitplication. this drives weights too low.
+		# previous used cumulative neighbor multiplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10
 		w12 = w02*w10
@@ -2228,7 +2228,7 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 
 		# maybe i should average instead of multiply? needs testing.
 		# currently based on the idea all weights are between 0 and 1.
-		# previous used cumulative neighbor mulitplication. this drives weights too low.
+		# previous used cumulative neighbor multiplication. this drives weights too low.
 		# current method multiplies the two weights along isos to the closest edge
 		w11 = w01*w10*0.5
 		w12 = w02*w10*0.5
