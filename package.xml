@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+<package format="1">
+  <name>Silk workbench</name>
+  <description>NURBS Surface modeling tools focused on low degree and seam continuity</description>
+  <version></version>
+  <date></date>
+  <maintainer email="@edwardvmills">edwardvmills</maintainer>
+  <license file="LICENSE">GPL-3</license>
+  <url type="repository" branch="master">https://github.com/edwardvmills/Silk</url>
+  <url type="documentation">http://edwardvmills.github.io/NURBSlib_EVM/</url>
+  <url type="documentation">https://github.com/edwardvmills/Silk/wiki</url>
+  <url type="documentation">https://wiki.freecad.org/Silk_Workbench</url>
+
+  <content>
+    <workbench>
+      <name>Silk workbench</name>
+      <classname>SilkWorkbench</classname>
+      <description>NURBS Surface modeling tools focused on low degree and seam continuity</description>
+      <version></version>
+      <subdirectory>./</subdirectory>
+      <icon>Resources/Icons/Silk.svg</icon>
+      <freecadmin>0.18.0</freecadmin>
+      <tag>curves</tag>
+      <tag>nurbs</tag>
+    </workbench>
+  </content>
+
+</package>
