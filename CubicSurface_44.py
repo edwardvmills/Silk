@@ -37,8 +37,8 @@ class CubicSurface_44():
 		a.ViewObject.DisplayMode = u"Shaded"
 		a.ViewObject.ShapeColor = (0.33,0.67,1.00)
 		FreeCAD.ActiveDocument.recompute()
-	
+
 	def GetResources(self):
-		return {'Pixmap' : path_Silk_icons + '/CubicSurface_44.svg', 'MenuText': 'CubicSurface_44', 'ToolTip': 'CubicSurface_44'}
+		return {'Pixmap' : path_Silk_icons + '/CubicSurface_44.svg', 'MenuText': 'CubicSurface_44', 'ToolTip': 'CubicSurface_44: \n Create a CubicSurface from a ControlGrid44. \n Required for blending geometry to CubicSurface64.'}
 
 Gui.addCommand('CubicSurface_44', CubicSurface_44())

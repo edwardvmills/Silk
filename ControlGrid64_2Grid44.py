@@ -45,6 +45,6 @@ class ControlGrid64_2Grid44():
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64_2Grid44.svg', 'MenuText': 'ControlGrid64_2Grid44', 'ToolTip': 'ControlGrid64_2Grid44: \n select two ControlGrid_44 objects that share an edge (forming a corner) to generate \n a grid that blends the corner. This new grid preserves the curvature of the input grids \n on the edges away from the corner'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64_2Grid44.svg', 'MenuText': 'ControlGrid64_2Grid44', 'ToolTip': 'ControlGrid64_2Grid44: \n Select two ControlGrid_44 objects that share an edge (forming a corner) to generate \n a grid that blends the corner. This new grid preserves the curvature of the input grids \n on the edges away from the corner'}
 
 Gui.addCommand('ControlGrid64_2Grid44', ControlGrid64_2Grid44())

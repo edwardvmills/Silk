@@ -42,6 +42,6 @@ class ControlGrid44_EdgeSegment():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid44_EdgeSegment.svg', 'MenuText': 'ControlGrid44_EdgeSegment', 'ToolTip': 'ControlGrid44_EdgeSegment'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid44_EdgeSegment.svg', 'MenuText': 'ControlGrid44_EdgeSegment', 'ToolTip': 'ControlGrid44_EdgeSegment: \n Create a ControlGrid44 subgrid from a CubicSurface44 an CubicCurve4 segment. \n Make the CubicCurve segment from a ControlPoly4_Segment, select the \n CubicSurface first and curve segment second. Use to create \n ControlGrid64_2Grid44 objects to blend edges.'}
 
 Gui.addCommand('ControlGrid44_EdgeSegment', ControlGrid44_EdgeSegment())

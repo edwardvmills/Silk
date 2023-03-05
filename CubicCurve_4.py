@@ -41,6 +41,6 @@ class CubicCurve_4():
 		FreeCAD.ActiveDocument.recompute()
 		
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_4.svg', 'MenuText': 'CubicCurve_4', 'ToolTip': 'CubicCurve_4: \n creates a NURBS from a ControlPoly4 object (Cubic Bezier Curve)'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_4.svg', 'MenuText': 'CubicCurve_4', 'ToolTip': 'CubicCurve_4: \n Creates a NURBS from a ControlPoly4 object (Cubic Bezier Curve).'}
 
 Gui.addCommand('CubicCurve_4', CubicCurve_4())

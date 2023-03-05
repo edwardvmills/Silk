@@ -57,6 +57,6 @@ class ControlGridNStar66():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGridNStar66.svg', 'MenuText': 'ControlGridNStar66', 'ToolTip': 'ControlGridNStar66'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGridNStar66.svg', 'MenuText': 'ControlGridNStar66', 'ToolTip': 'ControlGridNStar66: \n Creates a ControlGridNStar66 from three or more SubGrid63_2Surf64 objects.'}
 
 Gui.addCommand('ControlGridNStar66', ControlGridNStar66())
