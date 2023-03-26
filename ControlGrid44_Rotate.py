@@ -67,6 +67,6 @@ class ControlGrid44_Rotate():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' : path_Silk_icons + '/WIP.svg', 'MenuText': 'ControlGrid44_Rotate', 'ToolTip': 'ControlGrid44_Rotate'}
+        return {'Pixmap' : path_Silk_icons + '/ControlGrid44_Rotate.svg', 'MenuText': 'ControlGrid44_Rotate', 'ToolTip': 'ControlGrid44_Rotate: \n Creates a ControlGrid44 from three ControlPoly4 edges, \n sweeping from the first edge selected to the last edge \n along the second edge.'}
 
 Gui.addCommand('ControlGrid44_Rotate', ControlGrid44_Rotate())
