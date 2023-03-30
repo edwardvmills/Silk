@@ -39,6 +39,6 @@ class CubicSurface_64():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'CubicSurface_64'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'Creates CubicSurface_64 from a ControlGrid64 of any type. \n Select one ControlGrid64 object. \n \n • Used for mixed degree contours, or blending edges of low degree contours \n • Can be blended along the degree-4 sides like CubicSurface_44 objects, \n   by segmenting CubicCurve_6 objects on the degree-6 sides '}
 
 Gui.addCommand('CubicSurface_64', CubicSurface_64())

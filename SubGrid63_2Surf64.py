@@ -43,6 +43,6 @@ class SubGrid63_2Surf64():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/SubGrid63_2Surf64.svg', 'MenuText': 'SubGrid63_2Surf64', 'ToolTip': 'SubGrid63_2Surf64: \n Create a SubGrid63 subgrid from two CubicSurface64 surfaces for input into \n a ControlGridNStar66 to blend three or more surfaces meeting at a corner.'}
+		return {'Pixmap' :  path_Silk_icons + '/SubGrid63_2Surf64.svg', 'MenuText': 'SubGrid63_2Surf64', 'ToolTip': 'Create a SubGrid63 subgrid from two CubicSurface64 surfaces. \n Select two CubicSurface64 objects that share a corner. \n \n • Input for ControlGridNStar66 to blend three or more \n   blended edges meeting at a corner '}
 
 Gui.addCommand('SubGrid63_2Surf64', SubGrid63_2Surf64())

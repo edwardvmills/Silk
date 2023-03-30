@@ -44,6 +44,6 @@ class Point_onCurve():
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/Point_onCurve.svg', 'MenuText': 'Point_onCurve', 'ToolTip': 'Point_onCurve: \n Create a point on a Cubic_Curve4 or Cubic_Curve6. \n Use for endpoints of ControlPoly4_Segment.'}
+		return {'Pixmap' :  path_Silk_icons + '/Point_onCurve.svg', 'MenuText': 'Point_onCurve', 'ToolTip': 'Create a point on a Cubic_Curve4 or Cubic_Curve6. \n Select a location on the curve to place the point. \n \n • Input as endpoints of ControlPoly4_Segment'}
 
 Gui.addCommand('Point_onCurve', Point_onCurve())
