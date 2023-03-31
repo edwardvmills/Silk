@@ -293,9 +293,9 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	p0=[poles_6_0[0],weights_6_0[0]]
 	p1=[poles_6_0[1],weights_6_0[1]]
 	p2=[poles_6_0[2],weights_6_0[2]]
-	p3=[poles_6_1[3],weights_6_0[3]] ###
-	p4=[poles_6_1[4],weights_6_0[4]] ###
-	p5=[poles_6_1[5],weights_6_0[5]] ###
+	p3=[poles_6_1[3],weights_6_1[3]] ###
+	p4=[poles_6_1[4],weights_6_1[4]] ###
+	p5=[poles_6_1[5],weights_6_1[5]] ###
 	corner='p01p10'
 	
 	'''
