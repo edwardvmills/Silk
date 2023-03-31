@@ -117,6 +117,6 @@ class ControlPoly6():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlPoly6.svg', 'MenuText': 'ControlPoly6', 'ToolTip': 'ControlPoly6'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlPoly6.svg', 'MenuText': 'ControlPoly6', 'ToolTip': 'Create a ControlPoly6 from one of two inputs: \n - One sketch of five lines connected end to end \n - Two CubicCurve_4 objects connected at one end \n \n • Non-planar ControlPoly6 can be generated out of non-planar \n   CubicCurve_4 segments generated from "node" sketches \n • Input for CubicCurve_6, ControlGrid64, and ControlGrid66 '}
 
 Gui.addCommand('ControlPoly6', ControlPoly6())

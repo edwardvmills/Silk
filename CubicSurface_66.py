@@ -39,6 +39,6 @@ class CubicSurface_66():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicSurface_66.svg', 'MenuText': 'CubicSurface_66', 'ToolTip': 'CubicSurface_66'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicSurface_66.svg', 'MenuText': 'CubicSurface_66', 'ToolTip': 'Create a CubicSurface_66 from a ControlGrid66. \n Select one ControlGrid66. \n \n • Can be used for hard edge surfacing, or manually aligned for tangency \n • Degree-6 edges cannot be blended with Silk tools '}
 
 Gui.addCommand('CubicSurface_66', CubicSurface_66())

@@ -62,8 +62,8 @@ class ControlGrid44():
 			a.ViewObject.PointSize = 4.00
 			a.ViewObject.PointColor = (0.00,0.33,1.00)
 			FreeCAD.ActiveDocument.recompute()
-	
+
 	def GetResources(self):
-		return {'Pixmap' : path_Silk_icons + '/ControlGrid44.svg', 'MenuText': 'ControlGrid44', 'ToolTip': 'ControlGrid44'}
+		return {'Pixmap' : path_Silk_icons + '/ControlGrid44.svg', 'MenuText': 'ControlGrid44', 'ToolTip': 'Create a ControlGrid44 from four connected ControlPoly4 edges. \n Select each edge in the loop sequentially, counter clock-wise looking from the outer side. \n \n • Input for CubicSurface_44'}
 
 Gui.addCommand('ControlGrid44', ControlGrid44())

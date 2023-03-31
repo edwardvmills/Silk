@@ -39,6 +39,6 @@ class StarTrim_CubicNStar():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/StarTrim_CubicNStar.svg', 'MenuText': 'StarTrim_CubicNStar', 'ToolTip': 'StarTrim_CubicNStar'}
+		return {'Pixmap' :  path_Silk_icons + '/StarTrim_CubicNStar.svg', 'MenuText': 'StarTrim_CubicNStar', 'ToolTip': 'Create a StarTrim_CubicNStar object from a CubicNStarSurface_NStar66 object. \n Select one CubicNStarSurface_NStar66. \n \n • Useful for eliminating pinch in poor corner geometry, and can be patched with \n   a standard Filling Surface'}
 
 Gui.addCommand('StarTrim_CubicNStar', StarTrim_CubicNStar())
