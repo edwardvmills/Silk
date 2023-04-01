@@ -41,6 +41,6 @@ class CubicCurve_4():
 		FreeCAD.ActiveDocument.recompute()
 		
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_4.svg', 'MenuText': 'CubicCurve_4', 'ToolTip': 'CubicCurve_4: \n Creates a NURBS from a ControlPoly4 object (Cubic Bezier Curve).'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_4.svg', 'MenuText': 'CubicCurve_4', 'ToolTip': 'Creates a CubicCurve_4 from a ControlPoly4. \n Select one ControlPoly4 or ControlPoly4_segment. \n \n • Use Point_onCurve to subdivide with ControlPoly4_Segment \n • Two CubicCurve_4 can be used to generate a ControlPoly6'}
 
 Gui.addCommand('CubicCurve_4', CubicCurve_4())
