@@ -36,7 +36,7 @@ class Point_onCurve():
 		Pick=selx.PickedPoints[0]				# this is the point where the curve was picked		
 		u=AN_Curve.Shape.Curve.parameter(Pick)	# picked point is used for an initial value
 
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve_000")
 		AN.Point_onCurve(a,AN_Curve, u)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.PointSize = 5.00

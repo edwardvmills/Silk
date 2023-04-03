@@ -31,7 +31,7 @@ path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 class CubicCurve_4():
 	def Activated(self):
 		poly=Gui.Selection.getSelection()[0]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_4")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_4_000")
 		AN.CubicCurve_4(a,poly)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00

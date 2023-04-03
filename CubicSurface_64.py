@@ -31,7 +31,7 @@ path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 class CubicSurface_64():
 	def Activated(self):
 		poly=Gui.Selection.getSelection()[0]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicSurface_64")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicSurface_64_000")
 		AN.CubicSurface_64(a,poly)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.DisplayMode = u"Shaded"

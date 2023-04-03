@@ -33,7 +33,7 @@ class ControlGridNStar66():
 		N = len(sel)
 		
 		if N == 1:
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGridNStar66_StarTrim")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGridNStar66_StarTrim_000")
 			AN.ControlGridNStar66_StarTrim(a,sel[0])
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -46,7 +46,7 @@ class ControlGridNStar66():
 			for i in range(N):
 				SubList[i]=Gui.Selection.getSelection()[i] 
 			
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGridNStar66_NSub")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGridNStar66_NSub_000")
 			AN.ControlGridNStar66_NSub(a,SubList)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00

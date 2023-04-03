@@ -57,7 +57,7 @@ class ControlGrid44_Rotate():
 			poly0=Gui.Selection.getSelection()[0]
 			poly1=Gui.Selection.getSelection()[1]
 			poly2=Gui.Selection.getSelection()[2]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_3_Rotate")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_3_Rotate_000")
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			AN.ControlGrid44_3_Rotate(a,poly0, poly1, poly2)
 			a.ViewObject.LineWidth = 1.00

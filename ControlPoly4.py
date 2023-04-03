@@ -42,7 +42,7 @@ class ControlPoly4():
 		print (mode)
 		if mode=='3L':
 			sketch=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_3L")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_3L_000")
 			AN.ControlPoly4_3L(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -53,7 +53,7 @@ class ControlPoly4():
 
 		if mode=='FirstElement':
 			sketch=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_FirstElement")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_FirstElement_000")
 			AN.ControlPoly4_FirstElement(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -65,7 +65,7 @@ class ControlPoly4():
 		if mode=='2N':
 			sketch0=Gui.Selection.getSelection()[0]
 			sketch1=Gui.Selection.getSelection()[1]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2N")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2N_000")
 			AN.ControlPoly4_2N(a,sketch0,sketch1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00

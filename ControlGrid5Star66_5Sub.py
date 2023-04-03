@@ -37,7 +37,7 @@ class ControlGrid5Star66_5Sub():
 		Sub_4=Gui.Selection.getSelection()[4]
 		SubList = [Sub_0, Sub_1, Sub_2, Sub_3, Sub_4]
 		
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid5Star66_5Sub")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid5Star66_5Sub_000")
 		AN.ControlGrid5Star66_5Sub(a,SubList)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00

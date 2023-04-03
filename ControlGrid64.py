@@ -41,7 +41,7 @@ class ControlGrid64():
 			poly1=Gui.Selection.getSelection()[1]
 			poly2=Gui.Selection.getSelection()[2]
 			poly3=Gui.Selection.getSelection()[3]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_4")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_4_000")
 			AN.ControlGrid64_4(a,poly0, poly1, poly2, poly3)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00

@@ -31,7 +31,7 @@ path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 class CubicNStarSurface_NStar66():
 	def Activated(self):
 		NStar66 = Gui.Selection.getSelection()[0]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicNStarSurface_NStar66")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicNStarSurface_NStar66_000")
 		AN.CubicNStarSurface_NStar66(a, NStar66)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.DisplayMode = u"Shaded"

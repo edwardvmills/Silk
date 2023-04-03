@@ -61,7 +61,7 @@ class ControlPoly6():
 
 		if mode=='5L':
 			sketch=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_5L")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_5L_000")
 			AN.ControlPoly6_5L(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -72,7 +72,7 @@ class ControlPoly6():
 
 		if mode=='FirstElement':
 			sketch=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FirstElement")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FirstElement_000")
 			AN.ControlPoly6_FirstElement(a,sketch)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -83,7 +83,7 @@ class ControlPoly6():
 
 		if mode=='Bezier':
 			bezier=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_Bezier")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_Bezier_000")
 			AN.ControlPoly6_FirstElement(a,bezier)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -95,7 +95,7 @@ class ControlPoly6():
 		if mode=='2N':
 			sketch0=Gui.Selection.getSelection()[0]
 			sketch1=Gui.Selection.getSelection()[1]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_2N")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_2N_000")
 			AN.ControlPoly6_2N(a,sketch0,sketch1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
@@ -107,7 +107,7 @@ class ControlPoly6():
 		if mode=='FilletBezier':
 			CubicCurve4_0=Gui.Selection.getSelection()[0]
 			CubicCurve4_1=Gui.Selection.getSelection()[1]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FilletBezier")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FilletBezier_000")
 			AN.ControlPoly6_FilletBezier(a,CubicCurve4_0,CubicCurve4_1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00

@@ -35,7 +35,7 @@ class ControlGrid64_2Grid44():
 		grid0=Gui.Selection.getSelection()[0]
 		grid1=Gui.Selection.getSelection()[1]
 
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_2Grid44")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_2Grid44_000")
 		AN.ControlGrid64_2Grid44(a,grid0,grid1)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00

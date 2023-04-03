@@ -32,7 +32,7 @@ class ControlGrid44_EdgeSegment():
 	def Activated(self):
 		surface=Gui.Selection.getSelection()[0]
 		curve=Gui.Selection.getSelection()[1]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_EdgeSegment")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_EdgeSegment_000")
 		AN.ControlGrid44_EdgeSegment(a,surface,curve)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00

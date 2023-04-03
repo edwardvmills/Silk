@@ -54,7 +54,7 @@ class ControlGrid64_3_1Grid44():
 			else:
 				print ('unable to identify which corner the grid was pick on. please select the grid by one of its corners in the 3D view')
 				
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_3_Grid44")
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_3_Grid44_000")
 			AN.ControlGrid64_3_1Grid44(a,NL_Grid, Corner)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
