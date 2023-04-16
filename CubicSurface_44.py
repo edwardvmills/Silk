@@ -39,6 +39,8 @@ class CubicSurface_44():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' : path_Silk_icons + '/CubicSurface_44.svg', 'MenuText': 'CubicSurface_44', 'ToolTip': 'Create a CubicSurface from a ControlGrid44. \n Select one ControlGrid44 of any type. \n \n • Can be used for hard edge surfacing, or manually aligned for tangency \n • Can also be blended along edges with other CubicSurface_44 objects with \n   CubicSurface64 objects, for high degree continuity '}
+		return {'Pixmap' : path_Silk_icons + '/CubicSurface_44.svg',
+				'MenuText': 'CubicSurface_44',
+				'ToolTip': 'Create a CubicSurface from a ControlGrid44. \n Select one ControlGrid44 of any type. \n \n • Can be used for hard edge surfacing, or manually aligned for tangency \n • Can also be blended along edges with other CubicSurface_44 objects with \n   CubicSurface64 objects, for high degree continuity '}
 
 Gui.addCommand('CubicSurface_44', CubicSurface_44())

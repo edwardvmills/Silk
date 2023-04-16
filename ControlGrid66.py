@@ -54,6 +54,8 @@ class ControlGrid66():
 			print ('triangle mode not implemented')
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66.svg', 'MenuText': 'ControlGrid66', 'ToolTip': 'Create a ControlGrid66 from four connected ControlPoly6 edges. \n Select each ControlPoly6 sequentially, counter clock-wise looking from the outer side. \n \n • Input for CubicSurface_66 '}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66.svg',
+				'MenuText': 'ControlGrid66',
+				'ToolTip': 'Create a ControlGrid66 from four connected ControlPoly6 edges. \n Select each ControlPoly6 sequentially, counter clock-wise looking from the outer side. \n \n • Input for CubicSurface_66 '}
 
 Gui.addCommand('ControlGrid66', ControlGrid66())

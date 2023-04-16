@@ -45,6 +45,8 @@ class ControlPoly4_segment():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlPoly4_segment.svg', 'MenuText': 'ControlPoly4_segment', 'ToolTip': 'Create a ControlPoly4 on a segment of a Cubic_Curve, between two points on the curve. \n Select the curve first, then two points. \n \n • Input for CubicCurve_4 segments, which can in turn be used as input for \n   ControlGrid44_EdgeSegment, ControlGrid44_2EdgeSegments, ControlPoly6  '}
+		return {'Pixmap' :  path_Silk_icons + '/ControlPoly4_segment.svg',
+				'MenuText': 'ControlPoly4_segment',
+				'ToolTip': 'Create a ControlPoly4 on a segment of a Cubic_Curve, between two points on the curve. \n Select the curve first, then two points. \n \n • Input for CubicCurve_4 segments, which can in turn be used as input for \n   ControlGrid44_EdgeSegment, ControlGrid44_2EdgeSegments, ControlPoly6  '}
 
 Gui.addCommand('ControlPoly4_segment', ControlPoly4_segment())

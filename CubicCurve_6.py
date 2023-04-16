@@ -41,6 +41,8 @@ class CubicCurve_6():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_6.svg', 'MenuText': 'CubicCurve_6', 'ToolTip': 'Creates a CubicCurve_4 from a ControlPoly4. \n Select one ControlPoly4 or ControlPoly4_segment. \n \n • Use Point_onCurve to subdivide with ControlPoly4_Segment \n • Two CubicCurve_4 can be used to generate a ControlPoly6'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_6.svg',
+				'MenuText': 'CubicCurve_6',
+				'ToolTip': 'Creates a CubicCurve_4 from a ControlPoly4. \n Select one ControlPoly4 or ControlPoly4_segment. \n \n • Use Point_onCurve to subdivide with ControlPoly4_Segment \n • Two CubicCurve_4 can be used to generate a ControlPoly6'}
 
 Gui.addCommand('CubicCurve_6', CubicCurve_6())

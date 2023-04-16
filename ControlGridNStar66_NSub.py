@@ -45,6 +45,8 @@ class ControlGridNStar66_NSub():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGridNStar66_NSub.svg', 'MenuText': 'ControlGridNStar66_NSub', 'ToolTip': 'ControlGridNStar66_NSub'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGridNStar66_NSub.svg',
+				'MenuText': 'ControlGridNStar66_NSub',
+				'ToolTip': 'ControlGridNStar66_NSub'}
 
 Gui.addCommand('ControlGridNStar66_NSub', ControlGridNStar66_NSub())

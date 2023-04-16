@@ -45,6 +45,8 @@ class ControlGrid3Star66_3Sub():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid3Star66_3Sub.svg', 'MenuText': 'ControlGrid3Star66_3Sub', 'ToolTip': 'ControlGrid3Star66_3Sub'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid3Star66_3Sub.svg',
+				'MenuText': 'ControlGrid3Star66_3Sub',
+				'ToolTip': 'ControlGrid3Star66_3Sub'}
 
 Gui.addCommand('ControlGrid3Star66_3Sub', ControlGrid3Star66_3Sub())

@@ -39,6 +39,8 @@ class CubicNStarSurface_NStar66():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicNStarSurface_NStar66.svg', 'MenuText': 'CubicNStarSurface_NStar66', 'ToolTip': 'Creates a CubicNStar_66 from ControlGridNStar66. \n Select one ControlGridNStar66. \n    \n • Used for filling the corner of blended Silk surfaces'}
+		return {'Pixmap' :  path_Silk_icons + '/CubicNStarSurface_NStar66.svg',
+				'MenuText': 'CubicNStarSurface_NStar66',
+				'ToolTip': 'Creates a CubicNStar_66 from ControlGridNStar66. \n Select one ControlGridNStar66. \n    \n • Used for filling the corner of blended Silk surfaces'}
 
 Gui.addCommand('CubicNStarSurface_NStar66', CubicNStarSurface_NStar66())

@@ -54,6 +54,8 @@ class ControlGrid64():
 			print ('please select 4 control polygons forming a loop in the following order: 6P, 4P, 6P, 4P')
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64.svg', 'MenuText': 'ControlGrid64', 'ToolTip': 'Create a ControlGrid64 from two ControlPoly4 and two ControlPoly6 matching on opposite edges. \n Select each edge in sequence (4,6,4,6), counter clock-wise looking from the outer side. \n \n • Use to create mixed degree contour surfaces \n • Input for CubicSurface_64'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64.svg',
+				'MenuText': 'ControlGrid64',
+				'ToolTip': 'Create a ControlGrid64 from two ControlPoly4 and two ControlPoly6 matching on opposite edges. \n Select each edge in sequence (4,6,4,6), counter clock-wise looking from the outer side. \n \n • Use to create mixed degree contour surfaces \n • Input for CubicSurface_64'}
 
 Gui.addCommand('ControlGrid64', ControlGrid64())

@@ -64,6 +64,8 @@ class ControlGrid64_3_1Grid44():
 			FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64_3_1Grid44.svg', 'MenuText': 'ControlGrid64_3_1Grid44', 'ToolTip': 'ControlGrid64_3_1Grid44'}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64_3_1Grid44.svg',
+				'MenuText': 'ControlGrid64_3_1Grid44',
+				'ToolTip': 'ControlGrid64_3_1Grid44'}
 
 Gui.addCommand('ControlGrid64_3_1Grid44', ControlGrid64_3_1Grid44())

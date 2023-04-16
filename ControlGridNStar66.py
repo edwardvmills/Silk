@@ -57,6 +57,8 @@ class ControlGridNStar66():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGridNStar66.svg', 'MenuText': 'ControlGridNStar66', 'ToolTip': 'Creates a ControlGridNStar66 from three or more SubGrid63_2Surf64. \n Select from three to six SubGrid63_2Surf64 sequentially, counter clock-wise \n looking from the outer side. \n \n • Use to create ControlGridNStar66 to blend a corner where three or more \n   CubicSurface_64 meet at a corner \n • Input for CubicNStarSurface66 '}
+		return {'Pixmap' :  path_Silk_icons + '/ControlGridNStar66.svg',
+				'MenuText': 'ControlGridNStar66',
+				'ToolTip': 'Creates a ControlGridNStar66 from three or more SubGrid63_2Surf64. \n Select from three to six SubGrid63_2Surf64 sequentially, counter clock-wise \n looking from the outer side. \n \n • Use to create ControlGridNStar66 to blend a corner where three or more \n   CubicSurface_64 meet at a corner \n • Input for CubicNStarSurface66 '}
 
 Gui.addCommand('ControlGridNStar66', ControlGridNStar66())
