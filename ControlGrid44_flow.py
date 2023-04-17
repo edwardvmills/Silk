@@ -28,39 +28,39 @@ import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 
-class ControlGrid44_EdgeSegment():
+class ControlGrid44_flow():
 	def Activated(self):
-		surface=Gui.Selection.getSelection()[0]
-		curve=Gui.Selection.getSelection()[1]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_EdgeSegment_000")
-		AN.ControlGrid44_EdgeSegment(a,surface,curve)
+		grid=Gui.Selection.getSelection()[0]
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_flow_000")
+		AN.ControlGrid44_flow(a,grid)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
 		a.ViewObject.LineColor = (0.67,1.00,1.00)
 		a.ViewObject.PointSize = 4.00
 		a.ViewObject.PointColor = (0.00,0.33,1.00)
 		FreeCAD.ActiveDocument.recompute()
-	
+
 	def GetResources(self):
 		tooltip = (
-			"Create a ControlGrid44 from a CubicSurface44 and one CubicCurve4 segment. \n"
-			"Make the CubicCurve segment from a ControlPoly4_Segment, select the \n"
-			"CubicSurface first and curve segment second. \n"
+			"IN DEVELOPMENT - NO USEFUL RESULT YET \n"
+			"Create a ControlGrid44_flow from a ControlGrid44. \n"
+			"Select one ControlGrid44 and apply the function \n"
 			"\n"
-			"The resulting grid represents a strip of the input surface cut in either u or v \n"
-			"to match the CubicCurve segment. Use to create ControlGrid64_2Grid44 to blend \n"
-			"edges of CubicSurface_44 where blending surfaces of a continuous contour\n"
+			"The output grid will have more gradual internal changes, \n"
+			"at the cost of less predictable tangency across edges\n"
 			"\n"
-			"Also used to re-create the part of the original surface that was not blended \n"
+			"this can help untangle and puff up basic grids \n"
+			"various parameters planned to control the scale \n"
+			"of the effect, and to maintain specific tangencies \n"
 			"\n"
 			"Input for: \n"
 			"-CubicSurface_44 \n"
 			"-ControlGrid64_2Grid44")
 		
-		iconPath = path_Silk_icons + '/ControlGrid44_EdgeSegment.svg'
+		iconPath = path_Silk_icons + '/WIP.svg'
 
-		return {'Pixmap' :  iconPath,
-	  			'MenuText': 'ControlGrid44_EdgeSegment',
-				'ToolTip': tooltip}
+		return {'Pixmap' : iconPath,
+	            'MenuText': 'ControlGrid44_flow',
+		        'ToolTip': tooltip}
 
-Gui.addCommand('ControlGrid44_EdgeSegment', ControlGrid44_EdgeSegment())
+Gui.addCommand('ControlGrid44_flow', ControlGrid44_flow())

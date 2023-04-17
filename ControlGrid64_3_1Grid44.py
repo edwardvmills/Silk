@@ -52,7 +52,7 @@ class ControlGrid64_3_1Grid44():
 				Corner = 3
 				print ('corner 3 at Grid index 12')
 			else:
-				print ('unable to identify which corner the grid was pick on. please select the grid by one of its corners in the 3D view')
+				print ('unable to identify which corner the grid was picked. please select the grid by one of its corners in the 3D view')
 				
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_3_Grid44_000")
 			AN.ControlGrid64_3_1Grid44(a,NL_Grid, Corner)
@@ -64,6 +64,26 @@ class ControlGrid64_3_1Grid44():
 			FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64_3_1Grid44.svg', 'MenuText': 'ControlGrid64_3_1Grid44', 'ToolTip': 'ControlGrid64_3_1Grid44'}
+		tooltip = (
+			"Select a ControlGrid44 by one of it's corner points in the 3D view, \n"
+			"and apply the function \n"
+			"\n"
+			'This results in a "triangle" grid that "flows" to eliminate the selected corner. \n'
+			"Typical use is to round a corner in a set of surfaces segmented from a larger surface. \n"
+			"the two edges that remain from the original grid are of type poly4, and the new curved \n"
+			"edge is of type poly6. There is a fully collapsed poly6 edge hidden where the two \n"
+			"edges of the original grid meet \n"
+			"\n"
+			"This grid is not intended to produce a final surface, but it is instrumental as a \n"
+			"stepping stone: we will build off of the new curved edge, produce a high quality \n"
+			'surface there, and eventually replace this "triangle" with a higher quality surface \n'
+			"\n"
+			"Input for: \n"
+			"-CubicSurface_64 (temporary and cheap visualization) \n"
+			"-SubGrid33_2Grid64 (the next step towards a high quality surface along the curved \n"
+			"edge of the triangle)")
+
+		iconpath = path_Silk_icons + '/ControlGrid64_3_1Grid44.svg'
+		return {'Pixmap' :  iconpath, 'MenuText': 'ControlGrid64_3_1Grid44', 'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid64_3_1Grid44', ControlGrid64_3_1Grid44())

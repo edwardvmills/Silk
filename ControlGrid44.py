@@ -64,6 +64,27 @@ class ControlGrid44():
 			FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' : path_Silk_icons + '/ControlGrid44.svg', 'MenuText': 'ControlGrid44', 'ToolTip': 'Create a ControlGrid44 from four connected ControlPoly4 edges. \n Select each edge in the loop sequentially, counter clock-wise looking from the outer side. \n \n • Input for CubicSurface_44'}
+		tooltip = (
+			"Create a ControlGrid44 from four connected ControlPoly4 edges. \n"
+			"Select each edge in the loop sequentially, counter clock-wise looking from the outer side. \n"
+			" \n"
+			"Input for: \n"
+			"-CubicSurface_44 \n"
+			"-ControlGrid64_2Grid44\n"
+			"\n"
+			"OPTIONAL - use with caution \n"
+			'select 3 connected ControlPoly4 edges to produce a "triangle" grid. \n'
+			'This "triangle" will have a degenerate (collapsed) edge between the first and third selected \n'
+			"polys, because internally this grid has just as many points and lines as a four sided grid. \n"
+			"The lines and points which are collapsed cause visible defects in the surface. This also makes \n"
+			"further operations with this grid, or surfaces that use this grid, difficult or even impossible.\n"
+			'This "triangle" does respect tangency rules, and will connect cleanly to other grids, despite \n'
+			"its inner flaw point")
+
+		iconPath = path_Silk_icons + '/ControlGrid44.svg'
+
+		return {'Pixmap' : iconPath,
+	  			'MenuText': 'ControlGrid44',
+				'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid44', ControlGrid44())

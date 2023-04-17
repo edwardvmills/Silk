@@ -35,6 +35,7 @@ class Silk (Workbench):
 		import ControlPoly4_segment
 		import ControlGrid44
 		import ControlGrid44_Rotate
+		import ControlGrid44_flow
 		import CubicSurface_44
 		import ControlGrid44_EdgeSegment
 		import ControlGrid44_2EdgeSegments
@@ -52,12 +53,16 @@ class Silk (Workbench):
 		import ControlGridNStar66
 		import CubicNStarSurface_NStar66
 		import StarTrim_CubicNStar
+		import Reload_Silk
+
+		# A list of command names created by the imports above
 		self.list = ["ControlPoly4",
 					"CubicCurve_4", 
 					"Point_onCurve", 
 					"ControlPoly4_segment",
 					"ControlGrid44",
 					"ControlGrid44_Rotate",
+					"ControlGrid44_flow",
 					"CubicSurface_44",
 					"ControlGrid44_EdgeSegment",
 					"ControlGrid44_2EdgeSegments",
@@ -74,8 +79,9 @@ class Silk (Workbench):
 					"SubGrid63_2Surf64",
 					"ControlGridNStar66",
 					"CubicNStarSurface_NStar66",
-					"StarTrim_CubicNStar"] 
-					# A list of command names created in the line above
+					"StarTrim_CubicNStar",
+					"Reload_Silk"] 
+					
 		
 		self.appendToolbar("Silk Commands",self.list) # creates a new toolbar with your commands
 		self.appendMenu("Silk",self.list) # creates a new menu

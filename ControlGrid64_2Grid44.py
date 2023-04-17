@@ -45,6 +45,23 @@ class ControlGrid64_2Grid44():
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64_2Grid44.svg', 'MenuText': 'ControlGrid64_2Grid44', 'ToolTip': 'Create a ControlGrid64_2Grid44 from two ControlGrid_44 that share a corner. \n Select two grids that share an edge. \n \n • Use to blend the edge of two surfaces segmented with ControlGrid44_EdgeSegment \n • Input for CubicSurface_64 '}
+		tooltip = (
+			"Create a ControlGrid64_2Grid44 from two ControlGrid_44 that share a corner. \n"
+			"Select two grids that share an edge. \n"
+			"OPTIONAL: Select two grids, on each of which one edge shares the endpoints of an edge on the other grid"
+			"this second case, where only endpoints of an edge are shared, does not produce a default result quite as \n"
+			'good as if the entire edge is shared, and will likely need adjustment of the "extra" parameters in the \n'
+			"property data tab (standard FreeCAD GUI) \n"
+			"\n"
+			"Primary use is to blend the edge of two surfaces segmented with ControlGrid44_EdgeSegment \n"
+			"Can also be used on entire grids (not segmented)"
+			"\n"
+			"Input for: \n"
+			"-CubicSurface_64")
+
+		iconPath = path_Silk_icons + '/ControlGrid64_2Grid44.svg'
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'ControlGrid64_2Grid44',
+				'ToolTip': 'Create a ControlGrid64_2Grid44 from two ControlGrid_44 that share a corner. \n Select two grids that share an edge. \n \n • Use to blend the edge of two surfaces segmented with ControlGrid44_EdgeSegment \n • Input for CubicSurface_64 '}
 
 Gui.addCommand('ControlGrid64_2Grid44', ControlGrid64_2Grid44())

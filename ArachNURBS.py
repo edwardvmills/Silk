@@ -64,7 +64,7 @@ import numpy as np
 def equalVectors(vector0,vector1,tol):	# 3D point equality test
 	if (vector1-vector0).Length <= tol:
 		return 1
-	elif (vector1-vector0).Length <= tol:
+	elif (vector1-vector0).Length > tol:
 		return 0
 
 def int_2l(la,lb):
@@ -1368,6 +1368,25 @@ class ControlGrid44_4:	# made from 4 CubicControlPoly4.
 		quad23 = orient_a_to_b(poles2,poles3)
 		quad34 = orient_a_to_b(poles3,poles4)
 		quad41 = orient_a_to_b(poles4,poles1)
+		escape_malformed_loop = 0
+		if (quad12 == 0):
+			print ("first and second selected polys do not share endpoints")
+			escape_malformed_loop = 1
+		if (quad23 == 0):
+			print ("second and third selected polys do not share endpoints")
+			escape_malformed_loop = 1
+		if (quad34 == 0):
+			print ("third and fourth selected polys do not share endpoints")
+			escape_malformed_loop = 1
+		if (quad41 == 0):
+			print ("first and fourth selected polys do not share endpoints")
+			escape_malformed_loop = 1
+		if (escape_malformed_loop == 1):
+			print ("the object is created in the document, but awaits resolution of endpoint matching.",
+	  				" inspect the sketches that define the Controloly4 objects.",
+	  				" prioritize coincident constraints for the endpoints.",
+					" do not trust a point on object constraint to result in theoratical point matching")
+			return
 		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
 			weights1=weights1[::-1]
 		if quad23[0]!=poles2[0] and quad23[0]==poles2[-1]:
@@ -1873,6 +1892,174 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 			Legs[i]=Part.LineSegment(fp.Poles[i-8],fp.Poles[i-4])
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
+
+class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal points will 'flow' instead of providing predictable tangency
+	def __init__(self, obj , input_grid):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid44_flow class Init\n")
+		obj.addProperty("App::PropertyLink","InputGrid","ControlGrid44_flow","input control grid").InputGrid = input_grid
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_flow","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_flow","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_flow","Weights").Weights
+		flow_lower = 0.0
+		flow_upper = 1.0
+		flow_step = 0.01
+		flow_11 = 1.0
+		flow_12 = 1.0
+		flow_21 = 1.0
+		flow_22 = 1.0
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_11","ControlGrid44_flow",
+						" impact on inner control point 11 \n set 0.0 to 1.0, where 0.0 will match the input grid").flow_11 = (flow_11, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_12","ControlGrid44_flow",
+						" impact on inner control point 12 \n set 0.0 to 1.0, where 0.0 will match the input grid").flow_12 = (flow_12, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_21","ControlGrid44_flow",
+						" impact on inner control point 21 \n set 0.0 to 1.0, where 0.0 will match the input grid").flow_21 = (flow_21, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_22","ControlGrid44_flow",
+						" impact on inner control point 22 \n set 0.0 to 1.0, where 0.0 will match the input grid").flow_22 = (flow_22, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyBool",
+						"mirror_u0", "ControlGrid44_flow",
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_u0 = False
+		obj.addProperty("App::PropertyBool",
+						"mirror_u1", "ControlGrid44_flow",
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_u1 = False
+		obj.addProperty("App::PropertyBool",
+						"mirror_v0", "ControlGrid44_flow",
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_v0 = False
+		obj.addProperty("App::PropertyBool",
+						"mirror_v1", "ControlGrid44_flow",
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_v1 = False
+		obj.Proxy = self
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		Poles = fp.InputGrid.Poles
+		p00 = Poles[0]
+		p01 = Poles[1]
+		p02 = Poles[2]
+		p03 = Poles[3]
+		p10 = Poles[4]
+		p11 = Poles[5]
+		p12 = Poles[6]
+		p13 = Poles[7]
+		p20 = Poles[8]
+		p21 = Poles[9]
+		p22 = Poles[10]
+		p23 = Poles[11]
+		p30 = Poles[12]
+		p31 = Poles[13]
+		p32 = Poles[14]
+		p33 = Poles[15]
+
+		# first attempt to rotate the first inner legs towards each other	
+		'''
+		def pdir_test_01(p10, p11, p12):
+			# edge to inner point
+			L10_11_dir_u = (p11-p10).Length
+			# inner point to next inner point
+			L11_12_dir_u = (p12-p11).Length
+			# determine scale of first inner leg to second inner leg
+			Lscale_p11_dir_u = L10_11_dir_u / (L10_11_dir_u + L11_12_dir_u)
+			# find the point from edge to second inner point that matches the scale
+			p11_dir_u = p10 + Lscale_p11_dir_u * (p12-p10)
+			return p11_dir_u
+		def run_pdir_test_01(): # pass and handle a grid if you want to use this standalone
+			p11_dir_u = pdir_test_01(p10, p11, p12)
+			p21_dir_u = pdir_test_01(p20, p21, p22)
+			p12_dir_u = pdir_test_01(p13, p12, p11)
+			p22_dir_u = pdir_test_01(p23, p22, p21)
+			p11_dir_v = pdir_test_01(p01, p11, p21)
+			p21_dir_v = pdir_test_01(p31, p21, p11)
+			p12_dir_v = pdir_test_01(p02, p12, p22)
+			p22_dir_v = pdir_test_01(p32, p22, p12)
+			p11a = (p11_dir_u + p11_dir_v) / 2.0
+			p12a = (p12_dir_u + p12_dir_v) / 2.0
+			p21a = (p21_dir_u + p21_dir_v) / 2.0
+			p22a= (p22_dir_u + p22_dir_v) / 2.0
+			Legs=[0]*8
+			Legs[0]=Part.LineSegment(p10,p11a)
+			Legs[1]=Part.LineSegment(p20,p21a)
+			Legs[2]=Part.LineSegment(p13,p12a)
+			Legs[3]=Part.LineSegment(p23,p22a)
+			Legs[4]=Part.LineSegment(p01,p11a)
+			Legs[5]=Part.LineSegment(p31,p21a)
+			Legs[6]=Part.LineSegment(p02,p12a)
+			Legs[7]=Part.LineSegment(p32,p22a)
+			return Legs
+		Legs = run_pdir_test_01()
+		'''
+		# not great. does what it was told to do, but not very interesting.
+		# dramatically 'deflates' the grid. like overstretched plastic pulled over hard edges.
+		# not sure if it is recursevely stable or not.
+		# not 'flowy', i.e. u=1 row does not look like u=0 morphing into u=3
+		# keeps the new inner points relatively close to old ones (leg angles differ greatly)
+		# keep it around, maybe move it to raw functions as Tighten_Grid(grid44) or something
+
+		# next try. let's interpolate first edge legs from two opposite corners to set leg orientation
+		# then scale along the resulting direction.
+		# if the two legs are colinear and dot is positive, great.new orientation equal to either, then scale.
+		# if two legs are colinear and dot is negative, new direction should be perpendicular. 
+		### check next edge segment to perpendicular up or down. this could be different for each inner point?
+		# ok to reject insane folded grids
+		# if the legs are colinear, opposite, and of equal length, same as above, but also watch out for zeros along the way.
+
+		# if the legs are in plane and dot is positive, simple interp.
+		# if the legs are in plane and dot is negative...figure it out when you get to it. maybe do another perpendicular dealio?
+		# maybe test for in plane before testing colinear? could cover both cases. colinear is super cheap tho.
+
+		# write it for one edge first, then make it a function of a grid. 
+		# then we'll need to rotate the grid to apply it 4 times.../shudder.
+
+		# assume we're adjusting only p11 and p12 (along v=1). we'll also refer to p00, p01, p02, p03, p10, p13, p21, and p22.
+		L0 = p10 - p00
+		L3 = p13 - p03
+
+		# check if both legs are coplanar
+		# use p00 as origin, p10 as x, p03 as yish, project p13 to plane?
+
+		PlaneNormal = ((p10-p00).cross(p03-p00)).normalize() # note that PlaneCross has been modified
+		PointToPlane = (p13-p00).dot(PlaneNormal)
+		print("PointToPlane, ", PointToPlane)
+
+		testCoplanar = (PointToPlane < .000001 and PointToPlane > -.000001)
+		print("testCoplanar, ", testCoplanar)
+	
+		# check cross-product for colinear legs
+		testColinearCross = (p10 - p00).cross(p13 - p03)
+		testColinear = (testColinearCross.Length <= .000001)
+
+		print("testColinear, ", testColinear)
+
+		
+
+
+
+		'''
+		fp.Poles = fp.InputGrid.Poles
+		fp.Weights = fp.InputGrid.Weights
+
+		Legs=[0]*24
+		for i in range(0,3):
+			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
+		for i in range(3,6):
+			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
+		for i in range(6,9):
+			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
+		for i in range(9,12):
+			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
+		for i in range(12,16):
+			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+		for i in range(16,20):
+			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+		for i in range(20,24):
+			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+		'''
+
+		#fp.Legs=Legs
+		#fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 	# ControlGrid66_4(poly0, poly1, poly2, poly3)
@@ -2699,10 +2886,10 @@ class ControlGrid44_EdgeSegment:
 		print(poles_2dArray)
 		if len(poles_2dArray[0]) == 1:
 			print ('collapsed surface segment')
-			print ('segdira: ', segdira)
-			print ('segdirb: ', segdirb)
-			print ('s0 ', s0)
-			print ('s1 ', s1)
+			#print ('segdira: ', segdira) # segdira undefined?? not sure what the intention was here
+			#print ('segdirb: ', segdirb) # segdirb undefined?? not sure what the intention was here
+			#print ('s0 ', s0) # s0 undefined?? not sure what the intention was here
+			#print ('s1 ', s1) # s1 undefined?? not sure what the intention was here
 			print ('t0 ', t0)
 			print ('t1 ', t1)
 			print ('poles_2dArray', poles_2dArray)
@@ -4411,9 +4598,9 @@ class ControlGridNStar66_NSub:
 		if fp.N == 3:
 			scale = 0.75 # scaled down 75% to spread out center this works quite well for triangles actually
 		if fp.N == 5:
-		 scale = 1.25 # this is a mess. a single factor doesn't do it. oh well, moving on.
+			scale = 1.25 # this is a mess. a single factor doesn't do it. oh well, moving on.
 		if fp.N == 6:
-		 scale = 1.5
+			scale = 1.5
 
 		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (Sub_28_raw - fp.StarGrid[Sub_i][21][0])
 
@@ -4787,7 +4974,7 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		if fp.N == 3:
 			scale = 0.75 # scaled down 75% to spread out center this works quite well for triangles actually
 		if fp.N == 5:
-		 scale = 1.00 # this is a mess. a single factor doesn't do it. oh well, moving on.
+			scale = 1.00 # this is a mess. a single factor doesn't do it. oh well, moving on.
 
 
 

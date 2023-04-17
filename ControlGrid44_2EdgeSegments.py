@@ -43,6 +43,27 @@ class ControlGrid44_2EdgeSegments():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid44_2EdgeSegments.svg', 'MenuText': 'ControlGrid44_2EdgeSegments', 'ToolTip': 'Create a ControlGrid44 from CubicSurface and two CubicCurve segments. \n Make the CubicCurve segments from ControlPoly4_Segments, select the \n CubicSurface, then CubicCurve segments on orthogonal sides. \n \n • Use to create ControlGrid64_2Grid44 to blend edges of CubicSurface_44 \n   where blending three or more orthogonal surfaces to a corner \n • Input for ControlGrid64_2Grid44 and CubicSurface_44'}
+		tooltip = (
+			"Create a ControlGrid44 from one CubicSurface and two CubicCurve segments. \n"
+			"Make the CubicCurve segments from ControlPoly4_Segments, select the \n"
+			"CubicSurface, then the CubicCurve segments on orthogonal sides. \n"
+			"\n "
+			"The resulting grid represents a portion of the input surface \n"
+			"cut in u and v to match the CubicCurve segments. Use to create  \n"
+			"ControlGrid64_2Grid44 to blend edges of CubicSurface_44 where \n"
+			"blending three or more orthogonal surfaces to a corner. \n"
+			"\n"
+			"Also used to re-create the part of the original surface that was \n"
+			"not blended\n"
+			"\n"
+			"Input for: \n"
+			"-CubicSurface_44 \n"
+			"-ControlGrid64_2Grid44")
+
+		iconPath = path_Silk_icons + '/ControlGrid44_2EdgeSegments.svg'
+
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'ControlGrid44_2EdgeSegments',
+				'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid44_2EdgeSegments', ControlGrid44_2EdgeSegments())

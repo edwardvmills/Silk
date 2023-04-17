@@ -54,6 +54,29 @@ class ControlGrid64():
 			print ('please select 4 control polygons forming a loop in the following order: 6P, 4P, 6P, 4P')
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid64.svg', 'MenuText': 'ControlGrid64', 'ToolTip': 'Create a ControlGrid64 from two ControlPoly4 and two ControlPoly6 matching on opposite edges. \n Select each edge in sequence (4,6,4,6), counter clock-wise looking from the outer side. \n \n • Use to create mixed degree contour surfaces \n • Input for CubicSurface_64'}
+		tooltip = (
+			"Create a ControlGrid64 from two ControlPoly4 and two ControlPoly6 matching on opposite edges. \n"
+			"Select each edge in sequence (4,6,4,6), counter clock-wise looking from the outer side. \n"
+			"\n"
+			"Use to create mixed degree contour surfaces \n"
+			"\n"
+			"Input for: \n"
+			"-CubicSurface_64"
+			"\n"
+			"MORE INFO. Typically, these types of grids (64) are created automatically by other tools. Manually \n" 
+			"creating this type of grid (and associated surface) directly from polys has limitations, because they \n"
+			"cannot be segmented (yet). They cannot be blended either (yet). They are still compatible with all tools \n"
+			"which take a ControlGrid64 as input, even though those tools assume that the grids were generated \n"
+			"automatically.\n"
+			"\n"
+			"When segmentation does become available, it will be like so: the grid/surface will be cut into three \n"
+			"ControlGrid44s at preset locations. This is an exact conversion with no loss of precision. These three \n"
+			"pieces will then be workable through all the tools available for ControlGrid44s and CubicSurface_44 \n")
+
+		iconPath = path_Silk_icons + '/ControlGrid64.svg'
+
+		return {'Pixmap' : iconPath,
+	  			 'MenuText': 'ControlGrid64',
+				 'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid64', ControlGrid64())
