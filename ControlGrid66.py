@@ -54,6 +54,31 @@ class ControlGrid66():
 			print ('triangle mode not implemented')
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66.svg', 'MenuText': 'ControlGrid66', 'ToolTip': 'Create a ControlGrid66 from four connected ControlPoly6 edges. \n Select each ControlPoly6 sequentially, counter clock-wise looking from the outer side. \n \n • Input for CubicSurface_66 '}
+		tooltip = (
+			"Create a ControlGrid66 from four connected ControlPoly6 edges. \n"
+			"Select each ControlPoly6 sequentially, counter clock-wise looking from the outer side. \n"
+			"\n"
+			"6 point edges cannot be blended with Silk tools (yet), so this \n"
+			"grid and associated surface are a final product at this stage. \n"
+			"\n"
+			"Input for: \n"
+			"-CubicSurface_66 \n"
+			"\n"
+			"MORE INFO. \n"
+			"This is not a recommended method to create main surfaces, but it is available. This type of grid is best \n"
+			"when generated automatically by other tools. Manually creating this type of grid (and associated surface) \n"
+			"directly from polys has limitations, because they cannot be segmented (yet). They cannot be blended either \n"
+			"(yet). They are still compatible with all tools which take a ControlGrid64 as input, even though those \n"
+			"tools assume that the grids were generated automatically.\n"
+			"\n"
+			"When segmentation does become available, it will be like so: the grid/surface will be cut into nine(9) \n"
+			"ControlGrid44s at preset locations. This is an exact conversion with no loss of precision. These nine \n"
+			"pieces will then be workable through all the tools available for ControlGrid44s and CubicSurface_44 \n")
+
+		iconPath = path_Silk_icons + '/ControlGrid66.svg'
+
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'ControlGrid66',
+				'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid66', ControlGrid66())

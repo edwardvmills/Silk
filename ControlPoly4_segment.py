@@ -22,14 +22,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlPoly4_segment_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlPoly4_segment_baseTip + tooltips.ControlPoly4_segment_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlPoly4_segment.svg'
 
 class ControlPoly4_segment():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: Point_onCurve", moreInfo)
+			return
+		
 		selx=Gui.Selection.getSelectionEx()
 		NL_Curve=selx[0].Object			# this is a resilient link to the underlying object
 		Point_onCurve_0=selx[1].Object	# this is a resilient link to the underlying object
@@ -45,6 +57,8 @@ class ControlPoly4_segment():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlPoly4_segment.svg', 'MenuText': 'ControlPoly4_segment', 'ToolTip': 'Create a ControlPoly4 on a segment of a Cubic_Curve, between two points on the curve. \n Select the curve first, then two points. \n \n • Input for CubicCurve_4 segments, which can in turn be used as input for \n   ControlGrid44_EdgeSegment, ControlGrid44_2EdgeSegments, ControlPoly6  '}
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'ControlPoly4_segment',
+				'ToolTip': tooltip}
 
 Gui.addCommand('ControlPoly4_segment', ControlPoly4_segment())

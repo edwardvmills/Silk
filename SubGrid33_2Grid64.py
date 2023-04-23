@@ -46,7 +46,30 @@ class SubGrid33_2Grid64():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/SubGrid33_2Grid64.svg', 'MenuText': 'SubGrid33_2Grid64',
-		'ToolTip': 'SubGrid33_2Grid64: \n Select two ControlGrid_64 objects meeting at a corner \n to generate a corner blend partial grid. \n this is intended for the case where the two ControlGrid_64 objects \n are blends grids which have segments of one common surface as inputs'}
+		toolptip = (
+			"\n Select two ControlGrid_64 objects meeting at a corner to generate a corner blend partial grid.\n"
+			"(this is a first step in order to fill a four sided hole where four blend grids/surfaces meet) \n"
+			"\n"
+			"This is intended for the case where the two ControlGrid_64 objects are blend grids which have \n"
+			"segments of one common surface as inputs. The two blends 'extend' the common surface, and this \n"
+			"partial grid will effectively 'extend' the common surface into the corner gap"
+			"\n"
+			
+			"Input for: \n"
+			"-ControlGrid66_4Sub \n"
+			"\n"
+			"MORE INFO \n"
+			"When blending surfaces across perpendicular edges, you end up with a gap/hole at the corner, because \n"
+			"you have to 'set back' both blends so they don't overlap each other. This object is a partial grid \n"
+			"that extends both input ControlGrid_64s 'into' the gap, beginning the process of filling this gap/hole \n"
+			"between the blends. After making four of these objects, one in each corner of the hole, use \n"
+			"ControlGrid66_4Sub to create the whole grid. The surface made from this grid (using CubicSurface_66), \n"
+			"will then bridge across all four blends, giving good continuity to the orignal surfaces \n")
+		
+		iconPath = path_Silk_icons + '/SubGrid33_2Grid64.svg'
+
+		return {'Pixmap' :  iconPath,
+	  		'MenuText': 'SubGrid33_2Grid64',
+			'ToolTip': toolptip}
 
 Gui.addCommand('SubGrid33_2Grid64', SubGrid33_2Grid64())

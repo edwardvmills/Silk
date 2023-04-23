@@ -22,16 +22,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
 
-# Locate Workbench Directory
+
+# get strings
+tooltip = (tooltips.ControlPoly4_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlPoly4_baseTip + tooltips.ControlPoly4_moreInfo)
+
+# Locate Workbench Directory & icon
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlPoly4.svg'
 
 class ControlPoly4():
 	def Activated(self):
-
 		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: ControlPoly4", moreInfo)
+			return		
 		if len(sel)==1:
 			if sel[0].GeometryCount==3:
 				mode='3L'
@@ -39,6 +49,10 @@ class ControlPoly4():
 				mode='FirstElement'
 		elif len(sel)==2:
 			mode='2N'
+		else:
+			print ('Selection not recognized, check tooltip')
+			return
+		
 		print (mode)
 		if mode=='3L':
 			sketch=Gui.Selection.getSelection()[0]
@@ -75,6 +89,8 @@ class ControlPoly4():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlPoly4.svg', 'MenuText': 'ControlPoly4', 'ToolTip': 'Creates a ControlPoly4 from a variety of inputs: \n \n - One sketch of three lines connected end to end \n - Two sketches containing a circle and a line each ("node" sketch) \n - if a single sketch is selected that does not contain three elements, \n   the first element is converted (this works for line, arc of circle, \n   and arc of ellipse elements). \n \n • Input for CubicCurve_4, ControlGrid44, ControlGrid44_Rotate, and ControlGrid64 '}
+		return {'Pixmap':  iconPath,
+	  			'MenuText': 'ControlPoly4',
+				'ToolTip': tooltip}
 
 Gui.addCommand('ControlPoly4', ControlPoly4())

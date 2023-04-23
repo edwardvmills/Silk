@@ -22,25 +22,42 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
 
-# Locate Workbench Directory
+# get strings
+tooltip = (tooltips.CubicCurve_4_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.CubicCurve_4_baseTip + tooltips.CubicCurve_4_moreInfo)
+
+# Locate Workbench Directory & icon
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/CubicCurve_4.svg'
 
 class CubicCurve_4():
 	def Activated(self):
-		poly=Gui.Selection.getSelection()[0]
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_4_000")
-		AN.CubicCurve_4(a,poly)
-		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
-		a.ViewObject.LineWidth = 1.00
-		a.ViewObject.LineColor = (1.00,0.67,0.00)
-		a.ViewObject.PointSize = 2.00
-		a.ViewObject.PointColor = (1.00,1.00,0.00)
-		FreeCAD.ActiveDocument.recompute()
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: CubicCurve4", moreInfo)
+			return		
+		if len(sel)==1:
+			poly=Gui.Selection.getSelection()[0]
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_4_000")
+			AN.CubicCurve_4(a,poly)
+			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (1.00,0.67,0.00)
+			a.ViewObject.PointSize = 2.00
+			a.ViewObject.PointColor = (1.00,1.00,0.00)
+			FreeCAD.ActiveDocument.recompute()
+		else:
+			print ('Selection not recognized, check tooltip')
+			return
 		
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_4.svg', 'MenuText': 'CubicCurve_4', 'ToolTip': 'Creates a CubicCurve_4 from a ControlPoly4. \n Select one ControlPoly4 or ControlPoly4_segment. \n \n • Use Point_onCurve to subdivide with ControlPoly4_Segment \n • Two CubicCurve_4 can be used to generate a ControlPoly6'}
+		return {'Pixmap': iconPath,
+	  			'MenuText': 'CubicCurve_4',
+				'ToolTip': tooltip}
 
 Gui.addCommand('CubicCurve_4', CubicCurve_4())

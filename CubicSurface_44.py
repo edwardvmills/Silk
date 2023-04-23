@@ -22,14 +22,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.CubicSurface_44_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.CubicSurface_44_baseTip + tooltips.CubicSurface_44_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/CubicSurface_44.svg'
 
 class CubicSurface_44():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: CubicSurface_44", moreInfo)
+			return
+		
 		grid=Gui.Selection.getSelection()[0]
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicSurface_44_000")
 		AN.CubicSurface_44(a,grid)
@@ -39,6 +51,8 @@ class CubicSurface_44():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' : path_Silk_icons + '/CubicSurface_44.svg', 'MenuText': 'CubicSurface_44', 'ToolTip': 'Create a CubicSurface from a ControlGrid44. \n Select one ControlGrid44 of any type. \n \n • Can be used for hard edge surfacing, or manually aligned for tangency \n • Can also be blended along edges with other CubicSurface_44 objects with \n   CubicSurface64 objects, for high degree continuity '}
+		return {'Pixmap' : iconPath,
+	  			'MenuText': 'CubicSurface_44',
+				'ToolTip': tooltip}
 
 Gui.addCommand('CubicSurface_44', CubicSurface_44())

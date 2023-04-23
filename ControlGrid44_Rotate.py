@@ -21,16 +21,27 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlGrid44_Rotate_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlGrid44_Rotate_baseTip + tooltips.ControlGrid44_Rotate_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlGrid44_Rotate.svg'
 
 
 class ControlGrid44_Rotate():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: ControlGrid44_Rotate", moreInfo)
+			return
+
 		if len(sel)==4:
 			mode='4sided'
 		elif len(sel)==3:
@@ -67,34 +78,6 @@ class ControlGrid44_Rotate():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		tooltip = (
-			"Creates a ControlGrid44 from three ControlPoly4 edges. \n"
-			"\n"
-			"Select three ControlPoly4 edges, the selection order determines orientation. \n"
-			'Used to produce a surface which "rotates" from the first edge selected to the \n'
-			"third edge following along the second edge. \n"
-			'Order is "left, bottom, right" with the rotational pivot at the "top" corner.\n'
-			"\n"
-			"Typical use is to merge a set of surfaces to a point (like closing a tube) \n"
-			"\n"
-			"Input for: \n"
-			"-CubicSurface_44 \n"
-			"-ControlGrid64_2Grid44 \n"
-			"\n"
-			"MORE INFO \n"
-			"This is a degenerate grid (one edge collapsed to a point) that results in\n"
-			'a "revolve" like surface. Will produce true spheres from arc polys, true\n'
-			"ellipsoids from ellipse arc polys, but also accepts non-arc polys. \n"
-			"\n"
-			"Surface tangency from multiple grids can be produced automatically from well \n"
-			"prepared arcs of circles and ellipses, but using general curves as input does\n"
-			"not have an easily predictable outcome. Additional blending may be required.\n"
-			"\n"
-			"Although degenerate, this grid is the correct way to interface with spheres, \n"
-			"where it does not introduce additional collapsed edges.\n")
-
-		iconPath = path_Silk_icons + '/ControlGrid44_Rotate.svg'
-
 		return {'Pixmap' : iconPath,
 				'MenuText': 'ControlGrid44_Rotate', 
 				'ToolTip': tooltip}

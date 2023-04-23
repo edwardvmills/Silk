@@ -22,6 +22,7 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
 
 # Locate Workbench Directory
 import os, Silk_dummy
@@ -31,6 +32,9 @@ path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 class ControlPoly6():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("expanded tooltip will go here \n multiline test \n looooooooooooooooooooooooooooooong line test")
+			return
 		if len(sel)==1:
 			try:
 				if sel[0].Shape.Curve.NbPoles==4:
@@ -55,7 +59,10 @@ class ControlPoly6():
 				if sel[0].Shape.Curve.NbPoles==4 and sel[1].Shape.Curve.NbPoles==4:
 					mode='FilletBezier'
 			except Exception: 
-				pass		
+				pass
+
+		else:
+			return		
 
 		print ('selection processed as ', mode, ' operation')
 

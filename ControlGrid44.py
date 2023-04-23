@@ -21,15 +21,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlGrid44_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlGrid44_baseTip + tooltips.ControlGrid44_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
-
+iconPath = path_Silk_icons + '/ControlGrid44.svg'
 
 class ControlGrid44():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: ControlGrid44", moreInfo)
+			return
+		
 		sel=Gui.Selection.getSelection()
 		if len(sel)==4:
 			mode='4sided'
@@ -64,25 +75,6 @@ class ControlGrid44():
 			FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		tooltip = (
-			"Create a ControlGrid44 from four connected ControlPoly4 edges. \n"
-			"Select each edge in the loop sequentially, counter clock-wise looking from the outer side. \n"
-			" \n"
-			"Input for: \n"
-			"-CubicSurface_44 \n"
-			"-ControlGrid64_2Grid44\n"
-			"\n"
-			"OPTIONAL - use with caution \n"
-			'select 3 connected ControlPoly4 edges to produce a "triangle" grid. \n'
-			'This "triangle" will have a degenerate (collapsed) edge between the first and third selected \n'
-			"polys, because internally this grid has just as many points and lines as a four sided grid. \n"
-			"The lines and points which are collapsed cause visible defects in the surface. This also makes \n"
-			"further operations with this grid, or surfaces that use this grid, difficult or even impossible.\n"
-			'This "triangle" does respect tangency rules, and will connect cleanly to other grids, despite \n'
-			"its inner flaw point")
-
-		iconPath = path_Silk_icons + '/ControlGrid44.svg'
-
 		return {'Pixmap' : iconPath,
 	  			'MenuText': 'ControlGrid44',
 				'ToolTip': tooltip}

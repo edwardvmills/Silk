@@ -39,6 +39,23 @@ class CubicSurface_64():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicSurface_64.svg', 'MenuText': 'CubicSurface_64', 'ToolTip': 'Creates CubicSurface_64 from a ControlGrid64 of any type. \n Select one ControlGrid64 object. \n \n • Used for mixed degree contours, or blending edges of low degree contours \n • Can be blended along the degree-4 sides like CubicSurface_44 objects, \n   by segmenting CubicCurve_6 objects on the degree-6 sides '}
+		tooltip = (
+			"Creates CubicSurface_64 from a ControlGrid64 of any type. \n"
+			"Select one ControlGrid64 object. \n"
+			"\n"
+			"Used for mixing four point and 6 point polys/edges, or blending edges of four point contours \n"
+			"Can produce blends along edges of CubicSurface_44 objects. The edges touching the blended \n"
+			"objects are four pointed. The edges reaching from one blended object to the other are 6 pointed"
+			"\n"
+			"This is still a cubic grid/surface along both directions, but now one direction is Bezier (4 point), \n"
+			"WHile the other is not Bezier (6 points).The price paid for these extra control points is that \n"
+			"this surface is only garanteed G2 internally along the 6 points (may be G3 under the right setup) \n"
+			"The surface is still Bezier and G3 along the 4 points direction \n")
+
+		iconPath = path_Silk_icons + '/CubicSurface_64.svg'
+
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'CubicSurface_64',
+				'ToolTip': tooltip}
 
 Gui.addCommand('CubicSurface_64', CubicSurface_64())

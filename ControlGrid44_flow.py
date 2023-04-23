@@ -22,14 +22,25 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlGrid44_flow_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlGrid44_flow_baseTip + tooltips.ControlGrid44_flow_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/WIP.svg'
 
 class ControlGrid44_flow():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: ControlGrid44_flow", moreInfo)
+			return
 		grid=Gui.Selection.getSelection()[0]
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_flow_000")
 		AN.ControlGrid44_flow(a,grid)
@@ -41,24 +52,6 @@ class ControlGrid44_flow():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		tooltip = (
-			"IN DEVELOPMENT - NO USEFUL RESULT YET \n"
-			"Create a ControlGrid44_flow from a ControlGrid44. \n"
-			"Select one ControlGrid44 and apply the function \n"
-			"\n"
-			"The output grid will have more gradual internal changes, \n"
-			"at the cost of less predictable tangency across edges\n"
-			"\n"
-			"this can help untangle and puff up basic grids \n"
-			"various parameters planned to control the scale \n"
-			"of the effect, and to maintain specific tangencies \n"
-			"\n"
-			"Input for: \n"
-			"-CubicSurface_44 \n"
-			"-ControlGrid64_2Grid44")
-		
-		iconPath = path_Silk_icons + '/WIP.svg'
-
 		return {'Pixmap' : iconPath,
 	            'MenuText': 'ControlGrid44_flow',
 		        'ToolTip': tooltip}

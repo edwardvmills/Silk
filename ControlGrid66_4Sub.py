@@ -46,7 +46,40 @@ class ControlGrid66_4Sub():
 		FreeCAD.ActiveDocument.recompute()
 
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlGrid66_4Sub.svg', 'MenuText': 'ControlGrid66_4Sub',
-		'ToolTip': 'ControlGrid66_4Sub: \n Select 4 related SubGrid33 objects in a CC loop to form a ControlGrid66 object'}
+		tooltip = (
+			"Select 4 related SubGrid33_2Grid64 objects in a CC loop to form a ControlGrid66_4Sub object. \n"
+			"Read SubGrid33_2Grid64 descrition first.\n"
+			"\n"
+			"Fills four sided holes between blends (only four sided holes). Fairly high quality final surface. \n"
+			"Other tools deal with 3, 5, 6, 7...sided holes but produce lower quality results. \n"
+			"\n"
+			"Input for: \n"
+			"-CubicSurface_66 \n"
+			"\n"
+			"MORE INFO \n"
+			"When blending surfaces across perpendicular edges, you end up with a gap/hole at the corner, because \n"
+			"you have to 'set back' both blends so they don't overlap each other. This object joins the SubGrid33 \n"
+			"partial grids that extend both input ControlGrid_64s 'into' the gap, creating a single grid. The  \n"
+			"surface made from this grid (using CubicSurface_66),will then bridge across all four blends, giving \n"
+			"good continuity to the original surfaces \n"
+			"\n"
+			"Proven use cases (with reasonably high quality results): \n"
+			"\n"
+			"-four surfaces that share a single corner, and have edges matched bewtween then in pairs (2X2 'square' \n"
+			"setup of 4 surfaces). Segment and setback the shared edges, blend them, make corner SubGrids and join \n"
+			"them using this tool this to fill the hole where the shared corner was. Now you have smooth transitions \n"
+			"across the four original faces\n"
+			"\n"
+			"-three surfaces meeting to form a hard corner (like a cube corner). Here more sectioning of the original \n"
+			"surfaces is required. You end up with 2 small blends, and one larger blend. use ControlGrid64_3_1Grid44 \n"
+			"opposite the large blend to create the fourth blend.  Now you have 4 blends across 3 surfaces, and can \n"
+			"make the 4 SubGrids. The new grid/surface will produce a 'rolling fillet' corner between the  two small\n"
+			"blends and the large blend.\n"
+		)
+
+		iconPath = path_Silk_icons + '/ControlGrid66_4Sub.svg'
+
+		return {'Pixmap' :  iconPath, 'MenuText': 'ControlGrid66_4Sub',
+		'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid66_4Sub', ControlGrid66_4Sub())

@@ -23,14 +23,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.Point_onCurve_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.Point_onCurve_baseTip + tooltips.Point_onCurve_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/Point_onCurve.svg'
 
 class Point_onCurve():
-	def Activated(self):  
+	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: Point_onCurve", moreInfo)
+			return	
+
 		selx=Gui.Selection.getSelectionEx()[0]
 		AN_Curve=selx.Object					# this is a resilient link to the underlying object
 		Pick=selx.PickedPoints[0]				# this is the point where the curve was picked		
@@ -44,6 +56,8 @@ class Point_onCurve():
 		FreeCAD.ActiveDocument.recompute()
 			
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/Point_onCurve.svg', 'MenuText': 'Point_onCurve', 'ToolTip': 'Create a point on a Cubic_Curve4 or Cubic_Curve6. \n Select a location on the curve to place the point. \n \n • Input as endpoints of ControlPoly4_Segment'}
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'Point_onCurve',
+				'ToolTip': tooltip}
 
 Gui.addCommand('Point_onCurve', Point_onCurve())
