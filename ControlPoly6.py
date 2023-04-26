@@ -23,19 +23,26 @@ from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
 from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlPoly6_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlPoly6_baseTip + tooltips.ControlPoly6_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlPoly6.svg'
 
 class ControlPoly6():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
 		if len(sel)==0:
-			tipsDialog("expanded tooltip will go here \n multiline test \n looooooooooooooooooooooooooooooong line test")
+			tipsDialog("Silk: ControlPoly6", moreInfo)
 			return
-		if len(sel)==1:
+
+		elif len(sel)==1:
 			try:
 				if sel[0].Shape.Curve.NbPoles==4:
 					mode='Bezier'
@@ -52,7 +59,7 @@ class ControlPoly6():
 					mode='FirstElement'
 			except Exception: 
 				pass
-		if len(sel)==2:
+		elif len(sel)==2:
 			if  sel[0].TypeId=='Sketcher::SketchObject' and sel[1].TypeId=='Sketcher::SketchObject':
 				mode='2N'
 			try:	
@@ -60,8 +67,10 @@ class ControlPoly6():
 					mode='FilletBezier'
 			except Exception: 
 				pass
-
+		
 		else:
+			print ("no valid mode found for ControlPoly6 based on the current selection")
+			print ("mode,", mode)
 			return		
 
 		print ('selection processed as ', mode, ' operation')
@@ -124,6 +133,8 @@ class ControlPoly6():
 			FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/ControlPoly6.svg', 'MenuText': 'ControlPoly6', 'ToolTip': 'Create a ControlPoly6 from one of two inputs: \n - One sketch of five lines connected end to end \n - Two CubicCurve_4 objects connected at one end \n \n • Non-planar ControlPoly6 can be generated out of non-planar \n   CubicCurve_4 segments generated from "node" sketches \n • Input for CubicCurve_6, ControlGrid64, and ControlGrid66 '}
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'ControlPoly6',
+				'ToolTip': tooltip}
 
 Gui.addCommand('ControlPoly6', ControlPoly6())

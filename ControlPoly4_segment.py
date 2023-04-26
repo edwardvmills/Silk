@@ -39,7 +39,7 @@ class ControlPoly4_segment():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
 		if len(sel)==0:
-			tipsDialog("Silk: Point_onCurve", moreInfo)
+			tipsDialog("Silk: ControlPoly4_segment", moreInfo)
 			return
 		
 		selx=Gui.Selection.getSelectionEx()

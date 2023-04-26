@@ -22,9 +22,8 @@ standardTipFooter = (
 	"\n     Click this icon with nothing selected to see more information \n"
 )
 
-
 ControlPoly4_baseTip = (
-	"Creates a ControlPoly4 from a variety of alternative inputs: \n"
+	"Creates a ControlPoly4 from a variety of inputs: \n"
 	"______________________________________________________________________________________________________________________________________ \n"
 	"Usage \n"
 	"ALL SKETCHES USED MUST BE FROM THE SKETCHER WORKBENCH \n"
@@ -65,15 +64,13 @@ ControlPoly4_moreInfo = (
 	"surface, edit the sketches you used to create the poly and observe how the curve/surface changes. \n"
 	"Node sketches are intended to be placed in different planes, so that the resulting resulting polys, curves, and surface \n"
 	"edges are fully 3D. they are great to connect to endpoints of 3 line sketches that are on different planes. Node sketches are \n"
-	"typically created witht circle at the origin, and the sketch mapped to a new location and orientation using FreeCAD's Mapping \n"
+	"typically created with the circle at the origin, and the sketch mapped to a new location and orientation using FreeCAD's Mapping \n"
 	"tools (found under the data tab of the property view). In this manner, the circle is never edited, and the free endpoint of \n"
 	"the line can be freely adjusted. \n"
 	"A poly that is used in a grid/surface can relinked to a different sketch(es), so all the work of making the grid/surface does \n"
 	"not need to be redone. Just swap the link to another sketch and recompute (sketch links are also found under the data tab of \n"
 	"the property view).\n"
 	)
-
-
 
 CubicCurve_4_baseTip = (
 	"Creates a CubicCurve_4 from a ControlPoly4. \n"
@@ -87,10 +84,10 @@ CubicCurve_4_baseTip = (
     "\n"
 	"Apply the function \n"
 	"\n"
-    "This a Bezier cubic curve. All editing is done by editing the ControlPoly4 \n"
+    "This a Bezier cubic curve. All editing is done by editing the ControlPoly4. \n"
 	"The main purpose of creating curves is to preview what the edges of our surface will look like if we use the input poly in a \n"
     "control grid (curves themselves are not used directly to make surfaces, but they can share polys with them). Curves are also used\n"
-    "by cutting them into segments, which in turn define how to cut surfaces for blending \n"
+    "by cutting them into segments, which in turn defines how to cut surfaces for blending. \n"
 	"\n"
 	"Used as input for: \n"
 	"• Point_onCurve (which can be a marker to subdivide the curve with ControlPoly4_Segment) \n"
@@ -109,7 +106,7 @@ CubicCurve_4_moreInfo = (
     "around, to the point where one or both of the curves/surfaces become completely unrecognizable. \n"
     "\n"
     "So why use beziers? Well, they are still the best for individual curves/surfaces. Sometimes G1 is fine, so they can be used \n"
-    "directly. Forhigher quality stuff, Silk's design strategy is to use multiple Beziers for the broad strokes of the design, let \n"
+    "directly. For higher quality stuff, Silk's design strategy is to use multiple Beziers for the broad strokes of the design, let \n"
     "them meet at sharp angles on a shared edge, and finally trim back and blend. This is not a new crazy idea, the most expensive \n"
     "surfacing software for industrial design uses the same strategy: Bezier as far as they'll take you, and then careful blending\n"
     " of the edges/joints (Silk does not attempt to emulate those programs entirely, this just one common point). \n"
@@ -132,7 +129,7 @@ Point_onCurve_baseTip = (
 	"\n"
 	"Apply the function \n"
 	"\n"
-    "A pointOnCurve object is placed on the curve. \n"
+    "A PointOnCurve object is placed on the curve. \n"
     "\n"
 	"Used as input for: \n"
 	"• Start point and end point of ControlPoly4_Segment (used to cut CubicCurve4s into pieces) \n"
@@ -145,7 +142,8 @@ Point_onCurve_moreInfo = (
     "More Info \n"
     "\n"
     "This works on curves outside of Silk, as long as they are parametrized as '0 to 1'. Allowing any number works in principle, but \n"
-    "Silk would then suffer every time a user types in '100' by greatly distoring the model. So Silk is prioritized over other curves."
+    "Silk would then suffer every time a user types in '100' by greatly distorting the model. So Silk is prioritized over other \n"
+    "curves.\n"
     "\n"
     "The position of the point can be adjusted along the curve (0.0 to 1.0) by adjusting the 'u'parameter found under the data tab\n"
     " of the property view. This allows precise positioning anywhere along the curve. It is often not obvious which side is 0, and \n"
@@ -154,9 +152,9 @@ Point_onCurve_moreInfo = (
     "0.3, 0.4, etc). This is because we will often have to match cut values in different curves/surfaces to line things up. Discipline \n"
     "up front and recognizing your typical values will pay off. \n"
     "Often, two curves we wish to split 'in the same manner' have their orientation reversed to each other. In those cases, set u of \n"
-    "the 'next' curve to 1-u (eg. .90 and .10) of the 'previous' curve in to cut them in the 'same place'\n"
+    "the 'next' curve to 1-u (eg. .90 and .10) of the 'previous' curve in order to cut them in the 'same' place.\n"
     "\n"
-    "FreeCAD's expression engine allows us to easily connect one cut value to another existing cut value. The you only need to edit \n"
+    "FreeCAD's expression engine allows us to easily connect one cut value to another existing cut value. Then you only need to edit \n"
     "one, and all others follow it automatically.\n"
     "\n"
     "Given curve1, curve2, with point1, point 2 on them, set \n"
@@ -180,16 +178,15 @@ ControlPoly4_segment_baseTip = (
     " • the curve first \n"
     " • a point on the curve. \n"
     " • another point on the curve \n"
-    "(the points must be pointOnCurve objects) \n"
+    "(the points must be PointOnCurve objects) \n"
     "(this selection is best done in the model tree, as selecting points in 3D is extremely difficult and unreliable). \n"
     "\n"
 	"Apply the function \n"
 	"\n"
     "A simple interpretation of the selection is: 'this curve, but only from this point, to this other point'. \n"
     "\n"
-	"Input for: \n"
-	" • CubicCurve_4 (makes a new curve, which is a  segment of the original curve), which can in turn be used as input for \n"
-	"  ControlGrid44_EdgeSegment, ControlGrid44_2EdgeSegments, and/or ControlPoly6 \n"
+	"Used as input for: \n"
+	" • CubicCurve_4 (makes a new curve, which is a  segment of the original curve) \n"
 	" • ControlGrid44 (atypical use, but it functions just as any poly 4) \n"
 	" • ControlGrid64 (atypical use, but it functions just as any poly 4) \n"
 	)
@@ -200,7 +197,7 @@ ControlPoly4_segment_moreInfo = (
     "\n"
     "Segmenting/sectioning/cutting is a core Silk modeling technique. It is essential for blending. The current workflow uses curve \n"
     "segments as references to cut surfaces. There are plans to cut surfaces by drawing points directly on them, but since the same \n"
-    "result is already possible using curve segments, implementation is not high on priorities (unfortunately).\n"
+    "result is already possible using curve segments, implementation is medium on priority.\n"
     "\n"
 	"Why so much segmenting in Silk? segments of curves, then segment of surfaces...so much time segmenting and aligning  \n"
     "segmentation points! So many points. Why? Because if you build off of segments/pieces of a single Bezier curve or surface, \n"
@@ -210,7 +207,6 @@ ControlPoly4_segment_moreInfo = (
     "base surfaces (which are not otherwise aligned), and then blending strips of the surfaces near that shared edge. The shared \n"
     "edges and strips make blends that come out decent even before tuning. \n"
 	)
-
 
 ControlGrid44_baseTip = (
 	"Create a ControlGrid44 from four connected ControlPoly4 edges. \n"
@@ -224,7 +220,7 @@ ControlGrid44_baseTip = (
 	"\n"
 	"Apply the function \n"
     "\n"
-	"Input for: \n"
+	"Used as input for: \n"
 	"• CubicSurface_44 (makes a smooth cubic Bezier surface)\n"
 	"• ControlGrid64_2Grid44 (makes a blend grid to join surfaces)\n"
     )
@@ -269,7 +265,6 @@ ControlGrid44_moreInfo = (
     "considered, but some users seem to want it despite the warnings, so it remains.\n"
 	)
 
-
 ControlGrid44_Rotate_baseTip = (
 	"Creates a ControlGrid44 from three ControlPoly4 edges. \n"
 	"______________________________________________________________________________________________________________________________________ \n"
@@ -287,11 +282,12 @@ ControlGrid44_Rotate_baseTip = (
 	"\n"
 	"Typical use is to merge a set of surfaces to a point (like closing a tube). Also used to interface with spheres and ellipsoids. \n"
 	"\n"
-	"Input for: \n"
+	"Used as input for: \n"
 	"-CubicSurface_44 \n"
 	"-ControlGrid64_2Grid44 \n"
 	"\n"
     )
+
 ControlGrid44_Rotate_moreInfo = (
 	"______________________________________________________________________________________________________________________________________ \n"
     "More Info \n"
@@ -308,8 +304,6 @@ ControlGrid44_Rotate_moreInfo = (
     "A four sided version which would create true tori (and sphere strips) is planned, but not ready \n"
     )
 
-
-
 ControlGrid44_flow_baseTip = (
 	"IN DEVELOPMENT - NO FUNCTIONAL/USEFUL RESULT YET \n"
 	"Create a ControlGrid44_flow from a ControlGrid44. \n"
@@ -323,7 +317,7 @@ ControlGrid44_flow_baseTip = (
 	"this can help untangle and puff up basic grids. Various parameters planned to control the scale of the effect, and to maintain \n"
     "specific tangencies \n"
 	"\n"
-	"Input for: \n"
+	"Used as input for: \n"
 	"-CubicSurface_44 \n"
 	"-ControlGrid64_2Grid44 \n"
     )
@@ -334,8 +328,6 @@ ControlGrid44_flow_moreInfo = (
     "\n"
     "no further information \n"
     )
-
-
 
 CubicSurface_44_baseTip = (
 	"Create a CubicSurface from a ControlGrid44. \n"
@@ -353,7 +345,7 @@ CubicSurface_44_baseTip = (
 	"Can be used for hard edge surfacing, or manually aligned for tangency (G1). Can also be blended along hard edges with  other \n"
     "CubicSurface_44 objects (by way of CubicSurface64 objects), for high continuity (G2). \n"
     "\n"
-    "Input for: \n"
+    "Used as input for: \n"
 	"-ControlGrid44_EdgeSegment (a 44 grid which corresponds to a 'full strip' segment of the surface)\n" 
 	"-ControlGrid44_2EdgeSegments (a 44 grid which corresponds to a 'rectangular' segment of the surface) \n"
     )
@@ -371,62 +363,175 @@ CubicSurface_44_moreInfo = (
     "access by other operations. \n"
     )
 
+ControlGrid44_EdgeSegment_baseTip = (
+    "Create a ControlGrid44 from a CubicSurface44 and one CubicCurve4 segment. \n"
+	"______________________________________________________________________________________________________________________________________ \n"
+    "Usage \n"
+    "\n"  
+    "Prepare the following selection: \n"
+    " • first a CubicSurface_4 \n"
+    " • then a CubicCurve_4 that matches part of an edge of that surface (see More Info section) \n"
+    "\n"
+    "Apply the function \n"
+    "\n"
+    "The resulting grid represents a strip of the input surface cut in either u or v to match the CubicCurve segment along the \n"
+    "surface edge. \n"
+    "\n"
+    "Used in pairs to create ControlGrid64_2Grid44 to blend edges of CubicSurface_44 to blend surfaces and create a continuous \n"
+    "(G2) contour. Also used to re-create the portions of the original surface that are to be preserved and not blended \n"
+    "\n"
+    "Used as input for: \n"
+    " • CubicSurface_44 \n"
+    " • ControlGrid64_2Grid44 \n"
+    )
+
+ControlGrid44_EdgeSegment_moreInfo = (
+	"______________________________________________________________________________________________________________________________________ \n"
+    "More Info \n"
+    "\n"
+    "How to prepare selection item number 2, the 'CubicCurve_4 that matches part of an edge of that surface'? If you have \n"
+    "followed all the tips so far and created the previous objects, you already have almost everything you need. If you are \n"
+    "just reading before trying, it is to be expected that the explanation below will seem convoluted and onerous. \n"
+    "\n"
+    "You cannot directly 'cut'/segment the edge of a surface with points (yet*). What you cut is a CubicCurve_4 that matches the \n"
+    "entire edge of the surface. How do you get this separate CubicCurve_4 that matches the entire edge of the surface? You make \n"
+    "it by using the same poly that went into the grid of the surface. So if you checked your polys along the way by applying \n"
+    "curves to them, which is recommended, then you already have this entire edge curve in your model. Segment this curve by \n"
+    "creating 2 PointOnCurves, a ControlPoly4_segment, and applying a CubciCurve_4 to the ControlPoly4_segment. \n"
+    "\n"
+    "*This is a planned feature, but since a practical solution already exists, as shown above, it is low priority. \n"
+    )
+
+ControlGrid44_2EdgeSegments_baseTip = (
+    "Create a ControlGrid44 from a CubicSurface44 and two CubicCurve4 segments. \n"
+	"______________________________________________________________________________________________________________________________________ \n"
+    "Usage \n"
+    "\n"  
+    "Prepare the following selection: \n"
+    " • first a CubicSurface_4 \n"
+    " • then a CubicCurve_4 that matches part of an edge of that surface (see More Info section) \n"
+    " • then another CubicCurve_4 that matches part of an adjacent edge of that surface (the two partial curves cannot be on \n"
+    "   opposite edges of the surface) \n"
+    "\n"
+    "Apply the function \n"
+    "\n"
+    "The resulting grid represents a 'rectangular' cut of the input surface, cut in both u or v to match the CubicCurve segments \n"
+    "along the surface edges. \n"
+    "\n"
+    "Used in pairs to create ControlGrid64_2Grid44 to blend edges of CubicSurface_44 to blend surfaces and create a continuous \n"
+    "(G2) contour. Also used to re-create the portion of the original surface that are to be preserved and not blended \n"
+    "\n"
+
+    "Used as input for: \n"
+    " • CubicSurface_44 \n"
+    " • ControlGrid64_2Grid44 \n"
+    )
+
+ControlGrid44_2EdgeSegments_moreInfo = (
+	"______________________________________________________________________________________________________________________________________ \n"
+    "More Info \n"
+    "\n"
+    "How to prepare selection items number 2 and 3, the 'CubicCurve_4 that matches part of an edge of that surface'? If you have \n"
+    "followed all the tips so far and created the previous objects, you already have almost everything you need. If you are \n"
+    "just reading before trying, it is to be expected that the explanation below will seem convoluted and onerous. \n"
+    "\n"
+    "You cannot directly 'cut'/segment the edge of a surface with points (yet*). What you cut is a CubicCurve_4 that matches the \n"
+    "entire edge of the surface. How do you get this separate CubicCurve_4 that matches the entire edge of the surface? You make \n"
+    "it by using the same poly that went into the grid of the surface. So if you checked your polys along the way by applying \n"
+    "curves to them, which is recommended, then you already have this entire edge curve in your model. Segment this curve by \n"
+    "creating 2 PointOnCurves, a ControlPoly4_segment, and applying a CubciCurve_4 to the ControlPoly4_segment. \n"
+    "\n"
+    "*This is a planned feature, but since a practical solution already exists, as shown above, it is low priority. \n"
+    )
+
+ControlPoly6_baseTip = (
+    "Create a ControlPoly6 from various inputs \n"
+	"______________________________________________________________________________________________________________________________________ \n"
+    "Usage \n"
+    "\n"
+    "Prepare ONE of the following selections: \n"
+    " • One sketch of five lines connected end to end \n"
+    " • Two 'extended Node' sketches (circle + 1st line from center + 2nd line from endpoint of 1st) \n"
+    " • Two CubicCurve_4 objects connected at one end. This will produce a G2 blend (* see More Info) \n"
+    " • One CubicCurve_4 object. This produces an exact match in the poly6 format (** see More Info)\n"
+    "\n"
+    "Apply the function \n"
+    "\n"
+    "Mostly intended for blending existing Bezier curves/curve-segments. It can be used directly from sketches, but this approach \n"
+    "has limits (*** see More Info). \n"
+    "\n"
+    "Examples of direct use: \n"
+    " • Use the 6 control points to directly model a curve more complex than through ControlPoly4, without a blending step (***). \n"
+    " • 3D (non-planar) ControlPoly6 can be generated out of two planar 'extended Node' sketches, each in different planes. \n"
+    " • 3D (non-planar) ControlPoly6 can be generated out of CubicCurve_4 segments that connect at one endpoint, each from \n"
+    "   'Node' sketches in different planes. \n"
+    "\n"
+    "Used as input for: \n"
+    " • CubicCurve_6 \n"
+    " • ControlGrid64 \n"
+    " • ControlGrid66 \n"
+    )
+    
+ControlPoly6_moreInfo = (
+	"______________________________________________________________________________________________________________________________________ \n"
+    "More Info \n"
+    "\n"
+    "There are a lot of of warnings following, but they boil down to this: if you like it, use it. If you want to play it safe, \n"
+    "use it as little as possible \n"
+    "\n"
+    "This control polygon is used to produce non-Bezier cubic curves and/or surfaces (number of control points > degree+1). It \n"
+    "only guarantees G2 internally. It's benefit is that it allows controlling curvature at connection points/edges to cubic \n"
+    "Bezier curves/surfaces. Mostly intended for blending existing Bezier curves/curve-segments. \n"
+    "\n"
+    "* This is Bezier curve blending, which is the main use case, and it provides a good preview of how blending grids/surfaces \n"
+    "works as well. The hard corner between the two bezier curves will disappear, and the start and end of the poly matches the \n"
+    "original curves up to G2. \n"
+    "\n"
+    "** If you choose to go ahead and manually build ControlPoly6s, ControlGrid64s, and ControlGrid66s, you will likely find \n"
+    "yourself at times with a ControlPoly4 or a CubicCurve_4 in a location where you wish there was a ControlPoly6. Silk can always\n"
+    "convert a CubicCurve_4 to a ControlPoly6 exactly. The reverse is not true. All Beziers have an exact match ControlPoly6, but \n"
+    "a random ControlPoly6 does not generally have a matching Bezier. \n"
+    "\n"
+    "*** 6 point cubic curves/surfaces are intended to be generated automatically by other tools because of their G2 connection \n"
+    "properties. Even when generated automatically, the poly is not recommended to use directly in building grids/surfaces (but \n"
+    "it is allowed). The single truly valuable use case (in the context of the official workflow) is if you want to study a set of \n"
+    "beziers and their blends in 2D before building the surfaces in 3D. This is very useful on the mirror plane of a design for \n"
+    "example, when we may not be certain how many Beziers and blends the design requires. \n"
+    "\n"
+    
+    )
+
+CubicCurve_6_baseTip = (
+    "Creates a CubicCurve_6 from a ControlPoly6\n"
+	"______________________________________________________________________________________________________________________________________ \n"
+    "Usage \n"
+    "\n"
+    "Prepare the following selection: \n"
+    " • one ControlPoly6  \n"
+    "\n"
+    "Apply the function \n"
+    "\n"
+    "A 6 control point cubic NURBS. G2 continuous throughout. G3 continuous throughout EXCEPT at two point along the curve, where \n"
+    "it is G2 only. The practical use of this curve is to preview blends on curves before doing all the work of blending surfaces. \n"
+    "\n"
+    "Used as input for: \n" 
+    " • this is currently an endpoint in the Silk design workflow \n"
+    " • you can use the input ControlPoly6 to build grids and surfaces however \n"
+    " • you can use it with the rest of FreeCAD, extrude it, revolve it, etc, if all you want to do in Silk is design curves."
+    )
+    
+CubicCurve_6_moreInfo = (
+	"______________________________________________________________________________________________________________________________________ \n"
+    "More Info \n"
+    "\n"
+    "The curve segmentation tools actually work on these curves, meaning an object is produced, but if the segment crosses one of \n"
+    "the 'G2 only' points, the result will not match expectations. \n"
+    "In the future, a tool will be added to split these curves into 3 pieces, right on the 'G2 only' points. The three pieces \n"
+    "actually end up being exact cubic Bezier poly4s, and the workflow can start all over again, instead of being a deadend.\n"
+    )
+
 '''
 
-ControlGrid44_EdgeSegment_baseTip = (
-
-	"______________________________________________________________________________________________________________________________________ \n"
-    "Usage \n"
-    "\n"   
-    )
-    
-_moreInfo = (
-	"______________________________________________________________________________________________________________________________________ \n"
-    "More Info \n"
-    "\n"
-    
-    )
-ControlGrid44_2EdgeSegments_baseTip = (
-
-	"______________________________________________________________________________________________________________________________________ \n"
-    "Usage \n"
-    "\n"
-    
-    )
-    
-_moreInfo = (
-	"______________________________________________________________________________________________________________________________________ \n"
-    "More Info \n"
-    "\n"
-    
-    )
-ControlPoly6_baseTip = (
-
-	"______________________________________________________________________________________________________________________________________ \n"
-    "Usage \n"
-    "\n"    
-    )
-    
-_moreInfo = (
-	"______________________________________________________________________________________________________________________________________ \n"
-    "More Info \n"
-    "\n"
-    
-    )
-CubicCurve_6_baseTip = (
-
-	"______________________________________________________________________________________________________________________________________ \n"
-    "Usage \n"
-    "\n"
-        
-    )
-    
-_moreInfo = (
-	"______________________________________________________________________________________________________________________________________ \n"
-    "More Info \n"
-    "\n"
-    
-    )
 ControlGrid66_baseTip = (
 
 	"______________________________________________________________________________________________________________________________________ \n"

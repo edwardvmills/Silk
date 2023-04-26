@@ -22,14 +22,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.CubicCurve_6_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.CubicCurve_6_baseTip + tooltips.CubicCurve_6_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/CubicCurve_6.svg'
 
 class CubicCurve_6():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: CubicCurve_6", moreInfo)
+			return
+
 		poly=Gui.Selection.getSelection()[0]
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","CubicCurve_6_000")
 		AN.CubicCurve_6(a,poly)
@@ -41,6 +53,8 @@ class CubicCurve_6():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		return {'Pixmap' :  path_Silk_icons + '/CubicCurve_6.svg', 'MenuText': 'CubicCurve_6', 'ToolTip': 'Creates a CubicCurve_4 from a ControlPoly4. \n Select one ControlPoly4 or ControlPoly4_segment. \n \n • Use Point_onCurve to subdivide with ControlPoly4_Segment \n • Two CubicCurve_4 can be used to generate a ControlPoly6'}
+		return {'Pixmap' :  iconPath,
+	  			'MenuText': 'CubicCurve_6',
+				'ToolTip': tooltip}
 
 Gui.addCommand('CubicCurve_6', CubicCurve_6())

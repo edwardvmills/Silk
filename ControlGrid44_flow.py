@@ -41,6 +41,7 @@ class ControlGrid44_flow():
 		if len(sel)==0:
 			tipsDialog("Silk: ControlGrid44_flow", moreInfo)
 			return
+		
 		grid=Gui.Selection.getSelection()[0]
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_flow_000")
 		AN.ControlGrid44_flow(a,grid)

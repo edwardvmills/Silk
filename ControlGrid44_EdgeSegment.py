@@ -22,14 +22,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlGrid44_EdgeSegment_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlGrid44_EdgeSegment_baseTip + tooltips.ControlGrid44_EdgeSegment_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlGrid44_EdgeSegment.svg'
 
 class ControlGrid44_EdgeSegment():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: ControlGrid44_EdgeSegment", moreInfo)
+			return
+		
 		surface=Gui.Selection.getSelection()[0]
 		curve=Gui.Selection.getSelection()[1]
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid44_EdgeSegment_000")
@@ -42,23 +54,6 @@ class ControlGrid44_EdgeSegment():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		tooltip = (
-			"Create a ControlGrid44 from a CubicSurface44 and one CubicCurve4 segment. \n"
-			"Make the CubicCurve segment from a ControlPoly4_Segment, select the \n"
-			"CubicSurface first and curve segment second. \n"
-			"\n"
-			"The resulting grid represents a strip of the input surface cut in either u or v \n"
-			"to match the CubicCurve segment. Use to create ControlGrid64_2Grid44 to blend \n"
-			"edges of CubicSurface_44 where blending surfaces of a continuous contour\n"
-			"\n"
-			"Also used to re-create the part of the original surface that was not blended \n"
-			"\n"
-			"Input for: \n"
-			"-CubicSurface_44 \n"
-			"-ControlGrid64_2Grid44")
-		
-		iconPath = path_Silk_icons + '/ControlGrid44_EdgeSegment.svg'
-
 		return {'Pixmap' :  iconPath,
 	  			'MenuText': 'ControlGrid44_EdgeSegment',
 				'ToolTip': tooltip}

@@ -22,14 +22,27 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlGrid44_2EdgeSegments_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlGrid44_2EdgeSegments_baseTip + tooltips.ControlGrid44_2EdgeSegments_moreInfo)
+
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlGrid44_2EdgeSegments.svg'
 
 class ControlGrid44_2EdgeSegments():
 	def Activated(self):
+		sel=Gui.Selection.getSelection()
+		if len(sel)==0:
+			tipsDialog("Silk: ControlGrid44_2EdgeSegments", moreInfo)
+			return
+		
 		surface=Gui.Selection.getSelection()[0]
 		curve_a=Gui.Selection.getSelection()[1]
 		curve_b=Gui.Selection.getSelection()[2]
@@ -43,27 +56,8 @@ class ControlGrid44_2EdgeSegments():
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):
-		tooltip = (
-			"Create a ControlGrid44 from one CubicSurface and two CubicCurve segments. \n"
-			"Make the CubicCurve segments from ControlPoly4_Segments, select the \n"
-			"CubicSurface, then the CubicCurve segments on orthogonal sides. \n"
-			"\n "
-			"The resulting grid represents a portion of the input surface \n"
-			"cut in u and v to match the CubicCurve segments. Use to create  \n"
-			"ControlGrid64_2Grid44 to blend edges of CubicSurface_44 where \n"
-			"blending three or more orthogonal surfaces to a corner. \n"
-			"\n"
-			"Also used to re-create the part of the original surface that was \n"
-			"not blended\n"
-			"\n"
-			"Input for: \n"
-			"-CubicSurface_44 \n"
-			"-ControlGrid64_2Grid44")
-
-		iconPath = path_Silk_icons + '/ControlGrid44_2EdgeSegments.svg'
-
-		return {'Pixmap' :  iconPath,
-	  			'MenuText': 'ControlGrid44_2EdgeSegments',
-				'ToolTip': tooltip}
+				return {'Pixmap' :  iconPath,
+	  					'MenuText': 'ControlGrid44_2EdgeSegments',
+						'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid44_2EdgeSegments', ControlGrid44_2EdgeSegments())
