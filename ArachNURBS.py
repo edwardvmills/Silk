@@ -29,6 +29,10 @@ from FreeCAD import Gui
 import math
 import numpy as np
 
+# test message to verify load and reloads
+print ("importing ArachNURBS")
+
+
 #
 ## Basic NURBS rules and terms
 ## Order >= 2
@@ -1922,16 +1926,16 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 						" impact on inner control point 22 \n set 0.0 to 1.0, where 0.0 will match the input grid").flow_22 = (flow_22, flow_lower, flow_upper, flow_step)
 		obj.addProperty("App::PropertyBool",
 						"mirror_u0", "ControlGrid44_flow",
-						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_u0 = False
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was present in the original grid").mirror_u0 = False
 		obj.addProperty("App::PropertyBool",
 						"mirror_u1", "ControlGrid44_flow",
-						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_u1 = False
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was present in the original grid").mirror_u1 = False
 		obj.addProperty("App::PropertyBool",
 						"mirror_v0", "ControlGrid44_flow",
-						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_v0 = False
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was present in the original grid").mirror_v0 = False
 		obj.addProperty("App::PropertyBool",
 						"mirror_v1", "ControlGrid44_flow",
-						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was presentin the original grid").mirror_v1 = False
+						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was present in the original grid").mirror_v1 = False
 		obj.Proxy = self
 
 	def execute(self, fp):
@@ -1998,12 +2002,12 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 		# keeps the new inner points relatively close to old ones (leg angles differ greatly)
 		# keep it around, maybe move it to raw functions as Tighten_Grid(grid44) or something
 
-		# next try. let's interpolate first edge legs from two opposite corners to set leg orientation
+		# next try. let's interpolate first across-edge legs from two opposite corners to set leg orientation
 		# then scale along the resulting direction.
-		# if the two legs are colinear and dot is positive, great.new orientation equal to either, then scale.
+		# if the two legs are colinear and dot is positive, great. new orientation equal to either, then scale.
 		# if two legs are colinear and dot is negative, new direction should be perpendicular. 
 		### check next edge segment to perpendicular up or down. this could be different for each inner point?
-		# ok to reject insane folded grids
+		# ok to reject insane folded grids.
 		# if the legs are colinear, opposite, and of equal length, same as above, but also watch out for zeros along the way.
 
 		# if the legs are in plane and dot is positive, simple interp.
@@ -2014,31 +2018,72 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 		# then we'll need to rotate the grid to apply it 4 times.../shudder.
 
 		# assume we're adjusting only p11 and p12 (along v=1). we'll also refer to p00, p01, p02, p03, p10, p13, p21, and p22.
+		# lets call this "flowing along v=0, or flow_v0"? this identifies the edge we're flowing along...not the cps we're adjusting tho...
 		L0 = p10 - p00
 		L3 = p13 - p03
 
 		# check if both legs are coplanar
 		# use p00 as origin, p10 as x, p03 as yish, project p13 to plane?
 
-		PlaneNormal = ((p10-p00).cross(p03-p00)).normalize() # note that PlaneCross has been modified
+		PlaneNormal = ((p10-p00).cross(p03-p00)).normalize()
 		PointToPlane = (p13-p00).dot(PlaneNormal)
 		print("PointToPlane, ", PointToPlane)
-
 		testCoplanar = (PointToPlane < .000001 and PointToPlane > -.000001)
 		print("testCoplanar, ", testCoplanar)
-	
 		# check cross-product for colinear legs
 		testColinearCross = (p10 - p00).cross(p13 - p03)
 		testColinear = (testColinearCross.Length <= .000001)
-
 		print("testColinear, ", testColinear)
+		# these test work, but won't be used yet.
 
-		
+		# Simple case for now, wrap in(/within?) exceptions after
+		# find average leg direction across edge
+		def flowEdge(p00, p01, p02, p03, p10, p13):
+			L0 = p10 - p00
+			L3 = p13 - p03
+			legAvg = ((L0 + L3 ).normalize() * (L0.Length + L3.Length) * .5 )
+			L1 = (1/3)*L0 + (2/3)*legAvg
+			L2 = (1/3)*L3 + (2/3)*legAvg
+			p11_by_v0 = p01 + L1
+			p12_by_v0 = p02 + L2
+			return [p11_by_v0, p12_by_v0]
 
-
-
+		flow_v0 = flowEdge(p00, p01, p02, p03, p10, p13)
+		flow_u0 = flowEdge(p00, p10, p20, p30, p01, p31)
+		flow_v1 = flowEdge(p30, p31, p32, p33, p20, p23)
+		flow_u1 = flowEdge(p03, p13, p23, p33, p02, p32)
+		# above tests out ok
 		'''
-		fp.Poles = fp.InputGrid.Poles
+		Legs=[0]*8
+		Legs[0]=Part.LineSegment(p01, flow_v0[0])
+		Legs[1]=Part.LineSegment(p02, flow_v0[1])
+		Legs[2]=Part.LineSegment(p10, flow_u0[0])
+		Legs[3]=Part.LineSegment(p20, flow_u0[1])
+		Legs[4]=Part.LineSegment(p31, flow_v1[0])
+		Legs[5]=Part.LineSegment(p32, flow_v1[1])
+		Legs[6]=Part.LineSegment(p13, flow_u1[0])
+		Legs[7]=Part.LineSegment(p23, flow_u1[1])
+		'''
+		# p11, connects to p01 and p10
+		p11_flow = 0.5 * (flow_v0[0] + flow_u0[0])
+		# p12, connects to p02 and p13
+		p12_flow = 0.5 * (flow_v0[1] + flow_u1[0])
+		# p21, connects to p20 and p31
+		p21_flow = 0.5 * (flow_u0[1] + flow_v1[0])		
+		# p22, connects to p32 and p23
+		p22_flow = 0.5 * (flow_v1[1] + flow_u1[1])
+
+
+		p11_final = p11_flow * fp.flow_11 + p11 * (1-fp.flow_11)
+		p12_final = p12_flow * fp.flow_12 + p12 * (1-fp.flow_12)
+		p21_final = p21_flow * fp.flow_21 + p21 * (1-fp.flow_21)
+		p22_final = p22_flow * fp.flow_22 + p22 * (1-fp.flow_22)
+
+		fp.Poles = [p00 ,p01, p02, p03,
+			p10, p11_final, p12_final, p13,
+			p20, p21_final, p22_final, p23,
+			p30, p31, p32, p33]
+		
 		fp.Weights = fp.InputGrid.Weights
 
 		Legs=[0]*24
@@ -2056,10 +2101,9 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
 		for i in range(20,24):
 			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		'''
 
-		#fp.Legs=Legs
-		#fp.Shape = Part.Shape(fp.Legs)
+		fp.Legs=Legs
+		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 	# ControlGrid66_4(poly0, poly1, poly2, poly3)
