@@ -22,15 +22,26 @@ import FreeCAD, Part, math
 from FreeCAD import Base
 from FreeCAD import Gui
 import ArachNURBS as AN
+from popup import tipsDialog
+import tooltips
+
+# get strings
+tooltip = (tooltips.ControlGrid66_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.ControlGrid66_baseTip + tooltips.ControlGrid66_moreInfo)
 
 # Locate Workbench Directory
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
+iconPath = path_Silk_icons + '/ControlGrid66.svg'
 
 class ControlGrid66():
 	def Activated(self):
 		sel=Gui.Selection.getSelection()
+		if (len(sel)==0 or len(sel)==1 or len(sel)==2 or len(sel)==3):
+			tipsDialog("Silk: ControlGrid66", moreInfo)
+			return
+		
 		if len(sel)==4:
 			mode='4sided'
 		elif len(sel)==3:
@@ -54,29 +65,6 @@ class ControlGrid66():
 			print ('triangle mode not implemented')
 			
 	def GetResources(self):
-		tooltip = (
-			"Create a ControlGrid66 from four connected ControlPoly6 edges. \n"
-			"Select each ControlPoly6 sequentially, counter clock-wise looking from the outer side. \n"
-			"\n"
-			"6 point edges cannot be blended with Silk tools (yet), so this \n"
-			"grid and associated surface are a final product at this stage. \n"
-			"\n"
-			"Input for: \n"
-			"-CubicSurface_66 \n"
-			"\n"
-			"MORE INFO. \n"
-			"This is not a recommended method to create main surfaces, but it is available. This type of grid is best \n"
-			"when generated automatically by other tools. Manually creating this type of grid (and associated surface) \n"
-			"directly from polys has limitations, because they cannot be segmented (yet). They cannot be blended either \n"
-			"(yet). They are still compatible with all tools which take a ControlGrid64 as input, even though those \n"
-			"tools assume that the grids were generated automatically.\n"
-			"\n"
-			"When segmentation does become available, it will be like so: the grid/surface will be cut into nine(9) \n"
-			"ControlGrid44s at preset locations. This is an exact conversion with no loss of precision. These nine \n"
-			"pieces will then be workable through all the tools available for ControlGrid44s and CubicSurface_44 \n")
-
-		iconPath = path_Silk_icons + '/ControlGrid66.svg'
-
 		return {'Pixmap' :  iconPath,
 	  			'MenuText': 'ControlGrid66',
 				'ToolTip': tooltip}
