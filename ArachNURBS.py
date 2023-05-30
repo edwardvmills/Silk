@@ -275,13 +275,16 @@ def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic
 
 def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
 	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
-	
+	#print ("weights_0 in blend_poly_2x4_1x6")
+	#print (weights_0)
 	WeightedPoles_0=[[poles_0[0],weights_0[0]], [poles_0[1],weights_0[1]], [poles_0[2],weights_0[2]], [poles_0[3],weights_0[3]]]
 	CubicCurve4_0= Bezier_Cubic_curve(WeightedPoles_0) 
 	CubicCurve6_0=CubicCurve4_0
 	CubicCurve6_0.insertKnot(1.0/3.0) # add knots to convert bezier to 6P
 	CubicCurve6_0.insertKnot(2.0/3.0)
 
+	#print ("weights_1 in blend_poly_2x4_1x6")
+	#print (weights_1)
 	WeightedPoles_1=[[poles_1[0],weights_1[0]], [poles_1[1],weights_1[1]], [poles_1[2],weights_1[2]], [poles_1[3],weights_1[3]]]
 	CubicCurve4_1= Bezier_Cubic_curve(WeightedPoles_1) # checked good BSplineSurface object.
 	CubicCurve6_1=CubicCurve4_1
@@ -291,8 +294,39 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	poles_6_0=CubicCurve6_0.getPoles()
 	weights_6_0=CubicCurve6_0.getWeights()
 
+	# if the weights are too similar to each other, the knot insertion can convert them all to 1
+	# this is bad for blends with arc, ellipses, etc.
+	#print ("weights_6_0 in blend_poly_2x4_1x6")
+	#print (weights_6_0)
+
 	poles_6_1=CubicCurve6_1.getPoles()
 	weights_6_1=CubicCurve6_1.getWeights()
+	# if the weights are too similar to each other, the knot insertion can convert them all to 1
+	# this is bad for blends with arcs, ellipses, etc.
+	#print ("weights_6_1 in blend_poly_2x4_1x6")
+	#print (weights_6_1)
+
+	# check original weights....set = at 1%? 
+	# this code is behaving very strangely.
+	# it failed to reset on a strict comparison (< .001), but resets correctly on a loose comparison.
+	# the numbers under comparison were equal to 8 or more decimals???
+	if (((weights_0[0]-weights_0[1] / weights_0[0]).__pow__(2) < .1) and 
+     	((weights_0[0]-weights_0[2] / weights_0[0]).__pow__(2) < .1) and 
+		((weights_0[0]-weights_0[3] / weights_0[0]).__pow__(2) < .1)):
+		a = weights_0[0]
+		#print ("a ", a)
+		weights_6_0 = [a,a,a,a,a,a]
+		print("reseting weights_0")
+
+	if (((weights_1[0]-weights_1[1] / weights_1[0]).__pow__(2) < .1) and 
+     	((weights_1[0]-weights_1[2] / weights_1[0]).__pow__(2) < .1) and 
+		((weights_1[0]-weights_1[3] / weights_1[0]).__pow__(2) < .1)):
+		b = weights_1[0]
+		#print ("b ", b)
+		weights_6_1 = [b,b,b,b,b,b]
+		print("reseting weights_1")
+		
+
 
 	p0=[poles_6_0[0],weights_6_0[0]]
 	p1=[poles_6_0[1],weights_6_0[1]]
@@ -387,6 +421,8 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
 	# set the weights. No scaling at this point. No idea what happens if one of the input curve is an arc.
 	# it would probably be a mess, since the curvature formulas above do not incorporate weights yet.
+	# actually, it seems to work just fine, with both circle and ellipse arcs? curvature calc unaffected by weights?
+
 	weights = [p0[1], p1[1], p2[1], p3[1], p4[1], p5[1]]
 
 	WeightedPoles= [[poles[0],weights[0]], [poles[1],weights[1]], [poles[2],weights[2]], [poles[3],weights[3]], [poles[4],weights[4]], [poles[5],weights[5]]]
@@ -531,6 +567,9 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	weights_6_0=CubicCurve6_0.getWeights()
 	poles_6_1=CubicCurve6_1.getPoles()
 	weights_6_1=CubicCurve6_1.getWeights()
+
+	# need to come back here and make sure fractional weights were not reset to 1 (in the case where an 
+	# entire row is equal). this can screw up rational grids, even though it doesn't matter for curves.
 
 	# check Cubic_6P_dCds
 	WeightedPoles_6_0=[[poles_6_0[0],weights_6_0[0]],
@@ -2828,7 +2867,7 @@ class CubicSurface_64:
 # There a mess to clean up in re. passing the pole/weight list to FreeCAD. 
 # The 3 legacy _surf functions used above want a list of 16 X [[x,y,z],w] as input,
 # but internally, they run two loops to break it back into 2D array form to feed into the actual BSplineSurface(). 
-# This is only because this was the first working example i found for BSplineSurface. This was fine for a long time. Not anymore
+# This is only because this was the first working example i found for BSplineSurface. This was fine for a long time. Not anymore.
 # To rotate grids easily, i need to rewrite all the code to stay in 2D array form at all times. 'all the code' means anything related to 
 # grid generators and nurbs surfaces.
 #
@@ -2975,19 +3014,40 @@ class ControlGrid44_EdgeSegment:
 
 		Legs=[0]*24
 		for i in range(0,3):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])
 		for i in range(3,6):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])	
 		for i in range(6,9):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])
 		for i in range(9,12):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])
 		for i in range(12,16):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])
 		for i in range(16,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])
 		for i in range(20,24):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+			try:
+				Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
+			except:
+				Legs[i]=Part.Point(fp.Poles[i])
 		fp.Legs=Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
@@ -3257,9 +3317,13 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		# apply rotation correction. vector type gets stripped in numpy
 		uv_poles_0_temp = np.rot90(poles_0,rotate_0).tolist()
 		uv_weights_0 = np.rot90(weights_0,rotate_0).tolist()
+		#print ("uv_weights_0 ")
+		#print (uv_weights_0)
 
 		uv_poles_1_temp = np.rot90(poles_1,rotate_1).tolist()
 		uv_weights_1 = np.rot90(weights_1,rotate_1).tolist()
+		#print ("uv_weights_1 ")
+		#print (uv_weights_1)
 
 		#print 'uv_poles_0_temp', uv_poles_0_temp
 		#print 'uv_poles_1_temp', uv_poles_1_temp
@@ -3318,22 +3382,30 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 			fp.scale_inner_0 = [row_0[2], row_1[2], row_2[2], row_3[2]]
 			fp.scale_inner_1 = [row_0[3], row_1[3], row_2[3], row_3[3]]			
 		
-		elif fp.autoG3 == 0:
+		if fp.autoG3 == 0:
 			row_0 = blend_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
 			blend_poles_0 = row_0[0]
 			blend_weights_0 = row_0[1]
+			#print (blend_weights_0)
 			
+			#print ("uv_weights_0[1]")
+			#print (uv_weights_0[1])
 			row_1 = blend_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
 			blend_poles_1 = row_1[0]
 			blend_weights_1 = row_1[1]
+			#print (blend_weights_1)
 			
+			#print ("uv_weights_0[2]")
+			#print (uv_weights_0[2])
 			row_2 = blend_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
 			blend_poles_2 = row_2[0]
 			blend_weights_2 = row_2[1]
+			#print (blend_weights_2)
 
 			row_3 = blend_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
 			blend_poles_3 = row_3[0]
 			blend_weights_3 = row_3[1]
+			#print (blend_weights_3)
 		
 		
 		
