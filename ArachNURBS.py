@@ -93,6 +93,52 @@ def int_2l(la,lb):
 	int_abs_coord=pln.value(int_0_1[0][0],int_0_1[0][1])
 	return int_abs_coord
 
+def lineOrPoint(p0,p1):
+	if equalVectors(p0, p1, .000001):
+		return [0]
+	else:
+		return [1, Part.LineSegment(p0, p1)]
+
+def drawGrid(poles, columns):
+	nbPoles = len(poles)
+	print ('nbPoles = ', nbPoles)
+	print ('columns = ', columns)
+	rows = int(len(poles) / columns)
+	print ('rows = ', rows)
+	#legs_total = 2 * rows * columns - rows - columns
+	#print ('legs_total = ', legs_total)
+	#legs = [0] * legs_total
+	legs = []
+
+	leg_index = 0
+	# loop all rows
+	for i in range(0,rows):
+		# loop over a row
+		for j in range(0, columns-1):
+			print ('in row ', i)
+			start = i*columns + j
+			print ('start = ', start)
+			end = i*columns + j + 1
+			print ('end = ', end)
+			leg = lineOrPoint(poles[start], poles[end])
+			if (leg[0] == 1):
+				legs.append(leg[1])
+
+	# loop all columns
+	for i in range(0,columns):
+		# loop over a column
+		for j in range(0, rows-1):
+			print ('in column ', i)
+			start = j*columns + i
+			print ('start = ', start)
+			end = j*columns + columns + i
+			print ('end = ', end)
+			leg = lineOrPoint(poles[start], poles[end])
+			if (leg[0] == 1):
+				legs.append(leg[1])
+
+	return legs
+
 def orient_a_to_b(polesa,polesb):   # polesa and polesb are lists of poles that share one endpoint.
                                     # if needed, this function reorders a so that a.end = b.start or b.end. b is never modified
 
@@ -1478,22 +1524,8 @@ class ControlGrid44_4:	# made from 4 CubicControlPoly4.
 					w10, w11, w12, w13,
 					w20, w21, w22, w23,
 					w30, w31, w32, w33]
-		Legs=[0]*24
-		for i in range(0,3):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(3,6):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(6,9):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(9,12):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(12,16):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		for i in range(16,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		for i in range(20,24):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		fp.Legs=Legs
+		
+		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid44_3:	# made from 3 CubicControlPoly4. 
@@ -1586,22 +1618,8 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 					w10, w11, w12, w13,
 					w20, w21, w22, w23,
 					w30, w31, w32, w33]
-		Legs=[0]*20
-		for i in range(0,3):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(3,6):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(6,9):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(9,12):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(12,15): #skip 0-4
-			Legs[i]=Part.LineSegment(fp.Poles[i-11],fp.Poles[i-7])
-		for i in range(15,17): #skip 4-8 and 5-9
-			Legs[i]=Part.LineSegment(fp.Poles[i-9],fp.Poles[i-5])
-		for i in range(17,20): #skip 8-12
-			Legs[i]=Part.LineSegment(fp.Poles[i-8],fp.Poles[i-4])
-		fp.Legs=Legs
+		
+		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid44_3_Rotate_OLD:	# made from 3 CubicControlPoly4. 
@@ -1918,22 +1936,8 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 					w10, w11, w12, w13,
 					w20, w21, w22, w23,
 					w30, w31, w32, w33]
-		Legs=[0]*20
-		for i in range(0,3):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(3,6):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(6,9):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(9,12):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(12,15): #skip 0-4
-			Legs[i]=Part.LineSegment(fp.Poles[i-11],fp.Poles[i-7])
-		for i in range(15,17): #skip 4-8 and 5-9
-			Legs[i]=Part.LineSegment(fp.Poles[i-9],fp.Poles[i-5])
-		for i in range(17,20): #skip 8-12
-			Legs[i]=Part.LineSegment(fp.Poles[i-8],fp.Poles[i-4])
-		fp.Legs=Legs
+		
+		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal points will 'flow' instead of providing predictable tangency
@@ -2125,23 +2129,7 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 		
 		fp.Weights = fp.InputGrid.Weights
 
-		Legs=[0]*24
-		for i in range(0,3):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(3,6):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(6,9):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(9,12):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(12,16):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		for i in range(16,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		for i in range(20,24):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-
-		fp.Legs=Legs
+		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid66_4:	# made from 4 CubicControlPoly6.
@@ -2271,31 +2259,8 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 					w30, w31, w32, w33, w34, w35,
 					w40, w41, w42, w43, w44, w45,
 					w50, w51, w52, w53, w54, w55]
-		Legs=[0]*60
-		for i in range(0,5):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(5,10):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(10,15):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(15,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(20,25):
-			Legs[i]=Part.LineSegment(fp.Poles[i+4],fp.Poles[i+5])
-		for i in range(25,30):
-			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])
-		for i in range(30,36):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(36,42):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(42,48):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(48,54):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(54,60):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
 
-		fp.Legs=Legs
+		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
@@ -2393,23 +2358,8 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 					w10, w11, w12, w13, w14, w15,
 					w20, w21, w22, w23, w24, w25,
 					w30, w31, w32, w33, w34, w35]
-		Legs=[0]*38
-		for i in range(0,5):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(5,10):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(10,15):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(15,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
 
-		for i in range(20,26):
-			Legs[i]=Part.LineSegment(fp.Poles[i-20],fp.Poles[i-14])
-		for i in range(26,32):
-			Legs[i]=Part.LineSegment(fp.Poles[i-20],fp.Poles[i-14])
-		for i in range(32,38):
-			Legs[i]=Part.LineSegment(fp.Poles[i-20],fp.Poles[i-14])
-		fp.Legs=Legs
+		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. degenerate grid.
@@ -2922,28 +2872,87 @@ class ControlGrid44_EdgeSegment:
 		# get cutting points from curve
 		curve=fp.NL_Curve.Shape.Curve
 		p0 = curve.StartPoint
+		print ('p0 = ', p0)
 		p1 = curve.EndPoint
+		print ('p1 = ', p1)
 		# determine u or v segmentation and get parameter span from cutting points
-		param0=surface.parameter(p0)
+		param0=surface.parameter(p0) # returns (u,v) on surface of curve start point
 		print ('param0: ', param0)
-		param1=surface.parameter(p1)
+		param1=surface.parameter(p1) # returns (u,v) on surface of curve end point
 		print ('param1: ', param1)
-		if ((param0[0]<0.001 and param1[0]<0.001) or (param0[0]>0.999 and param1[0]>0.999)): # if u is constant 0 or constant 1 along curve
-			segdir = 'v'
-			if param0[1] < param1[1]:
-				t0=param0[1]
-				t1=param1[1]
-			if param0[1] > param1[1]:
-				t0=param1[1]
-				t1=param0[1]
-		if ((param0[1]<0.001 and param1[1]<0.001) or (param0[1]>0.999 and param1[1]>0.999)): # if v is constant 0 or constant 1 along curve
-			segdir = 'u'
-			if param0[0] < param1[0]:
-				t0=param0[0]
-				t1=param1[0]
-			if param0[0] > param1[0]:
-				t0=param1[0]
-				t1=param0[0]
+		# CAUTION
+		# the values returned by .parameter() are random if the curve point is on a degenerate (collapsed) edge
+		# check for 3 vs 4 polys in the grid of the surface
+		Surf_grid = fp.NL_Surface.Grid
+		try:
+			if (Surf_grid.Poly3.Poles[0]):
+				degen_grid = 0
+		except:
+			degen_grid = 1
+		print ('degen_grid = ', degen_grid)
+
+		# if the surface is degenerate, it still has no impact unless the desired segment includes the degenerate point
+		# i.e. one of the segmenting curve points matches the degenerate point.
+		degen_cut = 0
+		if (degen_grid == 1):
+			# find degenerate point
+			if (equalVectors(Surf_grid.Poly0.Poles[0], Surf_grid.Poly2.Poles[0], .001)):
+				P_degen = Surf_grid.Poly0.Poles[0]
+			elif (equalVectors(Surf_grid.Poly0.Poles[3], Surf_grid.Poly2.Poles[0], .001)):
+				P_degen = Surf_grid.Poly0.Poles[3]
+			print ('P_degen = ', P_degen)
+
+			# compare to curve start point
+			if (equalVectors(p0, P_degen, .001)):
+				print ('degenerate point matches curve start')
+				# desired segment include degenerate point
+				degen_cut = 1
+				# the parameters of interest come from the end point
+				param_cut = param1
+			# compare to curve end point
+			if (equalVectors(p1, P_degen, .001)):
+				print ('degenerate point matches curve end')
+				# desired segment include degenerate point
+				degen_cut = 1
+				# the parameters of interest come from the start point
+				param_cut = param0
+
+		# for degenerate cuts
+		if (degen_cut == 1):
+			if (param_cut[0]<0.001 or param_cut[0]>.999):
+				segdir = 'v'
+				print ("segmentation along", segdir)
+				t0 = 0.0 # assume degen point has param 0,0
+				t1=param_cut[1]
+
+			if (param_cut[1]<0.001 or param_cut[1]>.999):
+				segdir = 'u'
+				print ("segmentation along", segdir)
+				t0 = 0.0 # assume degen point has param 0,0
+				t1=param_cut[0]
+				
+
+		# for non degenerate cuts
+		if (degen_cut == 0):
+			if ((param0[0]<0.001 and param1[0]<0.001) or (param0[0]>0.999 and param1[0]>0.999)): # if u is constant 0 or constant 1 along curve
+				segdir = 'v'
+				print ("segmentation along", segdir)
+				if param0[1] < param1[1]:
+					t0=param0[1]
+					t1=param1[1]
+				if param0[1] > param1[1]:
+					t0=param1[1]
+					t1=param0[1]
+			if ((param0[1]<0.001 and param1[1]<0.001) or (param0[1]>0.999 and param1[1]>0.999)): # if v is constant 0 or constant 1 along curve
+				segdir = 'u'
+				print ("segmentation along", segdir)
+				if param0[0] < param1[0]:
+					t0=param0[0]
+					t1=param1[0]
+				if param0[0] > param1[0]:
+					t0=param1[0]
+					t1=param0[0]
+			
 		# filter out t0<0 and t1>1 that may occur when the xyz position is projected to uv
 		if t0<0:
 			t0=0
@@ -3011,44 +3020,8 @@ class ControlGrid44_EdgeSegment:
 					weights_2dArray[0][1],
 					weights_2dArray[0][2],
 					weights_2dArray[0][3]]
-
-		Legs=[0]*24
-		for i in range(0,3):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])
-		for i in range(3,6):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])	
-		for i in range(6,9):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])
-		for i in range(9,12):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])
-		for i in range(12,16):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])
-		for i in range(16,20):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])
-		for i in range(20,24):
-			try:
-				Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-			except:
-				Legs[i]=Part.Point(fp.Poles[i])
-		fp.Legs=Legs
+		
+		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid44_2EdgeSegments:
@@ -3190,24 +3163,7 @@ class ControlGrid44_2EdgeSegments:
 					weights_2dArray[0][2],
 					weights_2dArray[0][3]]
 
-
-
-		Legs=[0]*24
-		for i in range(0,3):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(3,6):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(6,9):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(9,12):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(12,16):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		for i in range(16,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		for i in range(20,24):
-			Legs[i]=Part.LineSegment(fp.Poles[i-12],fp.Poles[i-8])
-		fp.Legs=Legs
+		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is the logical position
@@ -3461,23 +3417,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 				blend_weights_3[5]]
 
 		# build the leg list for viz
-		Legs=[0]*38
-		for i in range(0,5):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(5,10):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(10,15):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(15,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-
-		for i in range(20,26):
-			Legs[i]=Part.LineSegment(fp.Poles[i-20],fp.Poles[i-14])
-		for i in range(26,32):
-			Legs[i]=Part.LineSegment(fp.Poles[i-20],fp.Poles[i-14])
-		for i in range(32,38):
-			Legs[i]=Part.LineSegment(fp.Poles[i-20],fp.Poles[i-14])
-		fp.Legs=Legs
+		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class SubGrid33_2Grid64s_old:
@@ -3977,31 +3917,8 @@ class ControlGrid66_4Sub:
 					w30, w31, w32, w33, w34, w35,
 					w40, w41, w42, w43, w44, w45,
 					w50, w51, w52, w53, w54, w55]
-		Legs=[0]*60
-		for i in range(0,5):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(5,10):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(10,15):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(15,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(20,25):
-			Legs[i]=Part.LineSegment(fp.Poles[i+4],fp.Poles[i+5])
-		for i in range(25,30):
-			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])
-		for i in range(30,36):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(36,42):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(42,48):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(48,54):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(54,60):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-
-		fp.Legs=Legs
+		
+		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid64_3_1Grid44:
@@ -4202,33 +4119,8 @@ class ControlGrid64_3_1Grid44:
 					w10, w11, w12, w13, w14, w15,
 					w20, w21, w22, w23, w24, w25,
 					w30, w31, w32, w33, w34, w35]
-		Legs=[0]*33 # last used Legs index below + 1
-
-		#rows
-		for i in range(0,5):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		#Legs[0,1,2,3,4] used
-		for i in range(6,11):
-			Legs[i-1]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		#Legs[5,6,7,8,9] used
-		for i in range(12,17):
-			Legs[i-2]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		#Legs[10,11,12,13,14] used
-		#skip top row
-
-		#columns
-		for i in range(0,6):
-			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
-		#Legs[15,16,17,18,19,20] used
-		for i in range(6,12):
-			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
-		#Legs[21,22,23,24,25,26] used
-		for i in range(12,18):
-			Legs[i+15]=Part.LineSegment(fp.Poles[i],fp.Poles[i+6])
-		#Legs[27,28,29,30,31,32] used
-
-
-		fp.Legs=Legs
+		
+		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class SubGrid63_2Surf64:
