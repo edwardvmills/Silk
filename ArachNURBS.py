@@ -2900,6 +2900,10 @@ class ControlGrid44_EdgeSegment:
 				P_degen = Surf_grid.Poly0.Poles[0]
 			elif (equalVectors(Surf_grid.Poly0.Poles[3], Surf_grid.Poly2.Poles[0], .001)):
 				P_degen = Surf_grid.Poly0.Poles[3]
+			elif (equalVectors(Surf_grid.Poly0.Poles[0], Surf_grid.Poly2.Poles[3], .001)):
+				P_degen = Surf_grid.Poly0.Poles[0]
+			elif (equalVectors(Surf_grid.Poly0.Poles[3], Surf_grid.Poly2.Poles[3], .001)):
+				P_degen = Surf_grid.Poly0.Poles[3]
 			print ('P_degen = ', P_degen)
 
 			# compare to curve start point
