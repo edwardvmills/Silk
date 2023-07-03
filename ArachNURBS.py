@@ -101,10 +101,10 @@ def lineOrPoint(p0,p1):
 
 def drawGrid(poles, columns):
 	nbPoles = len(poles)
-	print ('nbPoles = ', nbPoles)
-	print ('columns = ', columns)
+	# print ('nbPoles = ', nbPoles)
+	# print ('columns = ', columns)
 	rows = int(len(poles) / columns)
-	print ('rows = ', rows)
+	# print ('rows = ', rows)
 	#legs_total = 2 * rows * columns - rows - columns
 	#print ('legs_total = ', legs_total)
 	#legs = [0] * legs_total
@@ -115,11 +115,11 @@ def drawGrid(poles, columns):
 	for i in range(0,rows):
 		# loop over a row
 		for j in range(0, columns-1):
-			print ('in row ', i)
+			# print ('in row ', i)
 			start = i*columns + j
-			print ('start = ', start)
+			# print ('start = ', start)
 			end = i*columns + j + 1
-			print ('end = ', end)
+			# print ('end = ', end)
 			leg = lineOrPoint(poles[start], poles[end])
 			if (leg[0] == 1):
 				legs.append(leg[1])
@@ -128,11 +128,11 @@ def drawGrid(poles, columns):
 	for i in range(0,columns):
 		# loop over a column
 		for j in range(0, rows-1):
-			print ('in column ', i)
+			# print ('in column ', i)
 			start = j*columns + i
-			print ('start = ', start)
+			# print ('start = ', start)
 			end = j*columns + columns + i
-			print ('end = ', end)
+			# print ('end = ', end)
 			leg = lineOrPoint(poles[start], poles[end])
 			if (leg[0] == 1):
 				legs.append(leg[1])
@@ -352,7 +352,7 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	#print ("weights_6_1 in blend_poly_2x4_1x6")
 	#print (weights_6_1)
 
-	# check original weights....set = at 1%? 
+	# check original weights....set == at 1%? 
 	# this code is behaving very strangely.
 	# it failed to reset on a strict comparison (< .001), but resets correctly on a loose comparison.
 	# the numbers under comparison were equal to 8 or more decimals???
@@ -382,87 +382,60 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	p5=[poles_6_1[5],weights_6_1[5]] ###
 	corner='p01p10'
 	
-	'''
-	### calculate curvature components
-	## start point
-	l0 = p1[0]-p0[0]					# first control leg
-	tan0=Base.Vector(l0)				# make clean copy
-	tan0.normalize()					# unit tangent direction
-	l1=Base.Vector(tan0)				# make clean copy
-	l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
-	h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
-	## end point
-	l4 = p4[0]-p5[0]					# last control leg
-	tan4=Base.Vector(l4)				# make clean copy
-	tan4.normalize()					# unit tangent direction
-	l3=Base.Vector(tan4)				# make clean copy
-	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
-	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
-
-	### scale first and last control legs
-	L0=Base.Vector(l0)					# make clean copy
-	L0.multiply(scale_0)				# apply tangent scale
-	p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
-
-	L4=Base.Vector(l4)					# make clean copy
-	L4.multiply(scale_3)				# apply tangent scale
-	p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
-
-	### calc new heights for inner control legs
-	H1 = Base.Vector(h1)				# make clean copy
-	H1.multiply(scale_0.__pow__(2))		# apply height scale
-
-	H3 = Base.Vector(h3)				# make clean copy
-	H3.multiply(scale_3.__pow__(2))		# apply height scale
-
-	L1 = p1_scl[0] - p0[0] 				# make clean copy
-	L1 = L1.multiply(scale_1)			# apply inner tangent scale
-	p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
-
-	L3 = p4_scl[0] - p5[0]				# make clean copy
-	L3 = L3.multiply(scale_2)			# apply inner tangent scale
-	p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
-	'''
 	
 	### calculate curvature components
+
 	## start point
-	l0 = p1[0]-p0[0]					# first control leg
-	tan0=Base.Vector(l0)				# make clean copy
-	tan0.normalize()					# unit tangent direction
-	l1=Base.Vector(tan0)				# make clean copy
-	l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
-	h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
+	if (equalVectors(poles_6_0[0],poles_6_0[3], .000001) == 0):
+		# the first curve is non degenerate
+		l0 = p1[0]-p0[0]					# first control leg
+		tan0=Base.Vector(l0)				# make clean copy
+		tan0.normalize()					# unit tangent direction
+		l1=Base.Vector(tan0)				# make clean copy
+		l1.multiply(tan0.dot(p2[0]-p1[0])) 	# scalar projection of second control leg along unit tangent
+		h1=(p2[0]-p1[0])-l1					# height of second control leg orthogonal to tangent
+		### scale first control leg
+		L0=Base.Vector(l0)					# make clean copy
+		L0.multiply(scale_0)				# apply tangent scale
+		p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
+		### calc new heights for first inner control leg
+		H1 = Base.Vector(h1)				# make clean copy
+		H1.multiply(scale_0.__pow__(2))		# apply height scale
+		# apply inner scale
+		L1 = p1_scl[0] - p0[0]					# rescale to new tangent (scale_0 already applied)	
+		L1 = L1.multiply(scale_1)				# apply inner tangent scale
+		p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
+	else:
+		# the first curve is degenerate
+		# just pass the inputs forward
+		p1_scl = [p1[0], p1[1]]
+		p2_scl = [p2[0], p2[1]]
+
 	## end point
-	l4 = p4[0]-p5[0]					# last control leg
-	tan4=Base.Vector(l4)				# make clean copy
-	tan4.normalize()					# unit tangent direction
-	l3=Base.Vector(tan4)				# make clean copy
-	l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
-	h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
-	### scale first and last control legs
-	L0=Base.Vector(l0)					# make clean copy
-	L0.multiply(scale_0)				# apply tangent scale
-	p1_scl = [p0[0] + L0, p1[1]]		# reposition second control point
-	L4=Base.Vector(l4)					# make clean copy
-	L4.multiply(scale_3)				# apply tangent scale
-	p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
-	### calc new heights for inner control legs
-	H1 = Base.Vector(h1)				# make clean copy
-	H1.multiply(scale_0.__pow__(2))		# apply height scale
-	H3 = Base.Vector(h3)				# make clean copy
-	H3.multiply(scale_3.__pow__(2))		# apply height scale
-	
-	
-
-	# apply inner scales
-	L1 = p1_scl[0] - p0[0]					# rescale to new tangent (scale_0 already applied)	
-	L1 = L1.multiply(scale_1)				# apply inner tangent scale
-	p2_scl = [p1_scl[0] + H1 + L1, p2[1]]	# reposition third control point
-	
-	L3 = p4_scl[0] - p5[0]					# rescale to new tangent (scale_3 already applied)
-	L3 = L3.multiply(scale_2)				# apply inner tangent scale
-	p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
-
+	if (equalVectors(poles_6_0[0],poles_6_0[3], .000001) == 0):
+		# the first curve is non degenerate
+		l4 = p4[0]-p5[0]					# last control leg
+		tan4=Base.Vector(l4)				# make clean copy
+		tan4.normalize()					# unit tangent direction
+		l3=Base.Vector(tan4)				# make clean copy
+		l3.multiply(tan4.dot(p3[0]-p4[0])) 	# scalar projection of second to last control leg along unit tangent
+		h3=(p3[0]-p4[0])-l3					# height of second control leg orthogonal to tangent
+		### scale last control leg
+		L4=Base.Vector(l4)					# make clean copy
+		L4.multiply(scale_3)				# apply tangent scale
+		p4_scl = [p5[0] + L4, p4[1]]		# reposition fifth control point
+		### calc new heights for last inner control leg
+		H3 = Base.Vector(h3)				# make clean copy
+		H3.multiply(scale_3.__pow__(2))		# apply height scale
+		# apply inner scale
+		L3 = p4_scl[0] - p5[0]					# rescale to new tangent (scale_3 already applied)
+		L3 = L3.multiply(scale_2)				# apply inner tangent scale
+		p3_scl = [p4_scl[0] + H3 + L3, p3[1]]	# reposition third control point
+	else:
+		# the second curve is degenerate
+		# just pass the inputs forward
+		p3_scl = [p3[0], p3[1]]
+		p4_scl = [p4[0], p4[1]]
 
 	poles=[p0[0], p1_scl[0], p2_scl[0], p3_scl[0], p4_scl[0], p5[0]]
 	# set the weights. No scaling at this point. No idea what happens if one of the input curve is an arc.
@@ -2854,6 +2827,128 @@ class CubicSurface_64:
 
 #### surface derived objects (+surf to input)
 
+# need to separate a function out that determines the surface paramters corresponding to endpoints of a curve
+# along a border of the surface
+# develop here until ready, then move up to stand alone functions
+# will be used by ControlGrid44_EdgeSegment and ControlGrid44_2EdgeSegments
+
+def paramsSurface44BorderSegmentCurve(AN_Surface, AN_Curve, tol, degenTol):
+	# from a surface and a curve that matches a segment of a border edge of the sruface,
+	# return the cut direction (u or v), and the cut parameters
+	# only written for a 16 control point surface (4X4)
+
+	surface=AN_Surface.Shape.Surface
+	curve=AN_Curve.Shape.Curve
+	p0 = curve.StartPoint
+	# print ('p0 = ', p0)
+	p1 = curve.EndPoint
+	# print ('p1 = ', p1)
+	# get parameter span from cutting points
+	param0=surface.parameter(p0) # returns (u,v) on surface of curve start point
+	# print ('param0: ', param0)
+	param1=surface.parameter(p1) # returns (u,v) on surface of curve end point
+	# print ('param1: ', param1)
+	# CAUTION
+	# the values returned by .parameter() are random if the curve point is on a degenerate (collapsed) edge
+
+	# look for an identify degenerate edges
+	if (AN_Surface.Grid.Poles[0] == AN_Surface.Grid.Poles[3]):
+		degen_grid = 1
+		degen_point = AN_Surface.Grid.Poles[0]
+		degen_t = 0
+	elif (AN_Surface.Grid.Poles[3] == AN_Surface.Grid.Poles[15]):
+		degen_grid = 1
+		degen_point = AN_Surface.Grid.Poles[3]
+		degen_t = 1
+	elif (AN_Surface.Grid.Poles[15] == AN_Surface.Grid.Poles[12]):
+		degen_grid = 1
+		degen_point = AN_Surface.Grid.Poles[12]
+		degen_t = 1
+	elif (AN_Surface.Grid.Poles[12] == AN_Surface.Grid.Poles[0]):
+		degen_grid = 1
+		degen_point = AN_Surface.Grid.Poles[0]
+		degen_t = 0
+	else:
+		degen_grid = 0
+		degen_point = 0
+
+	# even if the grid is degenerate, the degnerate point may not be at the cutting curve endpoints
+	# and therefore may not interfere with paramter determination.
+	degen_cut = 0
+	if (degen_grid == 1):
+		# compare to curve start point
+		if (equalVectors(p0, degen_point, .001)):
+			# print ('degenerate point matches curve start')
+			# desired segment include degenerate point
+			degen_cut = 1
+			# the parameters of interest come from the end point
+			param_cut = param1
+		# compare to curve end point
+		if (equalVectors(p1, degen_point, .001)):
+			# print ('degenerate point matches curve end')
+			# desired segment include degenerate point
+			degen_cut = 1
+			# the parameters of interest come from the start point
+			param_cut = param0
+
+	# for degenerate cuts
+	if (degen_cut == 1):
+		if (param_cut[0]<0.001 or param_cut[0]>.999):
+			segdir = 'v'
+			# print ("segmentation along", segdir)
+			if (degen_t == 0):
+				t0 = 0.0
+				t1=param_cut[1]
+			if (degen_t == 1):
+				t0 = param_cut[1]
+				t1= 1.0
+
+		if (param_cut[1]<0.001 or param_cut[1]>.999):
+			segdir = 'u'
+			# print ("segmentation along", segdir)
+			if (degen_t == 0):
+				t0 = 0.0
+				t1=param_cut[0]
+			if (degen_t == 1):
+				t0 = param_cut[0]
+				t1= 1.0
+			
+
+	# for non degenerate cuts
+	if (degen_cut == 0):
+		if ((param0[0]<0.001 and param1[0]<0.001) or (param0[0]>0.999 and param1[0]>0.999)): # if u is constant 0 or constant 1 along curve
+			segdir = 'v'
+			# print ("segmentation along", segdir)
+			if param0[1] < param1[1]:
+				t0=param0[1]
+				t1=param1[1]
+			if param0[1] > param1[1]:
+				t0=param1[1]
+				t1=param0[1]
+		if ((param0[1]<0.001 and param1[1]<0.001) or (param0[1]>0.999 and param1[1]>0.999)): # if v is constant 0 or constant 1 along curve
+			segdir = 'u'
+			# print ("segmentation along", segdir)
+			if param0[0] < param1[0]:
+				t0=param0[0]
+				t1=param1[0]
+			if param0[0] > param1[0]:
+				t0=param1[0]
+				t1=param0[0]
+		
+	# filter out t0<0 and t1>1 that may occur when the xyz position is projected to uv
+	if t0<0:
+		t0=0
+	if t1>1:
+		t1=1
+
+	print ('paramsSurfaceBorderSegmentCurve')
+	print ('segdir = ', segdir)
+	print ('t0 = ', t0)
+	print ('t1 = ', t1)
+	print ('')
+
+	return [segdir, t0, t1]
+
 class ControlGrid44_EdgeSegment:
 	def __init__(self, obj , NL_Surface, NL_Curve):
 		''' Add the properties '''
@@ -2867,108 +2962,20 @@ class ControlGrid44_EdgeSegment:
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		# get surface
-		surface=fp.NL_Surface.Shape.Surface
-		# get cutting points from curve
-		curve=fp.NL_Curve.Shape.Curve
-		p0 = curve.StartPoint
-		print ('p0 = ', p0)
-		p1 = curve.EndPoint
-		print ('p1 = ', p1)
-		# determine u or v segmentation and get parameter span from cutting points
-		param0=surface.parameter(p0) # returns (u,v) on surface of curve start point
-		print ('param0: ', param0)
-		param1=surface.parameter(p1) # returns (u,v) on surface of curve end point
-		print ('param1: ', param1)
-		# CAUTION
-		# the values returned by .parameter() are random if the curve point is on a degenerate (collapsed) edge
-		# check for 3 vs 4 polys in the grid of the surface
-		Surf_grid = fp.NL_Surface.Grid
-		try:
-			if (Surf_grid.Poly3.Poles[0]):
-				degen_grid = 0
-		except:
-			degen_grid = 1
-		print ('degen_grid = ', degen_grid)
 
-		# if the surface is degenerate, it still has no impact unless the desired segment includes the degenerate point
-		# i.e. one of the segmenting curve points matches the degenerate point.
-		degen_cut = 0
-		if (degen_grid == 1):
-			# find degenerate point
-			if (equalVectors(Surf_grid.Poly0.Poles[0], Surf_grid.Poly2.Poles[0], .001)):
-				P_degen = Surf_grid.Poly0.Poles[0]
-			elif (equalVectors(Surf_grid.Poly0.Poles[3], Surf_grid.Poly2.Poles[0], .001)):
-				P_degen = Surf_grid.Poly0.Poles[3]
-			elif (equalVectors(Surf_grid.Poly0.Poles[0], Surf_grid.Poly2.Poles[3], .001)):
-				P_degen = Surf_grid.Poly0.Poles[0]
-			elif (equalVectors(Surf_grid.Poly0.Poles[3], Surf_grid.Poly2.Poles[3], .001)):
-				P_degen = Surf_grid.Poly0.Poles[3]
-			print ('P_degen = ', P_degen)
-
-			# compare to curve start point
-			if (equalVectors(p0, P_degen, .001)):
-				print ('degenerate point matches curve start')
-				# desired segment include degenerate point
-				degen_cut = 1
-				# the parameters of interest come from the end point
-				param_cut = param1
-			# compare to curve end point
-			if (equalVectors(p1, P_degen, .001)):
-				print ('degenerate point matches curve end')
-				# desired segment include degenerate point
-				degen_cut = 1
-				# the parameters of interest come from the start point
-				param_cut = param0
-
-		# for degenerate cuts
-		if (degen_cut == 1):
-			if (param_cut[0]<0.001 or param_cut[0]>.999):
-				segdir = 'v'
-				print ("segmentation along", segdir)
-				t0 = 0.0 # assume degen point has param 0,0
-				t1=param_cut[1]
-
-			if (param_cut[1]<0.001 or param_cut[1]>.999):
-				segdir = 'u'
-				print ("segmentation along", segdir)
-				t0 = 0.0 # assume degen point has param 0,0
-				t1=param_cut[0]
-				
-
-		# for non degenerate cuts
-		if (degen_cut == 0):
-			if ((param0[0]<0.001 and param1[0]<0.001) or (param0[0]>0.999 and param1[0]>0.999)): # if u is constant 0 or constant 1 along curve
-				segdir = 'v'
-				print ("segmentation along", segdir)
-				if param0[1] < param1[1]:
-					t0=param0[1]
-					t1=param1[1]
-				if param0[1] > param1[1]:
-					t0=param1[1]
-					t1=param0[1]
-			if ((param0[1]<0.001 and param1[1]<0.001) or (param0[1]>0.999 and param1[1]>0.999)): # if v is constant 0 or constant 1 along curve
-				segdir = 'u'
-				print ("segmentation along", segdir)
-				if param0[0] < param1[0]:
-					t0=param0[0]
-					t1=param1[0]
-				if param0[0] > param1[0]:
-					t0=param1[0]
-					t1=param0[0]
-			
-		# filter out t0<0 and t1>1 that may occur when the xyz position is projected to uv
-		if t0<0:
-			t0=0
-		if t1>1:
-			t1=1
+		# get segmentation parameters
+		cutParams = paramsSurface44BorderSegmentCurve(fp.NL_Surface, fp.NL_Curve, .001, .001)
+		segdir = cutParams[0]
+		t0 = cutParams[1]
+		t1 = cutParams[2]
+		print ('segdir: ', segdir)
+		print ('t0 ', t0)
+		print ('t1 ', t1)
 
 		# create surface segment. this works very nicely most of the time, but! 
 		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instead of a whole grid.
+		surface = fp.NL_Surface.Shape.Surface
 
-		print ('sgdir: ', segdir)
-		print ('t0 ', t0)
-		print ('t1 ', t1)
 		if segdir=='u':
 			surface.segment(t0,t1,0,1)
 		if segdir=='v':
@@ -2979,7 +2986,7 @@ class ControlGrid44_EdgeSegment:
 		# first version flips the grid along v???? need to run down 3 to 0 on v while looping 0 to 3 on u ?????
 		# this is internal to ArachNURBS. segmenting directly in FreeCAD python console does not flip sontrol points.
 		# one day i need to revisit my control point ordering scheme to avoid this flip
-		print(poles_2dArray)
+		# print(poles_2dArray)
 		if len(poles_2dArray[0]) == 1:
 			print ('collapsed surface segment')
 			#print ('segdira: ', segdira) # segdira undefined?? not sure what the intention was here
@@ -3042,6 +3049,26 @@ class ControlGrid44_2EdgeSegments:
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		
+		# get segmentation parameters
+		cutParamsa = paramsSurface44BorderSegmentCurve(fp.NL_Surface, fp.NL_Curve_a, .001, .001)
+		segdira = cutParamsa[0]
+		s0 = cutParamsa[1]
+		s1 = cutParamsa[2]
+		print ('segdira: ', segdira)
+		print ('s0 ', s0)
+		print ('s1 ', s1)
+		# get segmentation parameters
+		cutParamsb = paramsSurface44BorderSegmentCurve(fp.NL_Surface, fp.NL_Curve_b, .001, .001)
+		segdirb = cutParamsb[0]
+		t0 = cutParamsb[1]
+		t1 = cutParamsb[2]
+		print ('segdirb: ', segdirb)
+		print ('t0 ', t0)
+		print ('t1 ', t1)
+		
+		
+		'''
 		# get surface
 		surface=fp.NL_Surface.Shape.Surface
 		# get cutting points from curves
@@ -3107,10 +3134,11 @@ class ControlGrid44_2EdgeSegments:
 			t0=0
 		if t1>1:
 			t1=1
-
+		'''
 
 		# create surface segment. this works very nicely most of the time, but! 
 		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instead of a whole grid.
+		surface = fp.NL_Surface.Shape.Surface
 
 		if segdira=='u' and segdirb=='v':
 			surface.segment(s0,s1,t0,t1)
@@ -3200,35 +3228,140 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		# extract corner points
 		corners_0=[fp.Grid_0.Poles[0],fp.Grid_0.Poles[3],fp.Grid_0.Poles[15],fp.Grid_0.Poles[12]]
 		corners_1=[fp.Grid_1.Poles[0],fp.Grid_1.Poles[3],fp.Grid_1.Poles[15],fp.Grid_1.Poles[12]]
-		# find the seam
-		seam_index = [0]*2
-		found = 0
+
+		# additional processing for degenerate grids
+		# do not assume which edge is collapsed. it is predictable for ControlGrid44_3_Rotate and its segmentation,
+		# but future segments may not be. for example when we eventually segment 64s and 66s, which may also include
+		# degenerate grids
+
+		# grid 0
+
+		if (equalVectors(corners_0[0], corners_0[1], .000001)):
+			degen_0 = 1
+			degen_0_index = [0, 1]
+		elif (equalVectors(corners_0[1], corners_0[2], .000001)):
+			degen_0 = 1
+			degen_0_index = [1, 2]
+		elif (equalVectors(corners_0[2], corners_0[3], .000001)):
+			degen_0 = 1
+			degen_0_index = [2, 3]
+		elif (equalVectors(corners_0[3], corners_0[0], .000001)):
+			degen_0 = 1
+			degen_0_index = [0,3]
+		else:
+			degen_0 = 0
+			degen_0_index = []
+		
+		print ("degen_0: ", degen_0)
+		print ("degen_0_index: ", degen_0_index)
+
+		# grid 1
+		if (equalVectors(corners_1[0], corners_1[1], .000001)):
+			degen_1 = 1
+			degen_1_index = [0, 1]
+		elif (equalVectors(corners_1[1], corners_1[2], .000001)):
+			degen_1 = 1
+			degen_1_index = [1, 2]
+		elif (equalVectors(corners_1[2], corners_1[3], .000001)):
+			degen_1 = 1
+			degen_1_index = [2, 3]
+		elif (equalVectors(corners_1[3], corners_1[0], .000001)):
+			degen_1 = 1
+			degen_1_index = [0,3]
+		else:
+			degen_1 = 0
+			degen_1_index = []
+
+		print ("degen_1: ", degen_1)
+		print ("degen_1_index: ", degen_1_index)
+		
+		degen = degen_0 + degen_1
+
+		# find all matching corner points across the two grids
+		# degenerate edges will cause repeat values
+		seam_index_raw_0 = []
+		seam_index_raw_1 = []
 		for i in range(0,4):
 			for j in range(0,4):
 				if equalVectors(corners_0[i],corners_1[j],0.000001):
-					seam_index[found]=[i,j]
-					found=found+1
+					seam_index_raw_0.append(i)
+					seam_index_raw_1.append(j)
+		seam_index_dedupe_0 = [*set(seam_index_raw_0)] # the * unpacks the set into the list
+		seam_index_dedupe_0.sort()
+		print("seam_index_dedupe_0: ",seam_index_dedupe_0)
+		seam_index_dedupe_1 = [*set(seam_index_raw_1)]
+		seam_index_dedupe_1.sort()
+		print("seam_index_dedupe_1: ",seam_index_dedupe_1)
+
+		if (len(seam_index_dedupe_0) == 3):
+			# the true seam is the non-degenrate point, and the degenerate point closest to it
+			for i in range(0,3):
+				if (seam_index_dedupe_0[i] not in degen_0_index):
+					non_degen_index_0 = i
+					non_degen_corner_0 = seam_index_dedupe_0[i]
+			print ("non_degen_index_0: ", non_degen_index_0)
+			print ("non_degen_corner_0: ", non_degen_corner_0)
+			if (non_degen_index_0 == 0 ):
+				if ((seam_index_dedupe_0[1]-seam_index_dedupe_0[0]) == 1 ):
+					seam_0 = [seam_index_dedupe_0[0], seam_index_dedupe_0[1]]
+				else:
+					seam_0 = [seam_index_dedupe_0[0], seam_index_dedupe_0[2]]
+			if (non_degen_index_0 == 1 ):
+				if ((seam_index_dedupe_0[1]-seam_index_dedupe_0[0]) == 1 ):
+					seam_0 = [seam_index_dedupe_0[0], seam_index_dedupe_0[1]]
+				else:
+					seam_0 = [seam_index_dedupe_0[1], seam_index_dedupe_0[2]]
+			if (non_degen_index_0 == 2 ):
+				if ((seam_index_dedupe_0[2]-seam_index_dedupe_0[1]) == 1 ):
+					seam_0 = [seam_index_dedupe_0[1], seam_index_dedupe_0[2]]
+				else:
+					seam_0 = [seam_index_dedupe_0[0], seam_index_dedupe_0[2]]
+		elif (len(seam_index_dedupe_0) == 2):
+			seam_0 = seam_index_dedupe_0
+		print ('seam_0 ', seam_0)
+
+
+		if (len(seam_index_dedupe_1) == 3):
+			# the true seam is the non-degenrate point, and the degenerate point closest to it
+			for i in range(0,3):
+				if (seam_index_dedupe_1[i] not in degen_1_index):
+					non_degen_index_1 = i
+					non_degen_corner_1 = seam_index_dedupe_1[i]
+			print ("non_degen_index_1: ", non_degen_index_1)
+			print ("non_degen_corner_1: ", non_degen_corner_1)
+			if (non_degen_index_1 == 0 ):
+				if ((seam_index_dedupe_1[1]-seam_index_dedupe_1[0]) == 1 ):
+					seam_1 = [seam_index_dedupe_1[0], seam_index_dedupe_1[1]]
+				else:
+					seam_1 = [seam_index_dedupe_1[0], seam_index_dedupe_1[2]]
+			if (non_degen_index_1 == 1 ):
+				if ((seam_index_dedupe_1[1]-seam_index_dedupe_1[0]) == 1 ):
+					seam_1 = [seam_index_dedupe_1[0], seam_index_dedupe_1[1]]
+				else:
+					seam_1 = [seam_index_dedupe_1[1], seam_index_dedupe_1[2]]
+			if (non_degen_index_1 == 2 ):
+				if ((seam_index_dedupe_1[2]-seam_index_dedupe_1[1]) == 1 ):
+					seam_1 = [seam_index_dedupe_1[1], seam_index_dedupe_1[2]]
+				else:
+					seam_1 = [seam_index_dedupe_1[0], seam_index_dedupe_1[2]]
+		elif (len(seam_index_dedupe_1) == 2):
+			seam_1 = seam_index_dedupe_1
+		print ('seam_1 ', seam_1)
 
 		# rotate the grids so that the seam is on the right side for Grid_0 and the left side for Grid_1
 		# in the ideal case, no rotation is required:
 		# seam_index[0]=[1,0], and
 		# seam_index[1]=[2,3]
-		# to rotate each grid individually, split seam_index data into one set for each grid
-		seam_0 = [seam_index[0][0],seam_index[1][0]]
-		seam_1 = [seam_index[0][1],seam_index[1][1]]
 
 		# left grid correction rotation
 		if seam_0 == [1,2]:
-			rotate_0 = 0
+			rotate_0 = 0 # times 90 degrees clockwise
 		if seam_0 == [2,3]:
 			rotate_0 = 1
 		if seam_0 == [0,3]:
 			rotate_0 = 2 
 		if seam_0 == [0,1]:
 			rotate_0 = 3 
-
-		print ('seam_0 ', seam_0)
-		print ('seam_1 ', seam_1)
 
 		# right grid correction rotation
 		if seam_1 == [0,3] or seam_1 == [3,0]:
