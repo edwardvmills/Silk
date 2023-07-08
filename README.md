@@ -1,6 +1,14 @@
 ## Silk Workbench
 
-![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_02.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Front_Page_02.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Boaty_Mc_Boatface_16_24.bmp?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Boaty_Mc_Boatface_15_10.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/5%20sided%20shape_02_03.PNG?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/CadDivision_16_01.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/CadDivision_19_03.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/CadDivision_Simple_01_11.PNG?raw=true)
+
+
 
 ## Description
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench). Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
@@ -34,6 +42,7 @@ Modeling can be done in the current state, and the resulting data structures are
 In the meantime Silk does offer a few tools not otherwise available in FreeCAD (eg. 3D splines), and can in general be seen as a sandbox for surface design, control strategies, data structures, and algorithms.
 
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Steering_Wheel_03_05.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Steering_Wheel_01_02.png?raw=true)
 
 ## Installation
 Recommended installation is through the FreeCAD [Addon Manager](https://wiki.freecadweb.org/AddonManager) via `Tools -> Addon Manager`
