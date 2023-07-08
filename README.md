@@ -1,6 +1,6 @@
 ## Silk Workbench
 
-![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Demo_02.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Front_Page_02.png?raw=true)
 
 ## Description
 NURBS Surface modeling tools focused on low degree and seam continuity ([FreeCAD](https://www.freecadweb.org/) Workbench). Silk is the new name of the [NURBSlib_EVM](http://edwardvmills.github.io/NURBSlib_EVM/) project.
