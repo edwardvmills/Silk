@@ -4260,6 +4260,32 @@ class ControlGrid64_3_1Grid44:
 		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
+class ControlGrid64_normal:
+	def __init__(self, obj , Grid64, v0_normalize, v3_normalize):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid64_3_1Grid44 class Init\n")
+		obj.addProperty("App::PropertyLink","Input_Grid","ControlGrid64_normal","Reference 6X4 Grid").Input_Grid = Grid64
+		obj.addProperty("App::PropertyFloat","v0_normalize","ControlGrid64_normal","Normalization factor along v0 edge").v0_normalize = v0_normalize
+		obj.addProperty("App::PropertyFloat","v3_normalize","ControlGrid64_normal","Normalization factor along v3 edge").v3_normalize = v3_normalize
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_normal","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_normal","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_normal","Weights").Weights
+		obj.Proxy = self
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		print ("ControlGrid64_normal doesn't do anything yet")
+		Poles = fp.Input_Grid.Poles
+		Weights = fp.Input_Grid.Weights
+
+		# do stuff here
+
+		fp.Poles = Poles
+		fp.Weights = Weights
+
+		fp.Legs = drawGrid(fp.Poles, 6)
+		fp.Shape = Part.Shape(fp.Legs)
+
 class SubGrid63_2Surf64:
 	def __init__(self, obj , Surf_0, Surf_1):
 		''' Add the properties '''
