@@ -2,9 +2,15 @@
 ## High quality & low weight surface modeling tools for design and engineering
 
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Silk_Front_Page_02.png?raw=true)
-![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Boaty_Mc_Boatface_16_24.bmp?raw=true)
+
+### Thats the goal anyway ;) it's not perfect yet, but take a look below and decide if these results relate to your goals. 
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Boaty_Mc_Boatface_16_22.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Boaty_Mc_Boatface_16_24_medium.png?raw=true)
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Boaty_Mc_Boatface_15_10.png?raw=true)
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/5%20sided%20shape_02_03.PNG?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Aletta_01_08.png?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Curva3D_silk_reboot_01_13.PNG?raw=true)
+![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/Curva3D_silk_reboot_01_11.PNG?raw=true)
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/CadDivision_16_01.png?raw=true)
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/CadDivision_19_03.png?raw=true)
 ![example of current capability](https://github.com/edwardvmills/Silk/blob/master/Resources/Demo_files/CadDivision_Simple_01_11.PNG?raw=true)
