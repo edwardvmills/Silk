@@ -4263,7 +4263,7 @@ class ControlGrid64_3_1Grid44:
 class ControlGrid64_normal:
 	def __init__(self, obj , Grid64, v0_normalize, v3_normalize):
 		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGrid64_3_1Grid44 class Init\n")
+		FreeCAD.Console.PrintMessage("\nControlGrid64_normal class Init\n")
 		obj.addProperty("App::PropertyLink","Input_Grid","ControlGrid64_normal","Reference 6X4 Grid").Input_Grid = Grid64
 		obj.addProperty("App::PropertyFloat","v0_normalize","ControlGrid64_normal","Normalization factor along v0 edge").v0_normalize = v0_normalize
 		obj.addProperty("App::PropertyFloat","v3_normalize","ControlGrid64_normal","Normalization factor along v3 edge").v3_normalize = v3_normalize
@@ -4279,6 +4279,49 @@ class ControlGrid64_normal:
 		Weights = fp.Input_Grid.Weights
 
 		# do stuff here
+
+		# basic use case: 2 grid44s are mirrorable G1 across a plane, but the grid64 blend that results is not 
+		# necessarily mirrorable g1 across the original plane (existing models show this to be the case). 
+		# we want to modify the control points of this grid64 so that it becomes mirrorable G1 across the plane
+
+		# in practice, this simply means that all grid legs reaching the mirror plane must be perpendicaulr to this plane*.
+		# the naming comes from this 'perpendicularity/normal' aspect of the method: the tool returns a 'normalized' 
+		# version of the grid64. 
+		# *use of weights complicates this, and weight matching is required in addition to alignment of grid legs.
+
+		# there may be cases where we can extend from 'mirroring' to G1 continuation, allowing us to have 2 grid64s 
+		# side by side with good G1, even though the edge is not planar (exsiting models appears to indicate this is possible)
+		# in light of this goal, the 'normal' name seems more appropriate long term than 'mirrorable' or some such.
+
+		# in the simple mirroring case, the mirrorability of the base grid44s plays an important role in limiting the problem.
+		# since all tangents in the grid44s are normal, the ControlGrid64_2Gridd44 blend grid will have the first 2 and
+		# last 2 u rows perpendicular to the mirror plane
+		# it is only the 3rd and 4th inner leges reaching the edge that can have the issue.
+
+		# v0 runs on poles 0->5, v3 runs on poles 18->23
+		
+		v0_tan_0 = Poles[6]- Poles[0]
+		v0_tan_1 = Poles[7]- Poles[1]
+
+		v0_tan_4 = Poles[10]- Poles[4]
+		v0_tan_5 = Poles[11]- Poles[5]
+
+		v3_tan_0 = Poles[12]- Poles[18]
+		v3_tan_1 = Poles[13]- Poles[19]
+
+		v3_tan_4 = Poles[16]- Poles[22]
+		v3_tan_5 = Poles[17]- Poles[23]
+
+
+		# in the simplest case, which is the intended case,
+		# all poles on target edge (v0, v3, or both) are in a plane (the mirror plane we are setting the surface edge 'normal' to)
+		# the tangents reaching the corners are normal to the mirror plane.
+		# the first inner u legs reaching the v edge should also be normal to the mirror plane as well, if the grid44s being blended were
+		# mirrorable
+
+		
+
+
 
 		fp.Poles = Poles
 		fp.Weights = Weights

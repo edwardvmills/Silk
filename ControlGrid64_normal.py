@@ -57,7 +57,7 @@ class ControlGrid64_normal():
 			equalVectors(p0, Grid64.Poles[2], 0.000001) or
 			equalVectors(p0, Grid64.Poles[3], 0.000001) or
 			equalVectors(p0, Grid64.Poles[4], 0.000001) or
-			equalVectors(p0, Grid64.Poles[1], 0.000001)):
+			equalVectors(p0, Grid64.Poles[5], 0.000001)):
 				v0_normalize = 1
 			elif (equalVectors(p0, Grid64.Poles[18], 0.000001) or
 			equalVectors(p0, Grid64.Poles[19], 0.000001) or

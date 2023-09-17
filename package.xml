@@ -2,8 +2,8 @@
 <package format="1">
   <name>Silk workbench</name>
   <description>NURBS Surface modeling tools focused on low degree and seam continuity</description>
-  <version>0.1.4</version>
-  <date>2023-04-26</date>
+  <version>0.1.5</version>
+  <date>2023-09-17</date>
   <maintainer email="@edwardvmills">edwardvmills</maintainer>
   <license file="LICENSE">GPL-3</license>
   <url type="repository" branch="master">https://github.com/edwardvmills/Silk</url>
