@@ -45,8 +45,10 @@ class ControlGrid64_normal():
 			# the 64 surface is assumed to be 6p along u, so the two options are: 
 			# mirror along v0
 			# mirror along v3
-			v0_normalize = 0
-			v3_normalize = 0
+			v0_normalize_2 = 0.0
+			v0_normalize_3 = 0.0
+			v3_normalize_20 = 0.0
+			v3_normalize_21 = 0.0
 
 
 			# assuming something (line/vertex) was picked along v0 or v3
@@ -58,22 +60,27 @@ class ControlGrid64_normal():
 			equalVectors(p0, Grid64.Poles[3], 0.000001) or
 			equalVectors(p0, Grid64.Poles[4], 0.000001) or
 			equalVectors(p0, Grid64.Poles[5], 0.000001)):
-				v0_normalize = 1
+				v0_normalize_2 = 1.0
+				v0_normalize_3 = 1.0
+
 			elif (equalVectors(p0, Grid64.Poles[18], 0.000001) or
 			equalVectors(p0, Grid64.Poles[19], 0.000001) or
 			equalVectors(p0, Grid64.Poles[20], 0.000001) or
 			equalVectors(p0, Grid64.Poles[21], 0.000001) or
 			equalVectors(p0, Grid64.Poles[22], 0.000001) or
 			equalVectors(p0, Grid64.Poles[23], 0.000001)):
-				v3_normalize = 1
+				v3_normalize_20 = 1.0
+				v3_normalize_21 = 1.0
 			# if the selection click wasn't on v0 or v3, do both edges
 			else:
-				v0_normalize = 1
-				v3_normalize = 1
+				v0_normalize_2 = 1.0
+				v0_normalize_3 = 1.0
+				v3_normalize_20 = 1.0
+				v3_normalize_21 = 1.0
 				print ("target edge selection not recognized, normalization applied to both sides")
 
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlGrid64_normal_000")
-			AN.ControlGrid64_normal(a, Grid64, v0_normalize, v3_normalize)
+			AN.ControlGrid64_normal(a, Grid64, v0_normalize_2, v0_normalize_3, v3_normalize_20, v3_normalize_21)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
 			a.ViewObject.LineColor = (0.67,1.00,1.00)

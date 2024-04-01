@@ -70,6 +70,12 @@ def equalVectors(vector0,vector1,tol):	# 3D point equality test
 		return 1
 	elif (vector1-vector0).Length > tol:
 		return 0
+	
+def ClosestPointOnLine(a, b, p):
+    ap = p-a
+    ab = b-a
+    result = a + ap.dot(ab)/ab.dot(ab) * ab
+    return result
 
 def int_2l(la,lb):
 	pa1=la.StartPoint
@@ -4261,12 +4267,14 @@ class ControlGrid64_3_1Grid44:
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid64_normal:
-	def __init__(self, obj , Grid64, v0_normalize, v3_normalize):
+	def __init__(self, obj , Grid64, v0_normalize_2, v0_normalize_3, v3_normalize_20, v3_normalize_21):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGrid64_normal class Init\n")
 		obj.addProperty("App::PropertyLink","Input_Grid","ControlGrid64_normal","Reference 6X4 Grid").Input_Grid = Grid64
-		obj.addProperty("App::PropertyFloat","v0_normalize","ControlGrid64_normal","Normalization factor along v0 edge").v0_normalize = v0_normalize
-		obj.addProperty("App::PropertyFloat","v3_normalize","ControlGrid64_normal","Normalization factor along v3 edge").v3_normalize = v3_normalize
+		obj.addProperty("App::PropertyFloat","v0_normalize_2","ControlGrid64_normal","Normalization factor along v0 edge, third point").v0_normalize_2 = v0_normalize_2
+		obj.addProperty("App::PropertyFloat","v0_normalize_3","ControlGrid64_normal","Normalization factor along v0 edge, fourth point").v0_normalize_3 = v0_normalize_3
+		obj.addProperty("App::PropertyFloat","v3_normalize_20","ControlGrid64_normal","Normalization factor along v3 edge, third point").v3_normalize_20 = v3_normalize_20
+		obj.addProperty("App::PropertyFloat","v3_normalize_21","ControlGrid64_normal","Normalization factor along v3 edge, fourth point").v3_normalize_21 = v3_normalize_21
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_normal","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_normal","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_normal","Weights").Weights
@@ -4274,7 +4282,6 @@ class ControlGrid64_normal:
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		print ("ControlGrid64_normal doesn't do anything yet")
 		Poles = fp.Input_Grid.Poles
 		Weights = fp.Input_Grid.Weights
 
@@ -4299,34 +4306,41 @@ class ControlGrid64_normal:
 		# it is only the 3rd and 4th inner leges reaching the edge that can have the issue.
 
 		# v0 runs on poles 0->5, v3 runs on poles 18->23
+
+		# step 1, braindead solution: project inner control point to a line normal to the assumed mirror plane. slide adjustment along this line
 		
-		v0_tan_0 = Poles[6]- Poles[0]
-		v0_tan_1 = Poles[7]- Poles[1]
+		if (fp.v0_normalize_2 != 0.0):
+			# get normal direction, one per corner allows use on non planar edges
+			v0_tan_1 = Poles[7]- Poles[1]
+			Poles_8_temp = ClosestPointOnLine(Poles[2], Poles[2] + v0_tan_1, Poles[8])
+			Poles[8] = Poles[2] + fp.v0_normalize_2 * (Poles_8_temp - Poles[2])
 
-		v0_tan_4 = Poles[10]- Poles[4]
-		v0_tan_5 = Poles[11]- Poles[5]
-
-		v3_tan_0 = Poles[12]- Poles[18]
-		v3_tan_1 = Poles[13]- Poles[19]
-
-		v3_tan_4 = Poles[16]- Poles[22]
-		v3_tan_5 = Poles[17]- Poles[23]
+		if (fp.v0_normalize_3 != 0.0):
+			# get normal direction, one per corner allows use on non planar edges
+			v0_tan_4 = Poles[10]- Poles[4]
+			Poles_9_temp = ClosestPointOnLine(Poles[3], Poles[3] + v0_tan_4, Poles[9])
+			Poles[9] = Poles[3] + fp.v0_normalize_3 * (Poles_9_temp - Poles[3])
 
 
-		# in the simplest case, which is the intended case,
-		# all poles on target edge (v0, v3, or both) are in a plane (the mirror plane we are setting the surface edge 'normal' to)
-		# the tangents reaching the corners are normal to the mirror plane.
-		# the first inner u legs reaching the v edge should also be normal to the mirror plane as well, if the grid44s being blended were
-		# mirrorable
+
+		if (fp.v3_normalize_20 != 0.0):
+			# get normal directions, one per corner allows use on non planar edges
+			v3_tan_1 = Poles[13]- Poles[19]
+			Poles_14_temp = ClosestPointOnLine(Poles[20], Poles[20] + v3_tan_1, Poles[14])
+			Poles[14] = Poles[20] + fp.v3_normalize_20 * (Poles_14_temp - Poles[20])
 
 		
-
-
+		if (fp.v3_normalize_21 != 0.0):
+			# get normal directions, one per corner allows use on non planar edges
+			v3_tan_4 = Poles[16]- Poles[22]
+			Poles_15_temp = ClosestPointOnLine(Poles[21], Poles[21] + v3_tan_4, Poles[15])
+			Poles[15] = Poles[21] + fp.v3_normalize_21 * (Poles_15_temp - Poles[21])
 
 		fp.Poles = Poles
 		fp.Weights = Weights
-
-		fp.Legs = drawGrid(fp.Poles, 6)
+		Legs = drawGrid(fp.Poles, 6)
+		# the intermediary step makes the 'Legs' object list appendable. 
+		fp.Legs = Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
 class SubGrid63_2Surf64:
