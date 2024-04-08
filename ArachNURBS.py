@@ -4343,6 +4343,144 @@ class ControlGrid64_normal:
 		fp.Legs = Legs
 		fp.Shape = Part.Shape(fp.Legs)
 
+class ControlGrid64_Surf44:
+	def __init__(self, obj , Input_Surf44, direction_to_raise):
+		''' Add the properties '''
+		FreeCAD.Console.PrintMessage("\nControlGrid64_Surf44 class Init\n")
+		obj.addProperty("App::PropertyLink","Input_Surf44","ControlGrid64_Surf44","Reference 4X4 Surface").Input_Surf44 = Input_Surf44
+		obj.addProperty("App::PropertyString","direction_to_raise","ControlGrid64_Surf44","parameter direction to raise (u or v)").direction_to_raise = direction_to_raise
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid64_normal","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_normal","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_normal","Weights").Weights
+		obj.Proxy = self
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+
+		Surf64 = fp.Input_Surf44.Shape.Surface
+		if (fp.direction_to_raise == "u"):
+			print("inserting U knots")
+			Surf64.insertUKnot(1.0/3.0,1,0.0000001)
+			Surf64.insertUKnot(2.0/3.0,1,0.0000001)
+		if (fp.direction_to_raise == "v"):
+			print("inserting V knots")
+			Surf64.insertVKnot(1.0/3.0,1,0.0000001)
+			Surf64.insertVKnot(2.0/3.0,1,0.0000001)
+
+		print("NbUPoles", Surf64.NbUPoles)
+		print("NbVPoles", Surf64.NbVPoles)
+		raw_Poles = Surf64.getPoles()
+		raw_Weights = Surf64.getWeights()
+		print("raw_Poles", raw_Poles)
+
+		if (fp.direction_to_raise == "u"):
+			Poles = [raw_Poles[0][0],
+					raw_Poles[1][0],
+					raw_Poles[2][0],
+					raw_Poles[3][0],
+					raw_Poles[4][0],
+					raw_Poles[5][0],
+					raw_Poles[0][1],
+					raw_Poles[1][1],
+					raw_Poles[2][1],
+					raw_Poles[3][1],
+					raw_Poles[4][1],
+					raw_Poles[5][1],
+					raw_Poles[0][2],
+					raw_Poles[1][2],
+					raw_Poles[2][2],
+					raw_Poles[3][2],
+					raw_Poles[4][2],
+					raw_Poles[5][2],
+					raw_Poles[0][3],
+					raw_Poles[1][3],
+					raw_Poles[2][3],
+					raw_Poles[3][3],
+					raw_Poles[4][3],
+					raw_Poles[5][3]]
+			
+			Weights = [raw_Weights[0][0],
+					raw_Weights[1][0],
+					raw_Weights[2][0],
+					raw_Weights[3][0],
+					raw_Weights[4][0],
+					raw_Weights[5][0],
+					raw_Weights[0][1],
+					raw_Weights[1][1],
+					raw_Weights[2][1],
+					raw_Weights[3][1],
+					raw_Weights[4][1],
+					raw_Weights[5][1],
+					raw_Weights[0][2],
+					raw_Weights[1][2],
+					raw_Weights[2][2],
+					raw_Weights[3][2],
+					raw_Weights[4][2],
+					raw_Weights[5][2],
+					raw_Weights[0][3],
+					raw_Weights[1][3],
+					raw_Weights[2][3],
+					raw_Weights[3][3],
+					raw_Weights[4][3],
+					raw_Weights[5][3]]
+			
+		if (fp.direction_to_raise == "v"):
+			Poles = [raw_Poles[3][0],
+					raw_Poles[3][1],
+					raw_Poles[3][2],
+					raw_Poles[3][3],
+					raw_Poles[3][4],
+					raw_Poles[3][5],
+					raw_Poles[2][0],
+					raw_Poles[2][1],
+					raw_Poles[2][2],
+					raw_Poles[2][3],
+					raw_Poles[2][4],
+					raw_Poles[2][5],
+					raw_Poles[1][0],
+					raw_Poles[1][1],
+					raw_Poles[1][2],
+					raw_Poles[1][3],
+					raw_Poles[1][4],
+					raw_Poles[1][5],
+					raw_Poles[0][0],
+					raw_Poles[0][1],
+					raw_Poles[0][2],
+					raw_Poles[0][3],
+					raw_Poles[0][4],
+					raw_Poles[0][5]]
+			
+			Weights = [raw_Weights[3][0],
+					raw_Weights[3][1],
+					raw_Weights[3][2],
+					raw_Weights[3][3],
+					raw_Weights[3][4],
+					raw_Weights[3][5],
+					raw_Weights[2][0],
+					raw_Weights[2][1],
+					raw_Weights[2][2],
+					raw_Weights[2][3],
+					raw_Weights[2][4],
+					raw_Weights[2][5],
+					raw_Weights[1][0],
+					raw_Weights[1][1],
+					raw_Weights[1][2],
+					raw_Weights[1][3],
+					raw_Weights[1][4],
+					raw_Weights[1][5],
+					raw_Weights[0][0],
+					raw_Weights[0][1],
+					raw_Weights[0][2],
+					raw_Weights[0][3],
+					raw_Weights[0][4],
+					raw_Weights[0][5]]
+			
+		fp.Poles = Poles
+		fp.Weights = Weights
+		fp.Legs = drawGrid(fp.Poles, 6)
+		fp.Shape = Part.Shape(fp.Legs)
+
+
 class SubGrid63_2Surf64:
 	def __init__(self, obj , Surf_0, Surf_1):
 		''' Add the properties '''

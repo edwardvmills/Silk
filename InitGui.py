@@ -48,6 +48,7 @@ class Silk (Workbench):
 		import ControlGrid64_2Grid44
 		import ControlGrid64_3_1Grid44
 		import ControlGrid64_normal
+		import ControlGrid64_Surf44
 		import SubGrid33_2Grid64
 		import ControlGrid66_4Sub
 		import SubGrid63_2Surf64
@@ -76,6 +77,7 @@ class Silk (Workbench):
 					"ControlGrid64_2Grid44",
 					"ControlGrid64_3_1Grid44",
 					"ControlGrid64_normal",
+					"ControlGrid64_Surf44",
 					"SubGrid33_2Grid64",
 					"ControlGrid66_4Sub",
 					"SubGrid63_2Surf64",
