@@ -1127,15 +1127,111 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 
 ### control polygons (+sketch to input)
 
+default_tol = 0.000001
+
 class ControlPoly4_3L:	# made from a single sketch containing 3 line objects connected end to end
 	def __init__(self, obj , sketch):
-		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlPoly4_3L class Init\n")
+
+		latest_version = "0.02" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		obj.addProperty("App::PropertyLink","Sketch","ControlPoly4_3L","reference Sketch").Sketch = sketch
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly4_3L","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly4_3L","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly4_3L","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Sketch","C1 - Inputs","reference Sketch").Sketch = sketch
+		obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = [1.0,1.0,1.0,1.0]
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 3 lines").tolerance = default_tol
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the paramter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_3L"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.02" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_Sketch = obj.Sketch
+			obj.removeProperty("Sketch")
+			old_Weights = obj.Weights
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+				obj.removeProperty("tolerance")
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+				obj.removeProperty("reverse")
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			# the internal name should not be changing. this will be used for a check.
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Sketch","C1 - Inputs","reference Sketch").Sketch = old_Sketch
+			obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = old_Weights
+			obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 3 lines").tolerance = old_tolerance 
+			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the paramter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_3L"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+
+			# need to recompute otherwise the poles remain unpopulated
+			obj.recompute()
+
+	def onChanged(self, fp, prop):
+		if prop == "reverse":
+			fp.Weights = list(reversed(fp.Weights))
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
@@ -1150,14 +1246,208 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		mat=fp.Sketch.Placement.toMatrix()
 		p00=mat.multiply(p00s)
 		p01=mat.multiply(p01s)
+		p10=mat.multiply(p10s)
+		p11=mat.multiply(p11s)
 		p20=mat.multiply(p20s)
 		p21=mat.multiply(p21s)
-		#for now assume
-		fp.Poles=[p00,p01,p20,p21]
+
+		# what are the endpoints connections?
+		L0_connections = []
+		L1_connections = []
+		L2_connections = []
+
+		# L0 to L1 connections
+		if equalVectors(p00,p10,fp.tolerance):
+			L0_connections.append([0,1,0])  # [point index on line, index of connected line, point index on connected line]
+			L1_connections.append([0,0,0])
+
+		if equalVectors(p00,p11,fp.tolerance):
+			L0_connections.append([0,1,1])
+			L1_connections.append([1,0,0])
+
+		if equalVectors(p01,p10,fp.tolerance):
+			L0_connections.append([1,1,0])
+			L1_connections.append([0,0,1])
+
+		if equalVectors(p01,p11,fp.tolerance):
+			L0_connections.append([1,1,1])
+			L1_connections.append([1,0,1])
+
+		# L0 to L2 connections
+		if equalVectors(p00,p20,fp.tolerance):
+			L0_connections.append([0,2,0])
+			L2_connections.append([0,0,0])
+
+		if equalVectors(p00,p21,fp.tolerance):
+			L0_connections.append([0,2,1])
+			L2_connections.append([1,0,0])
+
+		if equalVectors(p01,p20,fp.tolerance):
+			L0_connections.append([1,2,0])
+			L2_connections.append([0,0,1])
+
+		if equalVectors(p01,p21,fp.tolerance):
+			L0_connections.append([1,2,1])
+			L2_connections.append([1,0,1])
+
+		# L1 to L2 connections
+		if equalVectors(p10,p20,fp.tolerance):
+			L1_connections.append([0,2,0])
+			L2_connections.append([0,1,0])
+
+		if equalVectors(p10,p21,fp.tolerance):
+			L1_connections.append([0,2,1])
+			L2_connections.append([1,1,0])
+
+		if equalVectors(p11,p20,fp.tolerance):
+			L1_connections.append([1,2,0])
+			L2_connections.append([0,1,1])
+
+		if equalVectors(p11,p21,fp.tolerance):
+			L1_connections.append([1,2,1])
+			L2_connections.append([1,1,1])
+
+		# in L0_connections, if there are two connections, we always will first see the connection to L1, then the connection to L2
+		# in L1_connections, if there are two connections, we always will first see the connection to L0, then the connection to L2
+		# in L2_connections, if there are two connections, we always will first see the connection to L0, then the connection to L1
+
+		# print("L0_connections",L0_connections)
+		# print("L1_connections",L1_connections)
+		# print("L2_connections",L2_connections)
+
+		if L0_connections.__len__() == 0: # disconnected first line segment
+			print(fp.Label,": the first line segment of the input sketch is not connected at the current tolerance")
+			fake_code_to_force_an_error = please_read_the_report_message_above
+			return
+		if L1_connections.__len__() == 0: # disconnected second line segment
+			print(fp.Label,": the second line segment of the input sketch is not connected at the current tolerance")
+			fake_code_to_force_an_error = please_read_the_report_message_above
+			return
+		if L2_connections.__len__() == 0: # disconnected third line segment
+			print(fp.Label,": the third line segment of the input sketch is not connected at the current tolerance")
+			fake_code_to_force_an_error = please_read_the_report_message_above
+			return
+		
+		# check for a full loop (triangle)
+		loop = False
+		if L0_connections.__len__() == 2 and L1_connections.__len__() == 2 and L2_connections.__len__() == 2:
+			# print(fp.Label,": the input sketch is a full loop (triangle)")
+			loop = True
+			# we'll set the first line and third line to control the poly
+			# we need to find how to orient each line
+
+			# L0 first connection test is always L0 to L1, so look at the second connection test for L2
+			# connection of L0
+			if L0_connections[1][0] == 0:
+				# print("first line start point connected to third line")
+				poly0 = p00
+				poly1 = p01
+			else:
+				# print("first line end point connected to third line")
+				poly0 = p01
+				poly1 = p00
+			# connection of L2
+			if L0_connections[1][2] == 0:
+				# print("third line start point connected to first line")
+				poly2 = p21
+				poly3 = p20
+			else:
+				# print("third line end point connected to first line")
+				poly2 = p20
+				poly3 = p21
+
+		# try to start the poly from the first line segment (implies no loop)
+		if L0_connections.__len__() == 1: # the first line segment is connected once, so it can be used to start the poly
+			# print("the first line segment is not in the center, so it can be used to start the poly")
+			if L0_connections[0][0] == 0:
+				# the start point of the first line is connected
+				# so start the poly from p01
+				poly0 = p01
+				poly1 = p00
+			if L0_connections[0][0] == 1:
+				# the end point of the first line is connected
+				# so start the poly from the p00
+				poly0 = p00
+				poly1 = p01
+
+			if L0_connections[0][1] == 1: # the connection from the first line segment is to the second line segment
+				# print("the connection from the first line segment is to the second line segment")
+				# print("check that the second line segment does have two connections")
+				if L1_connections.__len__() != 2:
+					print(fp.Label,": inconsistent number of line segment connections")
+					fake_code_to_force_an_error = please_read_the_report_message_above
+				else:
+					# print("we can now assume that the third line segment can be used to end the poly")
+					if L2_connections[0][0] == 0:
+						# the start point of the third line is connected
+						# so finish the poly with p21
+						poly2 = p20
+						poly3= p21
+					else:
+						# the end point of the third line is connected
+						# so finish the poly with p20
+						poly2 = p21
+						poly3 = p20
+
+			if L0_connections[0][1] == 2: # the connection from the first line segment is to the third line segment
+				# print("the connection from the first line segment is to the third line segment")
+				# print("check that the third line segment does have two connections")
+				if L2_connections.__len__() != 2:
+					print(fp.Label,": inconsistent number of line segment connections")
+					fake_code_to_force_an_error = please_read_the_report_message_above
+				else:
+					# print("we can now assume that the second line segment can be used to end the poly")
+					if L1_connections[0][0] == 0:
+						# the start point of the second line is connected
+						# so finish the poly with p11
+						poly2 = p10
+						poly3 = p11
+					else:
+						# the end point of the secrd line is connected
+						# so finish the poly with p21
+						poly2 = p11
+						poly3 = p10
+
+		# if the first line segment is doubly connected (but no loop)
+		if L0_connections.__len__() == 2 and loop == False: # the first line segment could be in the center
+			# check for nonsense (2 double connections + 1 single connection)
+			if (L1_connections.__len__() == 2 and L2_connections.__len__() == 1) or \
+				(L1_connections.__len__() == 1 and L2_connections.__len__() == 2):
+				print(fp.Label,": the input sketch cannot be interpreted as a sequence of lines")
+				fake_code_to_force_an_error = please_read_the_report_message_above
+
+			# print("the first line segment is in the center, so it cannot be used to start the poly")
+			# otherwise, the first line is in the middle of the sequence
+			if L0_connections[0][1] == 1: # the second line segment connects to the start of the first line segment
+				# print("the second line segment connects to the start of the first line segment")
+				# start the poly with the second line segment
+				if L0_connections[0][2] == 0:
+					# the connection is at the start point of the second line
+					poly0 = p11
+					poly1 = p10
+				if L0_connections[0][2] == 1:
+					# the connection is at the end point of the second line
+					poly0 = p10
+					poly1 = p11
+
+				# continue with third line segment
+				if L0_connections[1][2] == 0:
+					# the connection is at the start point of the third line
+					poly2 = p20
+					poly3 = p21
+				if L0_connections[1][2] == 1:
+					# the connection is at the end point of the third line
+					poly2 = p21
+					poly3 = p20
+		if fp.reverse == False:
+			fp.Poles = [poly0,poly1,poly2,poly3]
+		else:
+			fp.Poles = [poly3,poly2,poly1,poly0]
+
 		# prepare the lines to draw the polyline
-		Leg0=Part.LineSegment(p00,p01)
-		Leg1=Part.LineSegment(p01,p20)
-		Leg2=Part.LineSegment(p20,p21)
+		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
+		Leg1=Part.LineSegment(fp.Poles[1],fp.Poles[2])
+		Leg2=Part.LineSegment(fp.Poles[2],fp.Poles[3])
 		#set the polygon legs property
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
