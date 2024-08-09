@@ -70,7 +70,157 @@ def equalVectors(vector0,vector1,tol):	# 3D point equality test
 		return 1
 	elif (vector1-vector0).Length > tol:
 		return 0
+
+def polyFromLineSet(lines, tol): # build a control polygon from a list of line segments
+	# input parameter 'lines' format = 
+	# [[startpoint0, endpoint0], [startpoint1, endpoint1],[startpoint2, endpoint2],...]
+	# these point pairs are expected to originate in sketches, 
+	# so there should not be any zero length lines
+
+	# we need a list of unique points
+	# points = [pnt0, pnt2, pnt3,...]
+	# we need a list of point multiplicities
+	# mults = [2, 1, 2, 2,....]
+	# and we also need to build a list of lines by index,
+	# as we process the points
+	# lines_indexed = [[i,j], [l,m], [f,g]]
+	# where i, j, k, l, f, g are indices in the unique points list
+
+	# add in first line
+	points = [lines[0][0], lines[0][1]]
+	mults = [1, 1]
+	lines_indexed = [[0,1]]
+
+	# for all lines except the first one (preprocessed)
+	for l_i in range(1, lines.__len__()):
+		# print("processing line: ", l_i)
+		# grab the current line's start and end points of the current line
+		a = lines[l_i][0]
+		b = lines[l_i][1]
+		# are this line's points already in the point list?
+		a_in = False
+		b_in = False
+
+		for p_i in range(0, points.__len__()):
+			if equalVectors(a, points[p_i], tol):
+				a_in = True
+				mults[p_i] = mults[p_i]+1
+				a_i = p_i
+				#break
+
+		for p_i in range(0, points.__len__()):
+			if equalVectors(b, points[p_i], tol):
+				b_in = True
+				mults[p_i] = mults[p_i]+1
+				b_i = p_i
+				#break
+
+		if a_in == False:
+			points.append(a)
+			mults.append(1)
+			a_i = points.__len__()-1
+		
+		if b_in == False:
+			points.append(b)
+			mults.append(1)
+			b_i = points.__len__()-1
+
+		lines_indexed.append([a_i, b_i])
+
+	# print("lines \n", lines)
+	# print("points \n", points)
+	print("mults \n", mults)
+	print("lines_indexed \n", lines_indexed)
+
+	# check mult for 2s, and max of two 1s
+	ones = mults.count(1)
+	# print("ones, ", ones)
+	twos = mults.count(2)	
+	# print("twos, ", twos)
+
+	if ones != 0 and ones != 2:
+		print("the input line set does not have two clear ends, and does not form a loop at\n \
+			the given tolerance. no single path can be formed into a control polygon")
+		return
 	
+	if ones+twos != mults.__len__():
+		print("some points in the input line set appear to be shared by more than 2 lines \n \
+		at the given tolerance. no single path can be formed into a control polygon")
+		return
+
+	if ones == 2: # open polygon case
+		print("open polygon")
+		# use the first singly connected point as the start of the polygon
+		start_i = mults.index(1)
+		# build the indexed polygon with the starting point index
+		poly_indexed = [start_i]
+		# set the search starting point
+		current_point_i = start_i
+		# find the line it is used in
+		current_line_i = None
+
+		# use the second singly connected point as the end of the polygon
+		# only used for error checking?
+		end_i = mults.index(1, start_i+1)
+
+	if ones == 0: # closed polygon case
+		print("closed polygon")
+		# use the first point and second points as the start of the control polygon
+		poly_indexed = [0,1]
+		# the search will start from the second point
+		current_point_i = 1
+		# we already know we are on the first line
+		current_line_i = 0
+
+		# use the first point as the end of the polygon (loop)
+		# only used for error checking?
+		end_i = 0
+	
+	# search through all the lines for the current point
+	# add the opposite line point to the poly
+	# set this opposite point as the current search point
+	# set the line it was found on current
+	# loop
+
+	while poly_indexed.__len__() < points.__len__(): # this will miss the last point on loops
+		# search for the current point through all the lines
+		for line_i in range(0,lines_indexed.__len__()):
+			# ignore the current line, which is the only place
+			# the current search point could be duplicated
+			if line_i == current_line_i:
+				continue # to next line
+
+			# if the matching point is at the first point of the current line
+			if lines_indexed[line_i][0] == current_point_i:
+				# use the second point as the next point in the poly
+				poly_indexed.append(lines_indexed[line_i][1])
+				# use the second point as the next point to search for
+				current_point_i = lines_indexed[line_i][1]
+				# set the current line
+				current_line_i = line_i
+				break # out of this point search, start over through all the lines
+
+			# if the matching point is at the second point of the current line
+			if lines_indexed[line_i][1] == current_point_i:
+				# use the first point as the next point in the poly
+				poly_indexed.append(lines_indexed[line_i][0])
+				# use the first point as the next point to search for
+				current_point_i = lines_indexed[line_i][0]
+				# set the current line
+				current_line_i = line_i
+				break # out of this point search, start over through all the lines
+
+	# repeat first point as last point for loops
+	if ones == 0:
+		poly_indexed.append(poly_indexed[0])
+	
+	# print("poly_indexed", poly_indexed)
+	polyFromLineSet = []
+	for i in poly_indexed:
+		polyFromLineSet.append(points[i])
+	# print("polyFromLineSet", polyFromLineSet)
+	return polyFromLineSet
+
 def ClosestPointOnLine(a, b, p):
     ap = p-a
     ab = b-a
@@ -1122,7 +1272,6 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 		isect_curve_surf = [test[0], test_u, test[4]]
 	return  isect_curve_surf
 
-
 #### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS
 
 ### control polygons (+sketch to input)
@@ -1148,7 +1297,7 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		obj.addProperty("App::PropertyLink","Sketch","C1 - Inputs","reference Sketch").Sketch = sketch
 		obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 3 lines").tolerance = default_tol
-		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the paramter direction").reverse = False
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = False
 		# outputs
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
@@ -1214,7 +1363,7 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 			obj.addProperty("App::PropertyLink","Sketch","C1 - Inputs","reference Sketch").Sketch = old_Sketch
 			obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = old_Weights
 			obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 3 lines").tolerance = old_tolerance 
-			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the paramter direction").reverse = old_reverse
+			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = old_reverse
 			# outputs
 			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
@@ -1251,6 +1400,7 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		p20=mat.multiply(p20s)
 		p21=mat.multiply(p21s)
 
+		'''
 		# what are the endpoints connections?
 		L0_connections = []
 		L1_connections = []
@@ -1439,10 +1589,20 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 					# the connection is at the end point of the third line
 					poly2 = p21
 					poly3 = p20
+		'''
+
+		# a general method for N lines connected end to end would be better, handle 5ls as well, etc.
+
+		lineset = [[p00,p01], [p10,p11], [p20,p21]]
+
+		poles = polyFromLineSet(lineset, fp.tolerance)
+		print ("poles", poles)
+
+
 		if fp.reverse == False:
-			fp.Poles = [poly0,poly1,poly2,poly3]
+			fp.Poles = [poles[0], poles[1], poles[2], poles[3]]
 		else:
-			fp.Poles = [poly3,poly2,poly1,poly0]
+			fp.Poles = [poles[3], poles[2], poles[1], poles[0]]
 
 		# prepare the lines to draw the polyline
 		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
@@ -1453,16 +1613,116 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains one line (tangent), and one circle (endpoint) located at one end of the line.
+class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains one line (tangent), 
+	# and one circle (endpoint) located at one end of the line.
 	def __init__(self, obj , sketch0, sketch1):
-		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlPoly4_2N class Init\n")
+		
+		latest_version = "0.00" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		obj.addProperty("App::PropertyLink","Sketch0","ControlPoly4_2N","reference Sketch").Sketch0 = sketch0
 		obj.addProperty("App::PropertyLink","Sketch1","ControlPoly4_2N","reference Sketch").Sketch1 = sketch1
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlPoly4_2N","control segments").Legs
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly4_2N","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly4_2N","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.Proxy = self
+		'''
+
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Sketch0","C1 - Inputs","reference Sketch").Sketch0 = sketch0
+		obj.addProperty("App::PropertyLink","Sketch1","C1 - Inputs","reference Sketch").Sketch1 = sketch1
+		obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = [1.0,1.0,1.0,1.0]
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the circle-line in each node").tolerance = default_tol
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_2N"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_Sketch0 = obj.Sketch0
+			obj.removeProperty("Sketch0")
+			old_Sketch1 = obj.Sketch1
+			obj.removeProperty("Sketch1")
+			old_Weights = obj.Weights
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+				obj.removeProperty("tolerance")
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+				obj.removeProperty("reverse")
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			# the internal name should not be changing. this will be used for a check.
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Sketch0","C1 - Inputs","reference Sketch").Sketch0 = old_Sketch0
+			obj.addProperty("App::PropertyLink","Sketch1","C1 - Inputs","reference Sketch").Sketch1 = old_Sketch1
+			obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = old_Weights
+			obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 3 lines").tolerance = old_tolerance 
+			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_3L"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+
+			# need to recompute otherwise the poles remain unpopulated
+			obj.recompute()
+
+	def onChanged(self, fp, prop):
+		if prop == "reverse":
+			fp.Weights = list(reversed(fp.Weights))
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
@@ -1478,10 +1738,13 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 		if obj01.__class__==Part.LineSegment:
 			lin0=obj01
 		p00s=cir0.Center
-		if lin0.StartPoint==p00s:
+		if equalVectors(lin0.StartPoint, p00s, fp.tolerance):
 			p01s=lin0.EndPoint
-		elif lin0.EndPoint==p00s:
+		elif equalVectors(lin0.EndPoint, p00s, fp.tolerance):
 			p01s=lin0.StartPoint
+		else:
+			print(fp.Label, " : in the first sketch, no point on the line connects to the circle center at the current tolerance")
+
 		# to world
 		mat0=fp.Sketch0.Placement.toMatrix()
 		p00=mat0.multiply(p00s)
@@ -1498,16 +1761,22 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 		if obj11.__class__==Part.LineSegment:
 			lin1=obj11
 		p11s=cir1.Center
-		if lin1.StartPoint==p11s:
+		if equalVectors(lin1.StartPoint, p11s, fp.tolerance):
 			p10s=lin1.EndPoint
-		elif lin1.EndPoint==p11s:
+		elif equalVectors(lin1.EndPoint, p11s, fp.tolerance):
 			p10s=lin1.StartPoint
+		else:
+			print(fp.Label, " : in the second sketch, no point on the line connects to the circle center at the current tolerance")
+
 		# to world
 		mat1=fp.Sketch1.Placement.toMatrix()
 		p10=mat1.multiply(p10s)
 		p11=mat1.multiply(p11s)
 		# set the poles
-		fp.Poles=[p00,p01,p10,p11]
+		if fp.reverse == False:
+			fp.Poles=[p00,p01,p10,p11]
+		else:
+			fp.Poles=[p11,p10,p01,p00]
 		# prepare the polygon
 		Leg0=Part.LineSegment(p00,p01)
 		Leg1=Part.LineSegment(p01,p10)
