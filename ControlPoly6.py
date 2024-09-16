@@ -37,14 +37,14 @@ iconPath = path_Silk_icons + '/ControlPoly6.svg'
 
 class ControlPoly6():
 	def Activated(self):
+		mode = None
 		sel=Gui.Selection.getSelection()
 		if len(sel)==0:
 			tipsDialog("Silk: ControlPoly6", moreInfo)
 			return
-
 		elif len(sel)==1:
 			try:
-				if sel[0].Shape.Curve.NbPoles==4:
+				if sel[0].Shape.Edges[0].Curve.NbPoles==4:
 					mode='Bezier'
 			except Exception: 
 				pass
@@ -54,7 +54,7 @@ class ControlPoly6():
 			except Exception: 
 				pass
 			try:
-				if sel[0].Shape.Curve.NbPoles!=4 or sel[0].GeometryCount!=5:
+				if mode != "Bezier" or sel[0].GeometryCount!=5:
 					#if isinstance(sel[0].Geometry[0], Part.ArcOfCircle):
 					mode='FirstElement'
 			except Exception: 
@@ -67,7 +67,6 @@ class ControlPoly6():
 					mode='FilletBezier'
 			except Exception: 
 				pass
-		
 		else:
 			print ("no valid mode found for ControlPoly6 based on the current selection")
 			print ("mode,", mode)
@@ -86,21 +85,10 @@ class ControlPoly6():
 			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
-		if mode=='FirstElement':
+		if mode=='FirstElement' or 'Bezier':
 			sketch=Gui.Selection.getSelection()[0]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FirstElement_000")
 			AN.ControlPoly6_FirstElement(a,sketch)
-			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
-			a.ViewObject.LineWidth = 1.00
-			a.ViewObject.LineColor = (0.00,1.00,1.00)
-			a.ViewObject.PointSize = 4.00
-			a.ViewObject.PointColor = (0.00,0.00,1.00)
-			FreeCAD.ActiveDocument.recompute()
-
-		if mode=='Bezier':
-			bezier=Gui.Selection.getSelection()[0]
-			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_Bezier_000")
-			AN.ControlPoly6_FirstElement(a,bezier)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
 			a.ViewObject.LineColor = (0.00,1.00,1.00)
