@@ -7,11 +7,34 @@
    id="svg2869"
    version="1.1"
    viewBox="0 0 64 64"
+   sodipodi:docname="CubicCurve_6.svg"
+   inkscape:version="1.2.2 (732a01da63, 2022-12-09)"
+   xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
+   xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns="http://www.w3.org/2000/svg"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:cc="http://creativecommons.org/ns#"
    xmlns:dc="http://purl.org/dc/elements/1.1/">
+  <sodipodi:namedview
+     id="namedview9"
+     pagecolor="#ffffff"
+     bordercolor="#000000"
+     borderopacity="0.25"
+     inkscape:showpageshadow="2"
+     inkscape:pageopacity="0.0"
+     inkscape:pagecheckerboard="0"
+     inkscape:deskcolor="#d1d1d1"
+     showgrid="false"
+     inkscape:zoom="16.046875"
+     inkscape:cx="20.533593"
+     inkscape:cy="31.968841"
+     inkscape:window-width="2560"
+     inkscape:window-height="1346"
+     inkscape:window-x="-11"
+     inkscape:window-y="-11"
+     inkscape:window-maximized="1"
+     inkscape:current-layer="svg2869" />
   <defs
      id="defs2871" />
   <metadata
@@ -44,14 +67,6 @@
     </rdf:RDF>
   </metadata>
   <path
-     style="fill:none;stroke:#0c1522;stroke-width:6;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="M 7.2727273,55.545455 C 7.519012,27.096844 19.28263,25.187111 26.928566,33.320562 50.751688,58.662678 58.738155,38.412703 58,6.3636363"
-     id="path4" />
-  <path
-     style="fill:none;stroke:#729fcf;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
-     d="M 7.2727273,55.545455 C 7.519012,27.096844 19.28263,25.187111 26.928566,33.320562 50.751688,58.662678 58.738155,38.412703 58,6.3636363"
-     id="path3799" />
-  <path
      style="fill:none;stroke:#0b1d23;stroke-width:6;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      d="M 7.3181818,55.5 7.6363636,26.727273 24.039655,22.466952 46.669577,51.644993 57.686179,26.575188 57.988971,6.3626902"
      id="path3" />
@@ -59,4 +74,12 @@
      style="fill:none;stroke:#ffffff;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
      d="M 7.3181818,55.5 7.6363636,26.727273 24.039655,22.466952 46.669577,51.644993 57.686179,26.575188 57.988971,6.3626902"
      id="path3839" />
+  <path
+     style="fill:none;stroke:#0c1522;stroke-width:6;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 7.2727273,55.545455 C 7.519012,27.096844 19.28263,25.187111 26.928566,33.320562 50.751688,58.662678 58.738155,38.412703 58,6.3636363"
+     id="path4" />
+  <path
+     style="fill:none;stroke:#729fcf;stroke-width:2;stroke-linecap:round;stroke-linejoin:miter;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+     d="M 7.2727273,55.545455 C 7.519012,27.096844 19.28263,25.187111 26.928566,33.320562 50.751688,58.662678 58.738155,38.412703 58,6.3636363"
+     id="path3799" />
 </svg>
