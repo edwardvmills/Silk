@@ -2071,12 +2071,12 @@ class ControlPoly6_2N:	# made from 2 node sketches. each node sketch contain 2 l
 		lin20s = lin2.StartPoint
 		lin21s = lin2.EndPoint
 		# to world
-		mat0=fp.Sketch0.Placement.toMatrix()
-		p05=mat0.multiply(p05s)
-		lin10=mat0.multiply(lin10s)
-		lin11=mat0.multiply(lin11s)
-		lin20=mat0.multiply(lin20s)
-		lin21=mat0.multiply(lin21s)
+		mat1=fp.Sketch1.Placement.toMatrix()
+		p05=mat1.multiply(p05s)
+		lin10=mat1.multiply(lin10s)
+		lin11=mat1.multiply(lin11s)
+		lin20=mat1.multiply(lin20s)
+		lin21=mat1.multiply(lin21s)
 		if equalVectors(p05, lin10, fp.tolerance):
 			p04 = lin11
 			l1 = 1
@@ -2265,7 +2265,7 @@ class ControlPoly6_FirstElement:	# made from the first element of a single sketc
 ### control grids (+poly to input)
 
 class ControlGrid44_4:	# made from 4 ControlPoly4.
-	def __init__(self, obj , poly0, poly1, poly2, poly3):
+	def __init__(self, obj, poly0, poly1, poly2, poly3):
 		
 		latest_version = "0.01" # must match in onDocumentRestored()
 		
@@ -2288,24 +2288,30 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 		obj.addProperty("App::PropertyLink","Poly1","C1 - Inputs","second control polygon").Poly1 = poly1
 		obj.addProperty("App::PropertyLink","Poly2","C1 - Inputs","third control polygon").Poly2 = poly2
 		obj.addProperty("App::PropertyLink","Poly3","C1 - Inputs","fourth control polygon").Poly3 = poly3
-		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = default_tol
-		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = False
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = default_tol
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
 		# outputs
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_4"
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_4"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this objetc").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
-		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
 		# mandatory Proxy assignment
 		obj.Proxy = self
 	
 	def onDocumentRestored(self, obj):
 		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
 		latest_version = "0.01" # must match in __init__
 		update = False
 		if not hasattr(obj, "object_version"):
@@ -2316,7 +2322,7 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 				print(obj.Name, " is out of date. Attribute format will be updated")
 				update = True
 
-		if update:
+		if update == True:
 			#capture, then delete pre-version attribute values in user input fields
 			#deleting is done because we may be changing the format of pre-existing attributes
 			old_poly0 = obj.Poly0
@@ -2338,20 +2344,17 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 				obj.removeProperty("tolerance")
 			else:
 				old_tolerance = default_tol
-				obj.removeProperty("tolerance")
 
 			if hasattr(obj, "reverse"): 
 				old_reverse = obj.reverse
 				obj.removeProperty("reverse")
 			else:
 				old_reverse = False
-				obj.removeProperty("reverse")
 
 			if hasattr(obj, "object_type"):
 				obj.removeProperty("object_type")
 			if hasattr(obj, "object_version"): 
 				obj.removeProperty("object_version")
-			# the internal name should not be changing. this will be used for a check.
 			if hasattr(obj, "internalName"): 
 				obj.removeProperty("internalName")
 			
@@ -2363,20 +2366,25 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 			obj.addProperty("App::PropertyLink","Poly1","C1 - Inputs","second control polygon").Poly1 = old_poly1
 			obj.addProperty("App::PropertyLink","Poly2","C1 - Inputs","third control polygon").Poly2 = old_poly2
 			obj.addProperty("App::PropertyLink","Poly3","C1 - Inputs","fourth control polygon").Poly3 = old_poly3
-			obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = old_tolerance 
-			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			obj.addProperty("App::PropertyFloat","tolerance",
+						   "C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = old_tolerance 
+			obj.addProperty("App::PropertyBool","reverse",
+						   "C1 - Inputs","reverse the parameter direction").reverse = old_reverse
 			# outputs
 			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_4"
+			obj.addProperty("App::PropertyString", "object_type", 
+				   			"C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_4"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", 
+				   			"C3 - Identifiers", "the class version of this objetc").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
-			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.addProperty("App::PropertyString", "internalName", 
+				   			"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
-
+			
 		# need to recompute otherwise the poles remain unpopulated
 		obj.recompute()
 		
@@ -2386,7 +2394,10 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		# print("fp.tolerance = ", fp.tolerance)
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
 		if fp.reverse == False:
 			poles1=fp.Poly0.Poles
 			poles2=fp.Poly1.Poles
@@ -2473,10 +2484,10 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 		w30 = weights3[3]
 		w20 = weights4[1]
 		w10 = weights4[2]
-		w11 = w01*w20
+		w11 = w01*w10
 		w12 = w02*w13
-		w21 = w32*w10
-		w22 = w23*w31
+		w21 = w20*w31
+		w22 = w23*w32
 		fp.Weights = [w00 ,w01, w02, w03,
 					w10, w11, w12, w13,
 					w20, w21, w22, w23,
@@ -2490,7 +2501,7 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 						#degenerate grid along one edge (4 points), and two inner points neighboring this edge.
 	def __init__(self, obj , poly0, poly1, poly2):
 		
-		latest_version = "0.00" # must match in onDocumentRestored()
+		latest_version = "0.01" # must match in onDocumentRestored()
 		
 		# original attribute set before versioning of classes
 		'''
@@ -2609,6 +2620,10 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
 
 		if fp.reverse == False:
 			poles1=fp.Poly0.Poles
@@ -2629,16 +2644,35 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 		quad23 = orient_a_to_b(poles2,poles3,fp.tolerance)
 		quad31 = orient_a_to_b(poles3,poles1,fp.tolerance)
 
+		# error checking below does not address the 'triangle' issue directly
+		# all issues of matching endpoints handled equally
+		escape_malformed_loop = 0
+		if (quad12 == 0):
+			message = "first and second selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (quad23 == 0):
+			message = "second and third selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (quad31 == 0):
+			message = "third and first selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (escape_malformed_loop == 1):
+			print (fp.Name, ", labeled ", fp.Label , "\n", \
+					message, "\n",
+		  			"the object is created in the document, but awaits resolution of endpoint matching.",
+	  				" inspect the sketches that define the Controloly4 objects.",
+	  				" prioritize coincident constraints for the endpoints.",
+					" do not trust a point on object constraint to result in theoretical point matching")
+			fake_name_to_trigger_error = please_read_message_above
+			return
+
 		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
 			weights1=weights1[::-1]
 		if quad23[0]!=poles2[0] and quad23[0]==poles2[-1]:
 			weights2=weights2[::-1]
 		if quad31[0]!=poles3[0] and quad31[0]==poles3[-1]:
 			weights3=weights3[::-1]
-		# make sure this is a degenerate quadrangle, i.e. a triangle
-		if equalVectors(quad31[3], quad12[0], fp.tolerance) == False:
-			print ('edge loop does not form a triangleat the current tolerance')
-		#no further error handling is implemented
+
 
 		p00 = quad12[0]
 		p01 = quad12[1]
@@ -2848,28 +2882,174 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 								# degenerate grid along one edge (4 points). Four inner points are rotated
 								# to align towards the degenerate corner.
 	def __init__(self, obj , poly0, poly1, poly2):
-		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGrid44_3_Rotate class Init\n")
-		obj.addProperty("App::PropertyLink","Poly0","ControlGrid44_3_Rotate","control polygon").Poly0 = poly0
-		obj.addProperty("App::PropertyLink","Poly1","ControlGrid44_3_Rotate","control polygon").Poly1 = poly1
-		obj.addProperty("App::PropertyLink","Poly2","ControlGrid44_3_Rotate","control polygon").Poly2 = poly2
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_3_Rotate","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_3_Rotate","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_3_Rotate","Weights").Weights
-		obj.addProperty("App::PropertyFloat","TweakWeight11","ControlGrid44_3_Rotate","Weights").TweakWeight11 = 1.0
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
+		FreeCAD.Console.PrintMessage("\nControlGrid44_3 class Init\n")
+		obj.addProperty("App::PropertyLink","Poly0","ControlGrid44_3","control polygon").Poly0 = poly0
+		obj.addProperty("App::PropertyLink","Poly1","ControlGrid44_3","control polygon").Poly1 = poly1
+		obj.addProperty("App::PropertyLink","Poly2","ControlGrid44_3","control polygon").Poly2 = poly2
+		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_3","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_3","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_3","Weights").Weights
+		obj.addProperty("App::PropertyFloat","TweakWeight11","ControlGrid44_3","Weights").TweakWeight11 = 1.0
 		obj.Proxy = self
+		'''
+
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Poly0","C1 - Inputs","first control polygon").Poly0 = poly0
+		obj.addProperty("App::PropertyLink","Poly1","C1 - Inputs","second control polygon").Poly1 = poly1
+		obj.addProperty("App::PropertyLink","Poly2","C1 - Inputs","third control polygon").Poly2 = poly2
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = default_tol
+		# obj.addProperty("App::PropertyFloat","TweakWeight11","C1 - Inputs","scale factor for inner control point near degenerate corner").TweakWeight11 = 1.0
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_3_Rotate"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_poly0 = obj.Poly0
+			obj.removeProperty("Poly0")
+			old_poly1 = obj.Poly1
+			obj.removeProperty("Poly1")
+			old_poly2 = obj.Poly2
+			obj.removeProperty("Poly2")
+
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			# only un-versioned legacy objects have TweakWeight11 attribute
+			if hasattr(obj, "TweakWeight11"): 
+				# old_TweakWeight11 = obj.TweakWeight11
+				obj.removeProperty("TweakWeight11")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+				obj.removeProperty("tolerance")
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+				obj.removeProperty("reverse")
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			# the internal name should not be changing. this will be used for a check.
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			# re/create all current version attributes in correct format
+			# this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Poly0","C1 - Inputs","first control polygon").Poly0 = old_poly0
+			obj.addProperty("App::PropertyLink","Poly1","C1 - Inputs","second control polygon").Poly1 = old_poly1
+			obj.addProperty("App::PropertyLink","Poly2","C1 - Inputs","third control polygon").Poly2 = old_poly2
+			obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = old_tolerance 
+			# obj.addProperty("App::PropertyFloat","TweakWeight11","C1 - Inputs","scale factor for inner control point weight near degenerate corner").TweakWeight11 = old_TweakWeight11
+			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_3_Rotate"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+		
+	def onChanged(self, fp, prop):
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		poles1=fp.Poly0.Poles
-		poles2=fp.Poly1.Poles
-		poles3=fp.Poly2.Poles
-		weights1=fp.Poly0.Weights
-		weights2=fp.Poly1.Weights
-		weights3=fp.Poly2.Weights
-		quad12 = orient_a_to_b(poles1,poles2,.000001)
-		quad23 = orient_a_to_b(poles2,poles3,.000001)
-		quad31 = orient_a_to_b(poles3,poles1,.000001)
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		if fp.reverse == False:
+			poles1=fp.Poly0.Poles
+			poles2=fp.Poly1.Poles
+			poles3=fp.Poly2.Poles
+			weights1=fp.Poly0.Weights
+			weights2=fp.Poly1.Weights
+			weights3=fp.Poly2.Weights
+		else:
+			poles1=fp.Poly2.Poles
+			poles2=fp.Poly1.Poles
+			poles3=fp.Poly0.Poles
+			weights1=fp.Poly2.Weights
+			weights2=fp.Poly1.Weights
+			weights3=fp.Poly0.Weights
+
+		quad12 = orient_a_to_b(poles1,poles2,fp.tolerance)
+		quad23 = orient_a_to_b(poles2,poles3,fp.tolerance)
+		quad31 = orient_a_to_b(poles3,poles1,fp.tolerance)
+
+		# error checking below does not address the 'triangle' issue directly
+		# all issues of matching endpoints handled equally
+		escape_malformed_loop = 0
+		if (quad12 == 0):
+			message = "first and second selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (quad23 == 0):
+			message = "second and third selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (quad31 == 0):
+			message = "third and first selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (escape_malformed_loop == 1):
+			print (fp.Name, ", labeled ", fp.Label , "\n", \
+					message, "\n",
+		  			"the object is created in the document, but awaits resolution of endpoint matching.",
+	  				" inspect the sketches that define the Controloly4 objects.",
+	  				" prioritize coincident constraints for the endpoints.",
+					" do not trust a point on object constraint to result in theoretical point matching")
+			fake_name_to_trigger_error = please_read_message_above
+			return
 
 		if quad12[0]!=poles1[0] and quad12[0]==poles1[-1]:
 			weights1=weights1[::-1]
@@ -2877,10 +3057,6 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 			weights2=weights2[::-1]
 		if quad31[0]!=poles3[0] and quad31[0]==poles3[-1]:
 			weights3=weights3[::-1]
-		# make sure this is a degenerate quadrangle, i.e. a triangle
-		if (not equalVectors(quad31[3],quad12[0],.00001)):
-			print ('edge loop does not form a triangle')
-		#no further error handling is implemented
 
 		p00 = quad12[0]
 		p01 = quad12[1]
@@ -3017,7 +3193,11 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 
 class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal points will 'flow' instead of providing predictable tangency
 	def __init__(self, obj , input_grid):
-		''' Add the properties '''
+
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlGrid44_flow class Init\n")
 		obj.addProperty("App::PropertyLink","InputGrid","ControlGrid44_flow","input control grid").InputGrid = input_grid
 		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid44_flow","control segments").Legs
@@ -3054,11 +3234,264 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 		obj.addProperty("App::PropertyBool",
 						"mirror_v1", "ControlGrid44_flow",
 						" maintain the direction of the original grid line that touch this edge \n inner control points will slide along these lines \n maintains mirrorability if it was present in the original grid").mirror_v1 = False
+		'''
+
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","InputGrid","C1 - Inputs","input control grid").InputGrid = input_grid
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = False
+		flow_lower = 0.0
+		flow_upper = 1.0
+		flow_step = 0.01
+		flow_11 = 1.0
+		flow_12 = 1.0
+		flow_21 = 1.0
+		flow_22 = 1.0
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_11","C1 - Inputs",
+						''' impact on inner control point 11 \n 
+						set 0.0 to 1.0, where 0.0 will match the input grid''').flow_11 = (flow_11, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_12","C1 - Inputs",
+						''' impact on inner control point 12 \n 
+						set 0.0 to 1.0, where 0.0 will match the input grid''').flow_12 = (flow_12, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_21","C1 - Inputs",
+						''' impact on inner control point 21 \n 
+						set 0.0 to 1.0, where 0.0 will match the input grid''').flow_21 = (flow_21, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyFloatConstraint",
+		  				"flow_22","C1 - Inputs",
+						''' impact on inner control point 22 \n 
+						set 0.0 to 1.0, where 0.0 will match the input grid''').flow_22 = (flow_22, flow_lower, flow_upper, flow_step)
+		obj.addProperty("App::PropertyBool",
+						"mirror_u0", "C1 - Inputs",
+						''' maintain the direction of the original grid line that touch this edge \n 
+						inner control points will slide along these lines \n 
+						maintains mirrorability if it was present in the original grid''').mirror_u0 = False
+		obj.addProperty("App::PropertyBool",
+						"mirror_u1", "C1 - Inputs",
+						''' maintain the direction of the original grid line that touch this edge \n 
+						inner control points will slide along these lines \n 
+						maintains mirrorability if it was present in the original grid''').mirror_u1 = False
+		obj.addProperty("App::PropertyBool",
+						"mirror_v0", "C1 - Inputs",
+						''' maintain the direction of the original grid line that touch this edge \n 
+						inner control points will slide along these lines \n 
+						maintains mirrorability if it was present in the original grid''').mirror_v0 = False
+		obj.addProperty("App::PropertyBool",
+						"mirror_v1", "C1 - Inputs",
+						''' maintain the direction of the original grid line that touch this edge \n 
+						inner control points will slide along these lines \n 
+						maintains mirrorability if it was present in the original grid''').mirror_v1 = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", 
+				  		"object_type", "C3 - Identifiers", 
+						"the workbench class used to create this objetc").object_type = "ControlGrid44_flow"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", 
+				  		"object_version", "C3 - Identifiers", 
+						"the class version of this objetc").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", 
+				  		"internalName", "C3 - Identifiers", 
+						"the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
 		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_input_grid = obj.InputGrid
+			obj.removeProperty("InputGrid")
+			old_flow_11 = obj.flow_11
+			obj.removeProperty("flow_11")
+			old_flow_12 = obj.flow_12
+			obj.removeProperty("flow_12")
+			old_flow_21 = obj.flow_21
+			obj.removeProperty("flow_21")
+			old_flow_22 = obj.flow_22
+			obj.removeProperty("flow_22")
+			old_mirror_u0 = obj.mirror_u0
+			obj.removeProperty("mirror_u0")
+			old_mirror_u1 = obj.mirror_u1
+			obj.removeProperty("mirror_u1")
+			old_mirror_v0 = obj.mirror_v0
+			obj.removeProperty("mirror_v0")
+			old_mirror_v1 = obj.mirror_v1
+			obj.removeProperty("mirror_v1")
+
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+				obj.removeProperty("reverse")
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			# the internal name should not be changing. this will be used for a check.
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			# re/create all current version attributes in correct format
+			# this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","InputGrid","C1 - Inputs","input control grid").InputGrid = old_input_grid
+			obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			flow_lower = 0.0
+			flow_upper = 1.0
+			flow_step = 0.01
+			obj.addProperty("App::PropertyFloatConstraint",
+							"flow_11","C1 - Inputs",
+							''' impact on inner control point 11 \n 
+							set 0.0 to 1.0, where 0.0 will match the input grid''').flow_11 = (old_flow_11, flow_lower, flow_upper, flow_step)
+			obj.addProperty("App::PropertyFloatConstraint",
+							"flow_12","C1 - Inputs",
+							''' impact on inner control point 12 \n 
+							set 0.0 to 1.0, where 0.0 will match the input grid''').flow_12 = (old_flow_12, flow_lower, flow_upper, flow_step)
+			obj.addProperty("App::PropertyFloatConstraint",
+							"flow_21","C1 - Inputs",
+							''' impact on inner control point 21 \n 
+							set 0.0 to 1.0, where 0.0 will match the input grid''').flow_21 = (old_flow_21, flow_lower, flow_upper, flow_step)
+			obj.addProperty("App::PropertyFloatConstraint",
+							"flow_22","C1 - Inputs",
+							''' impact on inner control point 22 \n 
+							set 0.0 to 1.0, where 0.0 will match the input grid''').flow_22 = (old_flow_22, flow_lower, flow_upper, flow_step)
+			obj.addProperty("App::PropertyBool",
+							"mirror_u0", "C1 - Inputs",
+							''' maintain the direction of the original grid line that touch this edge \n 
+							inner control points will slide along these lines \n 
+							maintains mirrorability if it was present in the original grid''').mirror_u0 = old_mirror_u0
+			obj.addProperty("App::PropertyBool",
+							"mirror_u1", "C1 - Inputs",
+							''' maintain the direction of the original grid line that touch this edge \n 
+							inner control points will slide along these lines \n 
+							maintains mirrorability if it was present in the original grid''').mirror_u1 = old_mirror_u1
+			obj.addProperty("App::PropertyBool",
+							"mirror_v0", "C1 - Inputs",
+							''' maintain the direction of the original grid line that touch this edge \n 
+							inner control points will slide along these lines \n 
+							maintains mirrorability if it was present in the original grid''').mirror_v0 = old_mirror_v0
+			obj.addProperty("App::PropertyBool",
+							"mirror_v1", "C1 - Inputs",
+							''' maintain the direction of the original grid line that touch this edge \n 
+							inner control points will slide along these lines \n 
+							maintains mirrorability if it was present in the original grid''').mirror_v1 = old_mirror_v1
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString",
+				   			 "object_type", "C3 - Identifiers", 
+							 "the workbench class used to create this object").object_type = "ControlGrid44_flow"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", 
+				   			"object_version", "C3 - Identifiers", 
+							"the class version of this objetc").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", 
+				   			"internalName", "C3 - Identifiers", 
+							"the permanent internal FreeCAD name for this object").internalName= obj.Name
+			obj.setEditorMode("internalName", 1)
+
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+		
+	def onChanged(self, fp, prop):
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		Poles = fp.InputGrid.Poles
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		if fp.reverse == False:
+			Poles = fp.InputGrid.Poles
+			fp.Weights = fp.InputGrid.Weights
+		else:
+			Poles = [0]*16
+			Poles[0] = fp.InputGrid.Poles[0]
+			Poles[1] = fp.InputGrid.Poles[4]
+			Poles[2] = fp.InputGrid.Poles[8]
+			Poles[3] = fp.InputGrid.Poles[12]
+			Poles[4] = fp.InputGrid.Poles[1]
+			Poles[5] = fp.InputGrid.Poles[5]
+			Poles[6] = fp.InputGrid.Poles[9]
+			Poles[7] = fp.InputGrid.Poles[13]
+			Poles[8] = fp.InputGrid.Poles[2]
+			Poles[9] = fp.InputGrid.Poles[6]
+			Poles[10] = fp.InputGrid.Poles[10]
+			Poles[11] = fp.InputGrid.Poles[14]
+			Poles[12] = fp.InputGrid.Poles[3]
+			Poles[13] = fp.InputGrid.Poles[7]
+			Poles[14] = fp.InputGrid.Poles[11]
+			Poles[15] = fp.InputGrid.Poles[15]
+
+			# fp.Weights = fp.InputGrid.Weights
+			Weights = [0]*16
+			Weights[0] = fp.InputGrid.Weights[0]
+			Weights[1] = fp.InputGrid.Weights[4]
+			Weights[2] = fp.InputGrid.Weights[8]
+			Weights[3] = fp.InputGrid.Weights[12]
+			Weights[4] = fp.InputGrid.Weights[1]
+			Weights[5] = fp.InputGrid.Weights[5]
+			Weights[6] = fp.InputGrid.Weights[9]
+			Weights[7] = fp.InputGrid.Weights[13]
+			Weights[8] = fp.InputGrid.Weights[2]
+			Weights[9] = fp.InputGrid.Weights[6]
+			Weights[10] = fp.InputGrid.Weights[10]
+			Weights[11] = fp.InputGrid.Weights[14]
+			Weights[12] = fp.InputGrid.Weights[3]
+			Weights[13] = fp.InputGrid.Weights[7]
+			Weights[14] = fp.InputGrid.Weights[11]
+			Weights[15] = fp.InputGrid.Weights[15]
+
+			fp.Weights = [Weights[0],
+						Weights[1],
+						Weights[2],
+						Weights[3],
+						Weights[4],
+						Weights[5],
+						Weights[6],
+						Weights[7],
+						Weights[8],
+						Weights[9],
+						Weights[10],
+						Weights[11],
+						Weights[12],
+						Weights[13],
+						Weights[14],
+						Weights[15],
+			]
+
 		p00 = Poles[0]
 		p01 = Poles[1]
 		p02 = Poles[2]
@@ -3112,14 +3545,14 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 			Legs[7]=Part.LineSegment(p32,p22a)
 			return Legs
 		Legs = run_pdir_test_01()
-		'''
+	
 		# not great. does what it was told to do, but not very interesting.
 		# dramatically 'deflates' the grid. like overstretched plastic pulled over hard edges.
 		# not sure if it is recursevely stable or not.
 		# not 'flowy', i.e. u=1 row does not look like u=0 morphing into u=3
 		# keeps the new inner points relatively close to old ones (leg angles differ greatly)
 		# keep it around, maybe move it to raw functions as Tighten_Grid(grid44) or something
-
+		'''
 		# next try. let's interpolate first across-edge legs from two opposite corners to set leg orientation
 		# then scale along the resulting direction.
 		# if the two legs are colinear and dot is positive, great. new orientation equal to either, then scale.
@@ -3192,7 +3625,6 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 			p20, p21_final, p22_final, p23,
 			p30, p31, p32, p33]
 		
-		fp.Weights = fp.InputGrid.Weights
 
 		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
@@ -6307,7 +6739,6 @@ class ControlGridNStar66_StarTrim: # quick and dirty test for star center refine
 		fp.addProperty("App::PropertyPythonObject","StarGrid","ControlGridNStar66_StarTrim","Poles").StarGrid
 		fp.addProperty("App::PropertyInteger","SquishDiag4","ControlGridNStar66_NSub","SquishDiag4").SquishDiag4 = 0
 		fp.Proxy = self
-
 
 	def getL1Scale(self, p0, p1, p2):
 		L1_scale = (((p1 - p0).normalize()).dot(p2-p1)) / ((p1 - p0).Length)

@@ -54,7 +54,7 @@ class ControlPoly6():
 			except Exception: 
 				pass
 			try:
-				if mode != "Bezier" or sel[0].GeometryCount!=5:
+				if mode != 'Bezier' and mode != '5L':
 					#if isinstance(sel[0].Geometry[0], Part.ArcOfCircle):
 					mode='FirstElement'
 			except Exception: 
@@ -74,7 +74,7 @@ class ControlPoly6():
 
 		print ('selection processed as ', mode, ' operation')
 
-		if mode=='5L':
+		if mode == '5L':
 			sketch=Gui.Selection.getSelection()[0]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_5L_000")
 			AN.ControlPoly6_5L(a,sketch)
@@ -85,7 +85,7 @@ class ControlPoly6():
 			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
-		if mode=='FirstElement' or 'Bezier':
+		if mode == 'FirstElement' or mode == 'Bezier':
 			sketch=Gui.Selection.getSelection()[0]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FirstElement_000")
 			AN.ControlPoly6_FirstElement(a,sketch)
@@ -96,7 +96,7 @@ class ControlPoly6():
 			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
-		if mode=='2N':
+		if mode =='2N':
 			sketch0=Gui.Selection.getSelection()[0]
 			sketch1=Gui.Selection.getSelection()[1]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_2N_000")
@@ -108,7 +108,7 @@ class ControlPoly6():
 			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 
-		if mode=='FilletBezier':
+		if mode == 'FilletBezier':
 			CubicCurve4_0=Gui.Selection.getSelection()[0]
 			CubicCurve4_1=Gui.Selection.getSelection()[1]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly6_FilletBezier_000")
