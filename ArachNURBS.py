@@ -93,7 +93,7 @@ def polyFromLineSet(lines, tol): # build a control polygon from a list of line s
 	# for all lines except the first one (preprocessed)
 	for l_i in range(1, lines.__len__()):
 		# print("processing line: ", l_i)
-		# grab the current line's start and end points of the current line
+		# grab the current line's start and end points
 		a = lines[l_i][0]
 		b = lines[l_i][1]
 		# are this line's points already in the point list?
@@ -517,7 +517,7 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 		a = weights_0[0]
 		#print ("a ", a)
 		weights_6_0 = [a,a,a,a,a,a]
-		print("reseting weights_0")
+		# print("resetting weights_0")
 
 	if (((weights_1[0]-weights_1[1] / weights_1[0]).__pow__(2) < .1) and 
      	((weights_1[0]-weights_1[2] / weights_1[0]).__pow__(2) < .1) and 
@@ -525,7 +525,7 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 		b = weights_1[0]
 		#print ("b ", b)
 		weights_6_1 = [b,b,b,b,b,b]
-		print("reseting weights_1")
+		# print("resetting weights_1")
 		
 
 
@@ -726,7 +726,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 	if math.fabs(dCds1) < 5.0e-6:
 		dCds1 = 0.0		
 
-	print ("dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric)
+	# print ("dCds targets: " "dCds0, ", dCds0, " dCds1, ", dCds1," C0, ", C0, " C1, ", C1, "symmetric: ", symmetric)
 	
 	# convert 4P inputs to 6P
 	CubicCurve6_0=CubicCurve4_0
@@ -774,7 +774,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 							WeightedPoles_6_1[1],
 							WeightedPoles_6_1[0])
 
-	print ("dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1)
+	# print ("dCds 6P check: " "dCds6_0, ", dCds6_0, " dCds6_1, ", dCds6_1)
 
 	# compile the blend poly. this initial form is G2, but clumped towards the outer points.
 	p0=[poles_6_0[0],weights_6_0[0]]
@@ -869,19 +869,19 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			error_0 = (dCds6_0i - dCds6_0) * ( 1 + 1 / math.fabs(dCds0)) / 2
 		elif dCds0 == 0.0:
 			error_0 = (dCds6_0i - dCds6_0) * ( 1 + 1 / math.fabs(dCds6_0i)) / 2
-		else:
-			print ("dCds0, ", dCds0, "returned from Cubic_6P_dCds()")
+		#else:
+			# print ("dCds0, ", dCds0, "returned from Cubic_6P_dCds()")
 		
 		if dCds1 != 0.0:
 			error_1 = (dCds6_1i - dCds6_1) * ( 1 + 1 / math.fabs(dCds1)) / 2
 		elif dCds1 == 0.0:	
 			error_1 = (dCds6_1i - dCds6_1) * ( 1 + 1 / math.fabs(dCds6_1i)) / 2 # < this has caused div by 0 errors
-		else:
-			print ("dCds1, ", dCds1, "returned from Cubic_6P_dCds()")
+		#else:
+			# print ("dCds1, ", dCds1, "returned from Cubic_6P_dCds()")
 		
 		# success criteria for normal exit
 		if math.fabs(error_0) <= tol and math.fabs(error_1) <= tol:
-			print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
+			# print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
 			return [poles,weights,scale_1i,scale_2i]
 		
 		error = math.fabs(error_0) + math.fabs(error_1)
@@ -939,7 +939,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			nudge = 0
 			direction = 0
 			symmetric = 0
-			print ("symmetry assumption has broken down.")
+			# print ("symmetry assumption has broken down.")
 			
 		# compare the next planned action to the last executed action
 		if nudge == nudge_prev and dir != dir_prev:
@@ -979,7 +979,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			scale_2i = lower_limit			
 		
 		# G3 loop message
-		print (loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]")
+		# print (loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"] dir[", direction_0, ", ", direction_1,"]act[",nudge_prev, ", ", dir_prev,"] streaks [", streak_0_count, ", ", streak_1_count, "]")
 		
 		if (scale_1i == upper_limit and scale_2i == upper_limit) or (scale_1i == lower_limit and scale_2i == lower_limit):
 			break
@@ -989,7 +989,7 @@ def blendG3_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1
 			
 		loop_count=loop_count + 1
 	# G3 final message
-	print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
+	# print ("final ", loop_count, ": ","scl[", scale_1i, ", ", scale_2i,	"] dCds[", dCds6_0i, ", ", dCds6_1i,"] err[", error_0, ", ", error_1,"]")
 	
 	# make sure the final values have been applied
 	
@@ -1301,9 +1301,9 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_3L"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_3L"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -1367,9 +1367,9 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_3L"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_3L"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -1445,9 +1445,9 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_2N"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_2N"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -1514,9 +1514,9 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_2N"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_2N"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -1615,9 +1615,9 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_FirstElement"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_FirstElement"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -1681,9 +1681,9 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = old_Weights
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_FirstElement"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_FirstElement"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -1751,9 +1751,9 @@ class ControlPoly6_5L:	# made from a single sketch containing 5 line objects con
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly6_5L"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_5L"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -1817,9 +1817,9 @@ class ControlPoly6_5L:	# made from a single sketch containing 5 line objects con
 			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly6_5L"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_5L"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -1905,9 +1905,9 @@ class ControlPoly6_2N:	# made from 2 node sketches. each node sketch contain 2 l
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly6_2N"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_2N"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -1974,9 +1974,9 @@ class ControlPoly6_2N:	# made from 2 node sketches. each node sketch contain 2 l
 			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly4_3L"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_3L"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -2145,9 +2145,9 @@ class ControlPoly6_FirstElement:	# made from the first element of a single sketc
 		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly6_FirstElement"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_FirstElement"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -2211,9 +2211,9 @@ class ControlPoly6_FirstElement:	# made from the first element of a single sketc
 			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = old_Weights
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlPoly6_FirstElement"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_FirstElement"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -2227,6 +2227,10 @@ class ControlPoly6_FirstElement:	# made from the first element of a single sketc
 	
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
 		# process the sketch element...error check later
 		ElemNurbs=fp.Sketch.Shape.Edges[0].toNurbs().Edge1.Curve
 		ElemNurbs.increaseDegree(3)
@@ -2294,14 +2298,14 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 				  		"C1 - Inputs","reverse the parameter direction").reverse = False
 		# outputs
 		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
 		obj.addProperty("App::PropertyString", "object_type", 
-				  		"C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_4"
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_4"
 		obj.setEditorMode("object_type", 1)
 		obj.addProperty("App::PropertyString", "object_version", 
-				  		"C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", 
 				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
@@ -2376,10 +2380,10 @@ class ControlGrid44_4:	# made from 4 ControlPoly4.
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
 			obj.addProperty("App::PropertyString", "object_type", 
-				   			"C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_4"
+				   			"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_4"
 			obj.setEditorMode("object_type", 1)
 			obj.addProperty("App::PropertyString", "object_version", 
-				   			"C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+				   			"C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", 
 				   			"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
@@ -2529,9 +2533,9 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_3"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_3"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -2604,9 +2608,9 @@ class ControlGrid44_3:	# made from 3 CubicControlPoly4.
 			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_3"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_3"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -2911,9 +2915,9 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0,1.0,1.0]
 		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 		# additional object identifiers
-		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_3_Rotate"
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_3_Rotate"
 		obj.setEditorMode("object_type", 1)
-		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
 		obj.setEditorMode("internalName", 1)
@@ -2989,9 +2993,9 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
 			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
 			# additional object identifiers
-			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this objetc").object_type = "ControlGrid44_3_Rotate"
+			obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_3_Rotate"
 			obj.setEditorMode("object_type", 1)
-			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this objetc").object_version = latest_version
+			obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
@@ -3082,7 +3086,7 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		# check that poly0 and poly2 aren't parallel
 		# define the rotation center and axis
 		test_Rot_N = ((p01-p00).cross(p10-p00)).Length
-		print('test_Rot_N: ',test_Rot_N)
+		# print('test_Rot_N: ',test_Rot_N)
 		if test_Rot_N <= .00001 :
 			Rot_pt = p00
 			Rot_N = (p01-p00).cross(p31-p00)
@@ -3101,7 +3105,7 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		# if plane1 and Line11 are not parallel or coincident, set p11 at the intersection.
 		# if they are, [TBD]
 		test11 = math.fabs(Plane1_N.dot(Line11_N))
-		print('test11: ',test11)
+		# print('test11: ',test11)
 		if test11 >= .00001 :
 			factor11 = (Plane1_pt-Line11_pt).dot(Plane1_N) / Line11_N.dot(Plane1_N)
 			p11 = Line11_N.multiply(factor11)+Line11_pt
@@ -3115,7 +3119,7 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		# if plane1 and Line12 are not parallel or coincident, set p12 at the intersection.
 		# if they are, [TBD]
 		test12 = math.fabs(Plane1_N.dot(Line12_N))
-		print('test12: ',test12)
+		# print('test12: ',test12)
 		if test12 >= .00001 :
 			factor12 = (Plane1_pt-Line12_pt).dot(Plane1_N) / Line12_N.dot(Plane1_N)
 			p12 = Line12_N.multiply(factor12)+Line12_pt
@@ -3134,7 +3138,7 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		# if plane2 and Line21 are not parallel or coincident, set p21 at the intersection.
 		# if they are, [TBD]
 		test21 = math.fabs(Plane2_N.dot(Line21_N))
-		print('test21: ',test21)
+		# print('test21: ',test21)
 		if test21 >= .00001 :
 			factor21 = (Plane2_pt-Line21_pt).dot(Plane2_N) / Line21_N.dot(Plane2_N)
 			p21 = Line21_N.multiply(factor21)+Line21_pt
@@ -3148,7 +3152,7 @@ class ControlGrid44_3_Rotate:	# made from 3 CubicControlPoly4.
 		# if plane2 and Line22 are not parallel or coincident, set p22 at the intersection.
 		# if they are, [TBD]
 		test22 = math.fabs(Plane2_N.dot(Line22_N))
-		print('test22: ',test22)
+		# print('test22: ',test22)
 		if test22 >= .00001 :
 			factor22 = (Plane2_pt-Line22_pt).dot(Plane2_N) / Line22_N.dot(Plane2_N)
 			p22 = Line22_N.multiply(factor22)+Line22_pt
@@ -3290,11 +3294,11 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 		# additional object identifiers
 		obj.addProperty("App::PropertyString", 
 				  		"object_type", "C3 - Identifiers", 
-						"the workbench class used to create this objetc").object_type = "ControlGrid44_flow"
+						"the workbench class used to create this object").object_type = "ControlGrid44_flow"
 		obj.setEditorMode("object_type", 1)
 		obj.addProperty("App::PropertyString", 
 				  		"object_version", "C3 - Identifiers", 
-						"the class version of this objetc").object_version = latest_version
+						"the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", 
 				  		"internalName", "C3 - Identifiers", 
@@ -3413,7 +3417,7 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 			obj.setEditorMode("object_type", 1)
 			obj.addProperty("App::PropertyString", 
 				   			"object_version", "C3 - Identifiers", 
-							"the class version of this objetc").object_version = latest_version
+							"the class version of this object").object_version = latest_version
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", 
 				   			"internalName", "C3 - Identifiers", 
@@ -3578,13 +3582,13 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 
 		PlaneNormal = ((p10-p00).cross(p03-p00)).normalize()
 		PointToPlane = (p13-p00).dot(PlaneNormal)
-		print("PointToPlane, ", PointToPlane)
+		# print("PointToPlane, ", PointToPlane)
 		testCoplanar = (PointToPlane < .000001 and PointToPlane > -.000001)
-		print("testCoplanar, ", testCoplanar)
+		# print("testCoplanar, ", testCoplanar)
 		# check cross-product for colinear legs
 		testColinearCross = (p10 - p00).cross(p13 - p03)
 		testColinear = (testColinearCross.Length <= .000001)
-		print("testColinear, ", testColinear)
+		# print("testColinear, ", testColinear)
 		# these test work, but won't be used yet.
 
 		# Simple case for now, wrap in(/within?) exceptions after
@@ -3632,7 +3636,11 @@ class ControlGrid44_flow: # create a copy of a ControlGrid44 grid whose internal
 class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 	# ControlGrid66_4(poly0, poly1, poly2, poly3)
 	def __init__(self, obj , poly0, poly1, poly2, poly3):
-		''' Add the properties '''
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlGrid66_4 class Init\n")
 		obj.addProperty("App::PropertyLink","Poly0","ControlGrid66_4","control polygon").Poly0 = poly0
 		obj.addProperty("App::PropertyLink","Poly1","ControlGrid66_4","control polygon").Poly1 = poly1
@@ -3642,9 +3650,145 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4","Weights").Weights
 		obj.Proxy = self
+		'''
+
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Poly0","C1 - Inputs","first control polygon").Poly0 = poly0
+		obj.addProperty("App::PropertyLink","Poly1","C1 - Inputs","second control polygon").Poly1 = poly1
+		obj.addProperty("App::PropertyLink","Poly2","C1 - Inputs","third control polygon").Poly2 = poly2
+		obj.addProperty("App::PropertyLink","Poly3","C1 - Inputs","fourth control polygon").Poly3 = poly3
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = default_tol
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid66_4"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+	
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_poly0 = obj.Poly0
+			obj.removeProperty("Poly0")
+			old_poly1 = obj.Poly1
+			obj.removeProperty("Poly1")
+			old_poly2 = obj.Poly2
+			obj.removeProperty("Poly2")
+			old_poly3 = obj.Poly3
+			obj.removeProperty("Poly3")
+
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Poly0","C1 - Inputs","first control polygon").Poly0 = old_poly0
+			obj.addProperty("App::PropertyLink","Poly1","C1 - Inputs","second control polygon").Poly1 = old_poly1
+			obj.addProperty("App::PropertyLink","Poly2","C1 - Inputs","third control polygon").Poly2 = old_poly2
+			obj.addProperty("App::PropertyLink","Poly3","C1 - Inputs","fourth control polygon").Poly3 = old_poly3
+			obj.addProperty("App::PropertyFloat","tolerance",
+						   "C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = old_tolerance 
+			obj.addProperty("App::PropertyBool","reverse",
+						   "C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+				   			"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid66_4"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+				   			"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+				   			"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		if fp.reverse == False:
+			poles1=fp.Poly0.Poles
+			poles2=fp.Poly1.Poles
+			poles3=fp.Poly2.Poles
+			poles4=fp.Poly3.Poles
+			weights1=fp.Poly0.Weights
+			weights2=fp.Poly1.Weights
+			weights3=fp.Poly2.Weights
+			weights4=fp.Poly3.Weights
+		else:
+			poles1=fp.Poly3.Poles
+			poles2=fp.Poly2.Poles
+			poles3=fp.Poly1.Poles
+			poles4=fp.Poly0.Poles
+			weights1=fp.Poly3.Weights
+			weights2=fp.Poly2.Weights
+			weights3=fp.Poly1.Weights
+			weights4=fp.Poly0.Weights
+
+		'''
 		poles1=fp.Poly0.Poles
 		poles2=fp.Poly1.Poles
 		poles3=fp.Poly2.Poles
@@ -3653,10 +3797,36 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 		weights2=fp.Poly1.Weights
 		weights3=fp.Poly2.Weights
 		weights4=fp.Poly3.Weights
-		sext12 = orient_a_to_b(poles1,poles2,.000001)
-		sext23 = orient_a_to_b(poles2,poles3,.000001)
-		sext34 = orient_a_to_b(poles3,poles4,.000001)
-		sext41 = orient_a_to_b(poles4,poles1,.000001)
+		'''
+
+		sext12 = orient_a_to_b(poles1,poles2,fp.tolerance)
+		sext23 = orient_a_to_b(poles2,poles3,fp.tolerance)
+		sext34 = orient_a_to_b(poles3,poles4,fp.tolerance)
+		sext41 = orient_a_to_b(poles4,poles1,fp.tolerance)
+
+		escape_malformed_loop = 0
+		if (sext12 == 0):
+			message = "first and second selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (sext23 == 0):
+			message = "second and third selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (sext34 == 0):
+			message = "third and fourth selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (sext41 == 0):
+			message = "first and fourth selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (escape_malformed_loop == 1):
+			print (fp.Name, ", labeled ", fp.Label , "\n", \
+					message, "\n",
+		  			"the object is created in the document, but awaits resolution of endpoint matching.",
+	  				" inspect the sketches that define the Controloly4 objects.",
+	  				" prioritize coincident constraints for the endpoints.",
+					" do not trust a point on object constraint to result in theoretical point matching")
+			fake_name_to_trigger_error = please_read_message_above
+			return
+
 		# the weight orientation check below doesn't look complete.
 		# checking first and last isn't enough. need to fix.
 		if sext12[0]!=poles1[0] and sext12[0]==poles1[-1]:
@@ -3762,7 +3932,11 @@ class ControlGrid66_4:	# made from 4 CubicControlPoly6.
 
 class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 	def __init__(self, obj , poly6_0, poly4_1, poly6_2, poly4_3):
-		''' Add the properties '''
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlGrid64_4 class Init\n")
 		obj.addProperty("App::PropertyLink","Poly6_0","ControlGrid64_4","control polygon").Poly6_0 = poly6_0
 		obj.addProperty("App::PropertyLink","Poly4_1","ControlGrid64_4","control polygon").Poly4_1 = poly4_1
@@ -3772,21 +3946,173 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_4","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_4","Weights").Weights
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Poly6_0","C1 - Inputs","first control polygon").Poly6_0 = poly6_0
+		obj.addProperty("App::PropertyLink","Poly4_1","C1 - Inputs","second control polygon").Poly4_1 = poly4_1
+		obj.addProperty("App::PropertyLink","Poly6_2","C1 - Inputs","third control polygon").Poly6_2 = poly6_2
+		obj.addProperty("App::PropertyLink","Poly4_3","C1 - Inputs","fourth control polygon").Poly4_3 = poly4_3
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = default_tol
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid64_4"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_poly6_0 = obj.Poly6_0
+			obj.removeProperty("Poly6_0")
+			old_poly4_1 = obj.Poly4_1
+			obj.removeProperty("Poly4_1")
+			old_poly6_2 = obj.Poly6_2
+			obj.removeProperty("Poly6_2")
+			old_poly4_3 = obj.Poly4_3
+			obj.removeProperty("Poly4_3")
+
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Poly6_0","C1 - Inputs","first control polygon").Poly6_0 = old_poly6_0
+			obj.addProperty("App::PropertyLink","Poly4_1","C1 - Inputs","second control polygon").Poly4_1 = old_poly4_1
+			obj.addProperty("App::PropertyLink","Poly6_2","C1 - Inputs","third control polygon").Poly6_2 = old_poly6_2
+			obj.addProperty("App::PropertyLink","Poly4_3","C1 - Inputs","fourth control polygon").Poly4_3 = old_poly4_3
+			obj.addProperty("App::PropertyFloat","tolerance",
+						   "C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = old_tolerance 
+			obj.addProperty("App::PropertyBool","reverse",
+						   "C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+				   			"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid64_4"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+				   			"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+				   			"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		poles6_0=fp.Poly6_0.Poles
-		poles4_1=fp.Poly4_1.Poles
-		poles6_2=fp.Poly6_2.Poles
-		poles4_3=fp.Poly4_3.Poles
-		weights6_0=fp.Poly6_0.Weights
-		weights4_1=fp.Poly4_1.Weights
-		weights6_2=fp.Poly6_2.Weights
-		weights4_3=fp.Poly4_3.Weights
-		sext12 = orient_a_to_b(poles6_0,poles4_1,.000001)
-		quad23 = orient_a_to_b(poles4_1,poles6_2,.000001)
-		sext34 = orient_a_to_b(poles6_2,poles4_3,.000001)
-		quad41 = orient_a_to_b(poles4_3,poles6_0,.000001)
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		if fp.reverse == False:
+			poles6_0=fp.Poly6_0.Poles
+			poles4_1=fp.Poly4_1.Poles
+			poles6_2=fp.Poly6_2.Poles
+			poles4_3=fp.Poly4_3.Poles
+			weights6_0=fp.Poly6_0.Weights
+			weights4_1=fp.Poly4_1.Weights
+			weights6_2=fp.Poly6_2.Weights
+			weights4_3=fp.Poly4_3.Weights
+		else:
+			# because we have 4s and 6s, we cannot just reverse everything
+			poles6_0=fp.Poly6_0.Poles # keep as first
+			poles4_1=fp.Poly4_3.Poles # swap the 4s
+			poles6_2=fp.Poly6_2.Poles # keep as third
+			poles4_3=fp.Poly4_1.Poles # swap the 4s
+			weights6_0=fp.Poly6_0.Weights
+			weights4_1=fp.Poly4_3.Weights
+			weights6_2=fp.Poly6_2.Weights
+			weights4_3=fp.Poly4_1.Weights
+
+		sext12 = orient_a_to_b(poles6_0,poles4_1,fp.tolerance)
+		quad23 = orient_a_to_b(poles4_1,poles6_2,fp.tolerance)
+		sext34 = orient_a_to_b(poles6_2,poles4_3,fp.tolerance)
+		quad41 = orient_a_to_b(poles4_3,poles6_0,fp.tolerance)
+
+		escape_malformed_loop = 0
+		if (sext12 == 0):
+			message = "first and second selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (quad23 == 0):
+			message = "second and third selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (sext34 == 0):
+			message = "third and fourth selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (quad41 == 0):
+			message = "first and fourth selected polys do not share endpoints at the current tolerance"
+			escape_malformed_loop = 1
+		if (escape_malformed_loop == 1):
+			print (fp.Name, ", labeled ", fp.Label , "\n", \
+					message, "\n",
+		  			"the object is created in the document, but awaits resolution of endpoint matching.",
+	  				" inspect the sketches that define the Controloly4 objects.",
+	  				" prioritize coincident constraints for the endpoints.",
+					" do not trust a point on object constraint to result in theoretical point matching")
+			fake_name_to_trigger_error = please_read_message_above
+			return
+
 		if sext12[0]!=poles6_0[0] and sext12[0]==poles6_0[-1]:
 			weights6_0=weights6_0[::-1]
 		if quad23[0]!=poles4_1[0] and quad23[0]==poles4_1[-1]:
@@ -3795,6 +4121,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 			weights6_2=weights6_2[::-1]
 		if quad41[0]!=poles4_3[0] and quad41[0]==poles4_3[-1]:
 			weights4_3=weights4_3[::-1]
+		
 		p00 = sext12[0]
 		p01 = sext12[1]
 		p02 = sext12[2]
@@ -3859,7 +4186,7 @@ class ControlGrid64_4:	# made from 2 CubicControlPoly6 and 2 CubicControlPoly4.
 		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. degenerate grid.
+class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. degenerate grid. NOT IN USE ANYWHERE
 	def __init__(self, obj , poly4_0, poly6_1, poly4_2):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlGrid64_4 class Init\n")
@@ -3985,30 +4312,211 @@ class ControlGrid64_3:	# made from 2 CubicControlPoly4 and 1 CubicControlPoly6. 
 
 class CubicCurve_4:
 	def __init__(self, obj , poly):
-		''' Add the properties '''
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nCubicCurve_4 class Init\n")
 		obj.addProperty("App::PropertyLink","Poly","CubicCurve_4","control polygon").Poly = poly
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Poly","C1 - Inputs","control polygon").Poly = poly
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicCurve_4"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_poly = obj.Poly
+			obj.removeProperty("Poly")
+			
+			#capturing, then deleting versioned attributes will require testing for their presence
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Poly","C1 - Inputs","control polygon").Poly = old_poly
+			obj.addProperty("App::PropertyBool","reverse",
+							"C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+							"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicCurve_4"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+							"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+							"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
 		# get the poles list from the poly. legacy shape function wants 'homogeneous' coords as [[x,y,z],w]
 		WeightedPoles=[[fp.Poly.Poles[0],fp.Poly.Weights[0]],
 				[fp.Poly.Poles[1],fp.Poly.Weights[1]],
 				[fp.Poly.Poles[2],fp.Poly.Weights[2]],
 				[fp.Poly.Poles[3],fp.Poly.Weights[3]]]
+		if fp.reverse == True:
+			WeightedPoles = WeightedPoles[::-1]
+
 		# the legacy function below sets the degree and knot vector
 		fp.Shape = Bezier_Cubic_curve(WeightedPoles).toShape()
 
 class CubicCurve_6:
 	def __init__(self, obj , poly):
-		''' Add the properties '''
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nCubicCurve_6 class Init\n")
 		obj.addProperty("App::PropertyLink","Poly","CubicCurve_6","control polygon").Poly = poly
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Poly","C1 - Inputs","control polygon").Poly = poly
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicCurve_6"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_poly = obj.Poly
+			obj.removeProperty("Poly")
+			
+			#capturing, then deleting versioned attributes will require testing for their presence
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Poly","C1 - Inputs","control polygon").Poly = old_poly
+			obj.addProperty("App::PropertyBool","reverse",
+							"C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+							"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicCurve_6"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+							"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+							"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
 		# get the poles list from the poly. legacy shape function wants 'homogeneous' coords as [[x,y,z],w]
 		WeightedPoles=[[fp.Poly.Poles[0],fp.Poly.Weights[0]],
 				[fp.Poly.Poles[1],fp.Poly.Weights[1]],
@@ -4016,10 +4524,15 @@ class CubicCurve_6:
 				[fp.Poly.Poles[3],fp.Poly.Weights[3]],
 				[fp.Poly.Poles[4],fp.Poly.Weights[4]],
 				[fp.Poly.Poles[5],fp.Poly.Weights[5]]]
+		if fp.reverse == True:
+			WeightedPoles = WeightedPoles[::-1]
+
 		# the legacy function below sets the degree and knot vector
 		fp.Shape = NURBS_Cubic_6P_curve(WeightedPoles).toShape()
 
-class ControlPoly6_Bezier: # not currently used. ControlPoly6_FirstElement gets the correct result already
+### curve derived objects (+curve to input)
+
+class ControlPoly6_Bezier: # not currently used. ControlPoly6_FirstElement gets the correct result already. also, wrong section
 	def __init__(self, obj , cubiccurve4_0):
 		''' Add the properties '''
 		FreeCAD.Console.PrintMessage("\nControlPoly6_Bezier class Init\n")
@@ -4060,10 +4573,14 @@ class ControlPoly6_Bezier: # not currently used. ControlPoly6_FirstElement gets 
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-### curve derived objects (+curve to input)
 class ControlPoly6_FilletBezier:
 	def __init__(self, obj , cubiccurve4_0, cubiccurve4_1):
 		''' Add the properties '''
+
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlPoly6_FilletBezier class Init\n")
 		obj.addProperty("App::PropertyLink","CubicCurve4_0","ControlPoly6_FilletBezier","First reference Bezier Curve").CubicCurve4_0 = cubiccurve4_0
 		obj.addProperty("App::PropertyLink","CubicCurve4_1","ControlPoly6_FilletBezier","Second reference Bezier Curve").CubicCurve4_1 = cubiccurve4_1
@@ -4078,29 +4595,202 @@ class ControlPoly6_FilletBezier:
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly6_FilletBezier","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly6_FilletBezier","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","CubicCurve4_0",
+				  		"C1 - Inputs","First reference Bezier Curve").CubicCurve4_0 = cubiccurve4_0
+		obj.addProperty("App::PropertyLink","CubicCurve4_1",
+				  		"C1 - Inputs","Second reference Bezier Curve").CubicCurve4_1 = cubiccurve4_1
+		obj.addProperty("App::PropertyFloat","Scale_0",
+				  		"C1 - Inputs","First curve tangent scaling").Scale_0 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_3",
+				  		"C1 - Inputs","Second curve tangent scaling").Scale_3 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_1",
+				  		"C1 - Inputs","First curve inner scaling").Scale_1 = 2.0
+		obj.addProperty("App::PropertyFloat","Scale_2",
+				  		"C1 - Inputs","Second curve inner scaling").Scale_2 = 2.0
+		obj.addProperty("App::PropertyInteger", "autoG3", 
+				  		"C1 - Inputs", "Try to set G3 to the input polys").autoG3 = 0
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the curves (corner to blend)").tolerance = default_tol
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_FilletBezier"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_cubiccurve4_0 = obj.CubicCurve4_0
+			obj.removeProperty("CubicCurve4_0")
+			old_cubiccurve4_1 = obj.CubicCurve4_1
+			obj.removeProperty("CubicCurve4_1")
+			old_scale_0 = obj.Scale_0
+			obj.removeProperty("Scale_0")
+			old_scale_1 = obj.Scale_1
+			obj.removeProperty("Scale_1")
+			old_scale_2 = obj.Scale_2
+			obj.removeProperty("Scale_2")
+			old_scale_3 = obj.Scale_3
+			obj.removeProperty("Scale_3")
+			old_autog3 = obj.autoG3
+			obj.removeProperty("autoG3")
+			
+
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","CubicCurve4_0",
+							"C1 - Inputs","First reference Bezier Curve").CubicCurve4_0 = old_cubiccurve4_0
+			obj.addProperty("App::PropertyLink","CubicCurve4_1",
+							"C1 - Inputs","Second reference Bezier Curve").CubicCurve4_1 = old_cubiccurve4_1
+			obj.addProperty("App::PropertyFloat","Scale_0",
+							"C1 - Inputs","First curve tangent scaling").Scale_0 = old_scale_0
+			obj.addProperty("App::PropertyFloat","Scale_3",
+							"C1 - Inputs","Second curve tangent scaling").Scale_3 = old_scale_3
+			obj.addProperty("App::PropertyFloat","Scale_1",
+							"C1 - Inputs","First curve inner scaling").Scale_1 = old_scale_1
+			obj.addProperty("App::PropertyFloat","Scale_2",
+							"C1 - Inputs","Second curve inner scaling").Scale_2 = old_scale_2
+			obj.addProperty("App::PropertyInteger", "autoG3", 
+							"C1 - Inputs", "Try to set G3 to the input polys").autoG3 = old_autog3
+			obj.addProperty("App::PropertyFloat","tolerance",
+							"C1 - Inputs","point-to-point connection tolerance for the curves (at the corner to blend)").tolerance = old_tolerance
+			obj.addProperty("App::PropertyBool","reverse",
+							"C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+							"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly6_FilletBezier"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+							"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+							"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		poles_0 = fp.CubicCurve4_0.Poly.Poles
-		poles_1 = fp.CubicCurve4_1.Poly.Poles
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		if fp.reverse == False:
+			poles_0 = fp.CubicCurve4_0.Poly.Poles
+			poles_1 = fp.CubicCurve4_1.Poly.Poles
+			weights_0 = fp.CubicCurve4_0.Poly.Weights
+			weights_1 = fp.CubicCurve4_1.Poly.Weights
 
-		weights_0 = fp.CubicCurve4_0.Poly.Weights
-		weights_1 = fp.CubicCurve4_1.Poly.Weights
+			scale_0 = fp.Scale_0 # to first curve
+			scale_1 = fp.Scale_1 # to first curve
+			scale_2 = fp.Scale_2 # to second curve
+			scale_3 = fp.Scale_3 # to second curve
 
-		blend_0 = orient_a_to_b(poles_0,poles_1,.000001)
+		else:
+			poles_0 = fp.CubicCurve4_1.Poly.Poles # start from second curve
+			poles_1 = fp.CubicCurve4_0.Poly.Poles # go to first curve
+			weights_0 = fp.CubicCurve4_1.Poly.Weights # start from second curve
+			weights_1 = fp.CubicCurve4_0.Poly.Weights # go to first curve
 
-		blend_1_flip = orient_a_to_b(poles_1,poles_0,.000001)
+			# scales should be fixed to geometry
+			scale_0 = fp.Scale_3 # to second curve
+			scale_1 = fp.Scale_2 # to second curve
+			scale_2 = fp.Scale_1 # to first curve
+			scale_3 = fp.Scale_0 # to first curve
+
+		# orient first curve to end at shared corner
+		blend_0 = orient_a_to_b(poles_0,poles_1,fp.tolerance)
+		# orient a temp copy of the second curve to end at shared corner
+		blend_1_flip = orient_a_to_b(poles_1,poles_0,fp.tolerance)
+		# reverse this second curve so it starts at shared corner
 		blend_1 = blend_1_flip[::-1]
 
+		escape_malformed_corner = 0
+		if (blend_0 == 0):
+			message = "first and second selected polys do not share endpoints at the current tolerance - no corner to blend/fillet is recognized"
+			escape_malformed_corner = 1
+		
+		if (escape_malformed_corner == 1):
+			print (fp.Name, ", labeled ", fp.Label , "\n", \
+					message, "\n",
+		  			"the object is created in the document, but awaits resolution of endpoint matching.",
+	  				" inspect the sketches that define the Controlpoly4 objects that define the curves.",
+	  				" prioritize coincident constraints for the endpoints.",
+					" do not trust a point on object constraint to result in theoretical point matching")
+			fake_name_to_trigger_error = please_read_message_above
+			return
+
+		# reverse weights to match the output of the orientations
 		if blend_0[0] != poles_0[0] and blend_0[0] == poles_0[-1]:
 			weights_0=weights_0[::-1]
 		if blend_1[0] != poles_1[0] and blend_1[0] == poles_1[-1]:
 			weights_1=weights_1[::-1]
-
-		scale_0 = fp.Scale_0
-		scale_1 = fp.Scale_1
-		scale_2 = fp.Scale_2
-		scale_3 = fp.Scale_3
 
 		if fp.autoG3 == 0:
 			blend = blend_poly_2x4_1x6(blend_0, weights_0, blend_1, weights_1, scale_0, scale_1, scale_2, scale_3)		
@@ -4111,8 +4801,13 @@ class ControlPoly6_FilletBezier:
 		
 		fp.Poles = blend[0]
 		fp.Weights = blend[1]
-		fp.Scale_1 = blend[2]
-		fp.Scale_2 = blend[3]
+
+		if fp.reverse == False:
+			fp.Scale_1 = blend[2]
+			fp.Scale_2 = blend[3]
+		else:
+			fp.Scale_1 = blend[3]
+			fp.Scale_2 = blend[2]
 		
 		# prepare the lines to draw the polyline
 		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
@@ -4126,8 +4821,12 @@ class ControlPoly6_FilletBezier:
 		fp.Shape = Part.Shape(fp.Legs)
 
 class Point_onCurve:
-	def __init__(self, obj ,NL_Curve,u):
-		''' Add the properties '''
+	def __init__(self, obj ,NL_Curve, u):
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nPoint_onCurve class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Curve","Point_onCurve","reference curve").NL_Curve = NL_Curve
 		lower = 0.0
@@ -4136,16 +4835,125 @@ class Point_onCurve:
 		obj.addProperty("App::PropertyFloatConstraint","u","Point_onCurve","parameter along curve").u = (u, lower, upper, step)
 		obj.addProperty("App::PropertyVector","Position","Point_onCurve","position vector").Position
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","NL_Curve","C1 - Inputs","reference curve").NL_Curve = NL_Curve
+		lower = 0.0
+		upper = 1.0
+		step = 0.01
+		obj.addProperty("App::PropertyFloatConstraint","u","C1 - Inputs","parameter along curve").u = (u, lower, upper, step)
+
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("App::PropertyVector","Position","C2 - Outputs","position vector").Position
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "Point_onCurve"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_NL_Curve = obj.NL_Curve
+			obj.removeProperty("NL_Curve")
+			old_u = obj.u
+			obj.removeProperty("u")
+			obj.removeProperty("Position")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","NL_Curve","C1 - Inputs","reference curve").NL_Curve = old_NL_Curve
+			lower = 0.0
+			upper = 1.0
+			step = 0.01
+			obj.addProperty("App::PropertyFloatConstraint","u","C1 - Inputs","parameter along curve").u = (old_u, lower, upper, step)
+
+			obj.addProperty("App::PropertyBool","reverse",
+							"C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("App::PropertyVector","Position","C2 - Outputs","position vector").Position
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+							"C3 - Identifiers", "the workbench class used to create this object").object_type = "Point_onCurve"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+							"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+							"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
-		fp.Position=fp.NL_Curve.Shape.Curve.value(fp.u)
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		if fp.reverse == True:
+			u = 1-fp.u
+		else:
+			u = fp.u
+
+		fp.Position=fp.NL_Curve.Shape.Curve.value(u)
 		fp.Shape = Part.Point(fp.Position).toShape()
 
 ### point derived objects (+point to input)
 class ControlPoly4_segment:
 	def __init__(self, obj , NL_Curve, Point_onCurve_0, Point_onCurve_1):
-		''' Add the properties '''
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlPoly4_segment class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Curve","ControlPoly4_segment","reference Curve").NL_Curve = NL_Curve
 		obj.addProperty("App::PropertyLink","Point_onCurve_0","ControlPoly4_segment","first reference point").Point_onCurve_0 = Point_onCurve_0
@@ -4154,16 +4962,118 @@ class ControlPoly4_segment:
 		obj.addProperty("App::PropertyVectorList","Poles","ControlPoly4_3L","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlPoly4_3L","Weights").Weights = [1.0,1.0,1.0,1.0]
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","NL_Curve","C1 - Inputs","reference curve").NL_Curve = NL_Curve
+		obj.addProperty("App::PropertyLink","Point_onCurve_0","C1 - Inputs","segment start point").Point_onCurve_0 = Point_onCurve_0
+		obj.addProperty("App::PropertyLink","Point_onCurve_1","C1 - Inputs","segment end point").Point_onCurve_1 = Point_onCurve_1
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the parameter direction").reverse = False
+		# outputs
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0]
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_segment"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_NL_Curve = obj.NL_Curve
+			obj.removeProperty("NL_Curve")
+			old_Point_onCurve_0 = obj.Point_onCurve_0
+			obj.removeProperty("Point_onCurve_0")
+			old_Point_onCurve_1 = obj.Point_onCurve_1
+			obj.removeProperty("Point_onCurve_1")
+
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+			obj.removeProperty("Weights")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","NL_Curve","C1 - Inputs","reference curve").NL_Curve = old_NL_Curve
+			obj.addProperty("App::PropertyLink","Point_onCurve_0","C1 - Inputs","segment start point").Point_onCurve_0 = old_Point_onCurve_0
+			obj.addProperty("App::PropertyLink","Point_onCurve_1","C1 - Inputs","segment end point").Point_onCurve_1 = old_Point_onCurve_1
+			obj.addProperty("App::PropertyBool","reverse",
+							"C1 - Inputs","reverse the parameter direction").reverse = old_reverse
+			# outputs
+			obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+			obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+			obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0]
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+							"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_segment"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+							"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+							"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+			obj.setEditorMode("internalName", 1)
+				
+			# need to recompute otherwise the poles remain unpopulated
+			obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
 		# get the curve
 		curve=fp.NL_Curve.Shape.Curve
 		# get the u span
 		u0=curve.parameter(fp.Point_onCurve_0.Position)
-		print(u0)
+		# print(u0)
 		u1=curve.parameter(fp.Point_onCurve_1.Position)
-		print(u1)
+		# print(u1)
 		if u0<u1:
 			a=u0
 			b=u1
@@ -4172,8 +5082,13 @@ class ControlPoly4_segment:
 			b=u0
 		# cut the curve...need to copy first to keep original?
 		curve.segment(a,b)
-		fp.Poles=curve.getPoles()
-		fp.Weights=curve.getWeights()
+
+		if fp.reverse == False:
+			fp.Poles=curve.getPoles()
+			fp.Weights=curve.getWeights()
+		else:
+			fp.Poles=curve.getPoles()[::-1]
+			fp.Weights=curve.getWeights()[::-1]
 
 		# prepare visualization elements
 		p00=fp.Poles[0]
@@ -4194,119 +5109,446 @@ class ControlPoly4_segment:
 
 class CubicSurface_44:
 	def __init__(self, obj , grid):
-		''' Add the properties '''
+		
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nCubicSurface_44 class Init\n")
 		obj.addProperty("App::PropertyLink","Grid","CubicSurface_44","control grid").Grid = grid
 		obj.Proxy = self
+		'''
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Grid","C1 - Inputs","control Grid").Grid = grid
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = False
+		# outputs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicSurface_44"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = latest_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			#capture, then delete pre-version attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_grid = obj.Grid
+			obj.removeProperty("Grid")
+			
+			#capturing, then deleting versioned attributes will require testing for their presence
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			#this matches __init__, except we use the old values instead of the defaults where they are available
+			# current attribute set
+			# inputs
+			obj.addProperty("App::PropertyLink","Grid","C1 - Inputs","control Grid").Grid = old_grid
+			obj.addProperty("App::PropertyBool","reverse",
+							"C1 - Inputs","reverse the surface normal direction").reverse = old_reverse
+			# outputs
+			# additional object identifiers
+			obj.addProperty("App::PropertyString", "object_type", 
+							"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicSurface_44"
+			obj.setEditorMode("object_type", 1)
+			obj.addProperty("App::PropertyString", "object_version", 
+							"C3 - Identifiers", "the class version of this object").object_version = latest_version
+			obj.setEditorMode("object_version", 1)
+			obj.addProperty("App::PropertyString", "internalName", 
+							"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+			obj.setEditorMode("internalName", 1)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
 		# get the poles list from the poly. legacy shape function wants 'homogeneous' coords as [[x,y,z],w]
-		WeightedPoles=[
-			[fp.Grid.Poles[0],fp.Grid.Weights[0]],
-			[fp.Grid.Poles[1],fp.Grid.Weights[1]],
-			[fp.Grid.Poles[2],fp.Grid.Weights[2]],
-			[fp.Grid.Poles[3],fp.Grid.Weights[3]],
-			[fp.Grid.Poles[4],fp.Grid.Weights[4]],
-			[fp.Grid.Poles[5],fp.Grid.Weights[5]],
-			[fp.Grid.Poles[6],fp.Grid.Weights[6]],
-			[fp.Grid.Poles[7],fp.Grid.Weights[7]],
-			[fp.Grid.Poles[8],fp.Grid.Weights[8]],
-			[fp.Grid.Poles[9],fp.Grid.Weights[9]],
-			[fp.Grid.Poles[10],fp.Grid.Weights[10]],
-			[fp.Grid.Poles[11],fp.Grid.Weights[11]],
-			[fp.Grid.Poles[12],fp.Grid.Weights[12]],
-			[fp.Grid.Poles[13],fp.Grid.Weights[13]],
-			[fp.Grid.Poles[14],fp.Grid.Weights[14]],
-			[fp.Grid.Poles[15],fp.Grid.Weights[15]]]
+		if fp.reverse == False:
+			WeightedPoles=[
+				[fp.Grid.Poles[0],fp.Grid.Weights[0]],
+				[fp.Grid.Poles[1],fp.Grid.Weights[1]],
+				[fp.Grid.Poles[2],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[3],fp.Grid.Weights[3]],
+				[fp.Grid.Poles[4],fp.Grid.Weights[4]],
+				[fp.Grid.Poles[5],fp.Grid.Weights[5]],
+				[fp.Grid.Poles[6],fp.Grid.Weights[6]],
+				[fp.Grid.Poles[7],fp.Grid.Weights[7]],
+				[fp.Grid.Poles[8],fp.Grid.Weights[8]],
+				[fp.Grid.Poles[9],fp.Grid.Weights[9]],
+				[fp.Grid.Poles[10],fp.Grid.Weights[10]],
+				[fp.Grid.Poles[11],fp.Grid.Weights[11]],
+				[fp.Grid.Poles[12],fp.Grid.Weights[12]],
+				[fp.Grid.Poles[13],fp.Grid.Weights[13]],
+				[fp.Grid.Poles[14],fp.Grid.Weights[14]],
+				[fp.Grid.Poles[15],fp.Grid.Weights[15]]]
+		
+		else:
+			# invert u, keep v
+			WeightedPoles=[
+				[fp.Grid.Poles[3],fp.Grid.Weights[3]],
+				[fp.Grid.Poles[2],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[1],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[0],fp.Grid.Weights[0]],
+				[fp.Grid.Poles[7],fp.Grid.Weights[7]],
+				[fp.Grid.Poles[6],fp.Grid.Weights[6]],
+				[fp.Grid.Poles[5],fp.Grid.Weights[5]],
+				[fp.Grid.Poles[4],fp.Grid.Weights[4]],
+				[fp.Grid.Poles[11],fp.Grid.Weights[11]],
+				[fp.Grid.Poles[10],fp.Grid.Weights[10]],
+				[fp.Grid.Poles[9],fp.Grid.Weights[9]],
+				[fp.Grid.Poles[8],fp.Grid.Weights[8]],
+				[fp.Grid.Poles[15],fp.Grid.Weights[15]],
+				[fp.Grid.Poles[14],fp.Grid.Weights[14]],
+				[fp.Grid.Poles[13],fp.Grid.Weights[13]],
+				[fp.Grid.Poles[12],fp.Grid.Weights[12]]]
+
 		# the legacy function below sets the degree and knot vector
 		fp.Shape = Bezier_Bicubic_surf(WeightedPoles).toShape()
 
 class CubicSurface_66:
+	def CubicSurface_66_Attributes(self, obj, grid, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Grid","C1 - Inputs","control Grid").Grid = grid
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = reverse
+		# outputs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicSurface_66"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
 	def __init__(self, obj , grid):
-		''' Add the properties '''
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nCubicSurface_66 class Init\n")
 		obj.addProperty("App::PropertyLink","Grid","CubicSurface_66","control grid").Grid = grid
 		obj.Proxy = self
+		'''
+		self.CubicSurface_66_Attributes(obj, grid, False, latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "Grid"): 
+				old_grid = obj.Grid
+				obj.removeProperty("Grid")
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all  atributes in current version format
+			self.CubicSurface_66_Attributes(obj, old_grid, old_reverse, latest_version)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+
 		# get the poles list from the poly. legacy shape function wants 'homogeneous' coords as [[x,y,z],w]
-		WeightedPoles=[
-			[fp.Grid.Poles[0],fp.Grid.Weights[0]],
-			[fp.Grid.Poles[1],fp.Grid.Weights[1]],
-			[fp.Grid.Poles[2],fp.Grid.Weights[2]],
-			[fp.Grid.Poles[3],fp.Grid.Weights[3]],
-			[fp.Grid.Poles[4],fp.Grid.Weights[4]],
-			[fp.Grid.Poles[5],fp.Grid.Weights[5]],
-			[fp.Grid.Poles[6],fp.Grid.Weights[6]],
-			[fp.Grid.Poles[7],fp.Grid.Weights[7]],
-			[fp.Grid.Poles[8],fp.Grid.Weights[8]],
-			[fp.Grid.Poles[9],fp.Grid.Weights[9]],
-			[fp.Grid.Poles[10],fp.Grid.Weights[10]],
-			[fp.Grid.Poles[11],fp.Grid.Weights[11]],
-			[fp.Grid.Poles[12],fp.Grid.Weights[12]],
-			[fp.Grid.Poles[13],fp.Grid.Weights[13]],
-			[fp.Grid.Poles[14],fp.Grid.Weights[14]],
-			[fp.Grid.Poles[15],fp.Grid.Weights[15]],
-			[fp.Grid.Poles[16],fp.Grid.Weights[16]],
-			[fp.Grid.Poles[17],fp.Grid.Weights[17]],
-			[fp.Grid.Poles[18],fp.Grid.Weights[18]],
-			[fp.Grid.Poles[19],fp.Grid.Weights[19]],
-			[fp.Grid.Poles[20],fp.Grid.Weights[20]],
-			[fp.Grid.Poles[21],fp.Grid.Weights[21]],
-			[fp.Grid.Poles[22],fp.Grid.Weights[22]],
-			[fp.Grid.Poles[23],fp.Grid.Weights[23]],
-			[fp.Grid.Poles[24],fp.Grid.Weights[24]],
-			[fp.Grid.Poles[25],fp.Grid.Weights[25]],
-			[fp.Grid.Poles[26],fp.Grid.Weights[26]],
-			[fp.Grid.Poles[27],fp.Grid.Weights[27]],
-			[fp.Grid.Poles[28],fp.Grid.Weights[28]],
-			[fp.Grid.Poles[29],fp.Grid.Weights[29]],
-			[fp.Grid.Poles[30],fp.Grid.Weights[30]],
-			[fp.Grid.Poles[31],fp.Grid.Weights[31]],
-			[fp.Grid.Poles[32],fp.Grid.Weights[32]],
-			[fp.Grid.Poles[33],fp.Grid.Weights[33]],
-			[fp.Grid.Poles[34],fp.Grid.Weights[34]],
-			[fp.Grid.Poles[35],fp.Grid.Weights[35]]]
+		if fp.reverse == False:
+			WeightedPoles=[
+				[fp.Grid.Poles[0],fp.Grid.Weights[0]],
+				[fp.Grid.Poles[1],fp.Grid.Weights[1]],
+				[fp.Grid.Poles[2],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[3],fp.Grid.Weights[3]],
+				[fp.Grid.Poles[4],fp.Grid.Weights[4]],
+				[fp.Grid.Poles[5],fp.Grid.Weights[5]],
+				[fp.Grid.Poles[6],fp.Grid.Weights[6]],
+				[fp.Grid.Poles[7],fp.Grid.Weights[7]],
+				[fp.Grid.Poles[8],fp.Grid.Weights[8]],
+				[fp.Grid.Poles[9],fp.Grid.Weights[9]],
+				[fp.Grid.Poles[10],fp.Grid.Weights[10]],
+				[fp.Grid.Poles[11],fp.Grid.Weights[11]],
+				[fp.Grid.Poles[12],fp.Grid.Weights[12]],
+				[fp.Grid.Poles[13],fp.Grid.Weights[13]],
+				[fp.Grid.Poles[14],fp.Grid.Weights[14]],
+				[fp.Grid.Poles[15],fp.Grid.Weights[15]],
+				[fp.Grid.Poles[16],fp.Grid.Weights[16]],
+				[fp.Grid.Poles[17],fp.Grid.Weights[17]],
+				[fp.Grid.Poles[18],fp.Grid.Weights[18]],
+				[fp.Grid.Poles[19],fp.Grid.Weights[19]],
+				[fp.Grid.Poles[20],fp.Grid.Weights[20]],
+				[fp.Grid.Poles[21],fp.Grid.Weights[21]],
+				[fp.Grid.Poles[22],fp.Grid.Weights[22]],
+				[fp.Grid.Poles[23],fp.Grid.Weights[23]],
+				[fp.Grid.Poles[24],fp.Grid.Weights[24]],
+				[fp.Grid.Poles[25],fp.Grid.Weights[25]],
+				[fp.Grid.Poles[26],fp.Grid.Weights[26]],
+				[fp.Grid.Poles[27],fp.Grid.Weights[27]],
+				[fp.Grid.Poles[28],fp.Grid.Weights[28]],
+				[fp.Grid.Poles[29],fp.Grid.Weights[29]],
+				[fp.Grid.Poles[30],fp.Grid.Weights[30]],
+				[fp.Grid.Poles[31],fp.Grid.Weights[31]],
+				[fp.Grid.Poles[32],fp.Grid.Weights[32]],
+				[fp.Grid.Poles[33],fp.Grid.Weights[33]],
+				[fp.Grid.Poles[34],fp.Grid.Weights[34]],
+				[fp.Grid.Poles[35],fp.Grid.Weights[35]]]
+		else:
+				# invert u, keep v
+				WeightedPoles=[
+				[fp.Grid.Poles[5],fp.Grid.Weights[5]],
+				[fp.Grid.Poles[4],fp.Grid.Weights[4]],
+				[fp.Grid.Poles[3],fp.Grid.Weights[3]],
+				[fp.Grid.Poles[2],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[1],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[0],fp.Grid.Weights[0]],
+				[fp.Grid.Poles[11],fp.Grid.Weights[11]],
+				[fp.Grid.Poles[10],fp.Grid.Weights[10]],
+				[fp.Grid.Poles[9],fp.Grid.Weights[9]],
+				[fp.Grid.Poles[8],fp.Grid.Weights[8]],
+				[fp.Grid.Poles[7],fp.Grid.Weights[7]],
+				[fp.Grid.Poles[6],fp.Grid.Weights[6]],
+				[fp.Grid.Poles[17],fp.Grid.Weights[17]],
+				[fp.Grid.Poles[16],fp.Grid.Weights[16]],
+				[fp.Grid.Poles[15],fp.Grid.Weights[15]],
+				[fp.Grid.Poles[14],fp.Grid.Weights[14]],
+				[fp.Grid.Poles[13],fp.Grid.Weights[13]],
+				[fp.Grid.Poles[12],fp.Grid.Weights[12]],
+				[fp.Grid.Poles[23],fp.Grid.Weights[23]],
+				[fp.Grid.Poles[22],fp.Grid.Weights[22]],
+				[fp.Grid.Poles[21],fp.Grid.Weights[21]],
+				[fp.Grid.Poles[20],fp.Grid.Weights[20]],
+				[fp.Grid.Poles[19],fp.Grid.Weights[19]],
+				[fp.Grid.Poles[18],fp.Grid.Weights[18]],
+				[fp.Grid.Poles[29],fp.Grid.Weights[29]],
+				[fp.Grid.Poles[28],fp.Grid.Weights[28]],
+				[fp.Grid.Poles[27],fp.Grid.Weights[27]],
+				[fp.Grid.Poles[26],fp.Grid.Weights[26]],
+				[fp.Grid.Poles[25],fp.Grid.Weights[25]],
+				[fp.Grid.Poles[24],fp.Grid.Weights[24]],
+				[fp.Grid.Poles[35],fp.Grid.Weights[35]],
+				[fp.Grid.Poles[34],fp.Grid.Weights[34]],
+				[fp.Grid.Poles[33],fp.Grid.Weights[33]],
+				[fp.Grid.Poles[32],fp.Grid.Weights[32]],
+				[fp.Grid.Poles[31],fp.Grid.Weights[31]],
+				[fp.Grid.Poles[30],fp.Grid.Weights[30]]]
+
 		# the legacy function below sets the degree and knot vector
 		fp.Shape = NURBS_Cubic_66_surf(WeightedPoles).toShape()
 
 class CubicSurface_64:
+	def CubicSurface_64_Attributes(self, obj, grid, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Grid","C1 - Inputs","control Grid").Grid = grid
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = reverse
+		# outputs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "CubicSurface_64"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
 	def __init__(self, obj , grid):
-		''' Add the properties '''
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nCubicSurface_64 class Init\n")
 		obj.addProperty("App::PropertyLink","Grid","CubicSurface_64","control grid").Grid = grid
 		obj.Proxy = self
+		'''
+		self.CubicSurface_64_Attributes(obj, grid, False, latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "Grid"): 
+				old_grid = obj.Grid
+				obj.removeProperty("Grid")
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all  atributes in current version format
+			self.CubicSurface_64_Attributes(obj, old_grid, old_reverse, latest_version)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+
 		# get the poles list from the poly. legacy shape function wants 'homogeneous' coords as [[x,y,z],w]
-		WeightedPoles=[
-			[fp.Grid.Poles[0],fp.Grid.Weights[0]],
-			[fp.Grid.Poles[1],fp.Grid.Weights[1]],
-			[fp.Grid.Poles[2],fp.Grid.Weights[2]],
-			[fp.Grid.Poles[3],fp.Grid.Weights[3]],
-			[fp.Grid.Poles[4],fp.Grid.Weights[4]],
-			[fp.Grid.Poles[5],fp.Grid.Weights[5]],
-			[fp.Grid.Poles[6],fp.Grid.Weights[6]],
-			[fp.Grid.Poles[7],fp.Grid.Weights[7]],
-			[fp.Grid.Poles[8],fp.Grid.Weights[8]],
-			[fp.Grid.Poles[9],fp.Grid.Weights[9]],
-			[fp.Grid.Poles[10],fp.Grid.Weights[10]],
-			[fp.Grid.Poles[11],fp.Grid.Weights[11]],
-			[fp.Grid.Poles[12],fp.Grid.Weights[12]],
-			[fp.Grid.Poles[13],fp.Grid.Weights[13]],
-			[fp.Grid.Poles[14],fp.Grid.Weights[14]],
-			[fp.Grid.Poles[15],fp.Grid.Weights[15]],
-			[fp.Grid.Poles[16],fp.Grid.Weights[16]],
-			[fp.Grid.Poles[17],fp.Grid.Weights[17]],
-			[fp.Grid.Poles[18],fp.Grid.Weights[18]],
-			[fp.Grid.Poles[19],fp.Grid.Weights[19]],
-			[fp.Grid.Poles[20],fp.Grid.Weights[20]],
-			[fp.Grid.Poles[21],fp.Grid.Weights[21]],
-			[fp.Grid.Poles[22],fp.Grid.Weights[22]],
-			[fp.Grid.Poles[23],fp.Grid.Weights[23]]]
+		if fp.reverse == False:
+			WeightedPoles=[
+				[fp.Grid.Poles[0],fp.Grid.Weights[0]],
+				[fp.Grid.Poles[1],fp.Grid.Weights[1]],
+				[fp.Grid.Poles[2],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[3],fp.Grid.Weights[3]],
+				[fp.Grid.Poles[4],fp.Grid.Weights[4]],
+				[fp.Grid.Poles[5],fp.Grid.Weights[5]],
+				[fp.Grid.Poles[6],fp.Grid.Weights[6]],
+				[fp.Grid.Poles[7],fp.Grid.Weights[7]],
+				[fp.Grid.Poles[8],fp.Grid.Weights[8]],
+				[fp.Grid.Poles[9],fp.Grid.Weights[9]],
+				[fp.Grid.Poles[10],fp.Grid.Weights[10]],
+				[fp.Grid.Poles[11],fp.Grid.Weights[11]],
+				[fp.Grid.Poles[12],fp.Grid.Weights[12]],
+				[fp.Grid.Poles[13],fp.Grid.Weights[13]],
+				[fp.Grid.Poles[14],fp.Grid.Weights[14]],
+				[fp.Grid.Poles[15],fp.Grid.Weights[15]],
+				[fp.Grid.Poles[16],fp.Grid.Weights[16]],
+				[fp.Grid.Poles[17],fp.Grid.Weights[17]],
+				[fp.Grid.Poles[18],fp.Grid.Weights[18]],
+				[fp.Grid.Poles[19],fp.Grid.Weights[19]],
+				[fp.Grid.Poles[20],fp.Grid.Weights[20]],
+				[fp.Grid.Poles[21],fp.Grid.Weights[21]],
+				[fp.Grid.Poles[22],fp.Grid.Weights[22]],
+				[fp.Grid.Poles[23],fp.Grid.Weights[23]]]
+		else:
+			# invert u, keep v
+			WeightedPoles=[
+				[fp.Grid.Poles[5],fp.Grid.Weights[5]],
+				[fp.Grid.Poles[4],fp.Grid.Weights[4]],
+				[fp.Grid.Poles[3],fp.Grid.Weights[3]],
+				[fp.Grid.Poles[2],fp.Grid.Weights[2]],
+				[fp.Grid.Poles[1],fp.Grid.Weights[1]],
+				[fp.Grid.Poles[0],fp.Grid.Weights[0]],
+				[fp.Grid.Poles[11],fp.Grid.Weights[11]],
+				[fp.Grid.Poles[10],fp.Grid.Weights[10]],
+				[fp.Grid.Poles[9],fp.Grid.Weights[9]],
+				[fp.Grid.Poles[8],fp.Grid.Weights[8]],
+				[fp.Grid.Poles[7],fp.Grid.Weights[7]],
+				[fp.Grid.Poles[6],fp.Grid.Weights[6]],
+				[fp.Grid.Poles[17],fp.Grid.Weights[17]],
+				[fp.Grid.Poles[16],fp.Grid.Weights[16]],
+				[fp.Grid.Poles[15],fp.Grid.Weights[15]],
+				[fp.Grid.Poles[14],fp.Grid.Weights[14]],
+				[fp.Grid.Poles[13],fp.Grid.Weights[13]],
+				[fp.Grid.Poles[12],fp.Grid.Weights[12]],
+				[fp.Grid.Poles[23],fp.Grid.Weights[23]],
+				[fp.Grid.Poles[22],fp.Grid.Weights[22]],
+				[fp.Grid.Poles[21],fp.Grid.Weights[21]],
+				[fp.Grid.Poles[20],fp.Grid.Weights[20]],
+				[fp.Grid.Poles[19],fp.Grid.Weights[19]],
+				[fp.Grid.Poles[18],fp.Grid.Weights[18]]]
+
 		# the legacy function below sets the degree and knot vector
 		fp.Shape = NURBS_Cubic_64_surf(WeightedPoles).toShape()
 
@@ -4375,7 +5617,7 @@ def paramsSurface44BorderSegmentCurve(AN_Surface, AN_Curve, tol, degenTol):
 	# CAUTION
 	# the values returned by .parameter() are random if the curve point is on a degenerate (collapsed) edge
 
-	# look for an identify degenerate edges
+	# look for and identify degenerate edges
 	if (AN_Surface.Grid.Poles[0] == AN_Surface.Grid.Poles[3]):
 		degen_grid = 1
 		degen_point = AN_Surface.Grid.Poles[0]
@@ -4396,8 +5638,10 @@ def paramsSurface44BorderSegmentCurve(AN_Surface, AN_Curve, tol, degenTol):
 		degen_grid = 0
 		degen_point = 0
 
-	# even if the grid is degenerate, the degnerate point may not be at the cutting curve endpoints
-	# and therefore may not interfere with paramter determination.
+	# even if the grid is degenerate, the degenerate point may not be at the cutting curve endpoints
+	# and therefore may not interfere with parameter determination.
+
+	# determine if cut points are on degenerate edges (degenerate cuts)
 	degen_cut = 0
 	if (degen_grid == 1):
 		# compare to curve start point
@@ -4405,14 +5649,14 @@ def paramsSurface44BorderSegmentCurve(AN_Surface, AN_Curve, tol, degenTol):
 			# print ('degenerate point matches curve start')
 			# desired segment include degenerate point
 			degen_cut = 1
-			# the parameters of interest come from the end point
+			# the parameter of interest (actual cut) comes from the curve end point (other will be 0)
 			param_cut = param1
 		# compare to curve end point
 		if (equalVectors(p1, degen_point, .001)):
 			# print ('degenerate point matches curve end')
 			# desired segment include degenerate point
 			degen_cut = 1
-			# the parameters of interest come from the start point
+			# the parameter of interest (actual cut) comes from the curve start point (other will be 1)
 			param_cut = param0
 
 	# for degenerate cuts
@@ -4465,17 +5709,45 @@ def paramsSurface44BorderSegmentCurve(AN_Surface, AN_Curve, tol, degenTol):
 	if t1>1:
 		t1=1
 
-	print ('paramsSurfaceBorderSegmentCurve')
-	print ('segdir = ', segdir)
-	print ('t0 = ', t0)
-	print ('t1 = ', t1)
-	print ('')
+	#print ('paramsSurfaceBorderSegmentCurve')
+	#print ('segdir = ', segdir)
+	#print ('t0 = ', t0)
+	#print ('t1 = ', t1)
+	#print ('')
 
 	return [segdir, t0, t1]
 
 class ControlGrid44_EdgeSegment:
+	def ControlGrid44_EdgeSegment_Attributes(self, obj, NL_Surface, NL_Curve, tolerance, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","NL_Surface","C1 - Inputs","control Grid").NL_Surface = NL_Surface
+		obj.addProperty("App::PropertyLink","NL_Curve","C1 - Inputs","control Grid").NL_Curve = NL_Curve
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_EdgeSegment"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
 	def __init__(self, obj , NL_Surface, NL_Curve):
-		''' Add the properties '''
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlGrid44_EdgeSegment class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Surface","ControlGrid44_EdgeSegment","Base Surface").NL_Surface = NL_Surface
 		obj.addProperty("App::PropertyLink","NL_Curve","ControlGrid44_EdgeSegment","reference Curve").NL_Curve = NL_Curve
@@ -4483,18 +5755,86 @@ class ControlGrid44_EdgeSegment:
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_EdgeSegment","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_EdgeSegment","Weights").Weights
 		obj.Proxy = self
+		'''
+
+		self.ControlGrid44_EdgeSegment_Attributes(obj, NL_Surface, NL_Curve, default_tol, False, latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "NL_Surface"): 
+				old_nl_surface = obj.NL_Surface
+				obj.removeProperty("NL_Surface")
+			if hasattr(obj, "NL_Curve"): 
+				old_nl_curve = obj.NL_Curve
+				obj.removeProperty("NL_Curve")
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all  atributes in current version format
+			self.ControlGrid44_EdgeSegment_Attributes(obj, old_nl_surface, old_nl_curve, old_tolerance, old_reverse, latest_version)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		# we now have a tolerance parameter settable by the user, but no implementation is done to use it. 
+		# # need to choose a scheme for tol vs degen_tol (see below)
+
+		# we now have a reverse parameter settable by the user, but no implementation is done to use it.
+		# there currently is a pole reordering hack to avoid flipping (see below), 
+		# need to review and understand it better before using it as the reverse function
 
 		# get segmentation parameters
 		cutParams = paramsSurface44BorderSegmentCurve(fp.NL_Surface, fp.NL_Curve, .001, .001)
 		segdir = cutParams[0]
 		t0 = cutParams[1]
 		t1 = cutParams[2]
-		print ('segdir: ', segdir)
-		print ('t0 ', t0)
-		print ('t1 ', t1)
+		#print ('segdir: ', segdir)
+		#print ('t0 ', t0)
+		#print ('t1 ', t1)
 
 		# create surface segment. this works very nicely most of the time, but! 
 		#sometimes .segment returns [[vector],[vector],[vector],[vector]] instead of a whole grid.
@@ -4506,17 +5846,14 @@ class ControlGrid44_EdgeSegment:
 			surface.segment(0,1,t0,t1) # 
 		# extract the control grid information from the surface segment
 		poles_2dArray = surface.getPoles()
+		weights_2dArray = surface.getWeights()
 		# extract the control grid information from the surface segment
 		# first version flips the grid along v???? need to run down 3 to 0 on v while looping 0 to 3 on u ?????
-		# this is internal to ArachNURBS. segmenting directly in FreeCAD python console does not flip sontrol points.
+		# this is internal to ArachNURBS. segmenting directly in FreeCAD python console does not flip control points.
 		# one day i need to revisit my control point ordering scheme to avoid this flip
 		# print(poles_2dArray)
 		if len(poles_2dArray[0]) == 1:
 			print ('collapsed surface segment')
-			#print ('segdira: ', segdira) # segdira undefined?? not sure what the intention was here
-			#print ('segdirb: ', segdirb) # segdirb undefined?? not sure what the intention was here
-			#print ('s0 ', s0) # s0 undefined?? not sure what the intention was here
-			#print ('s1 ', s1) # s1 undefined?? not sure what the intention was here
 			print ('t0 ', t0)
 			print ('t1 ', t1)
 			print ('poles_2dArray', poles_2dArray)
@@ -4538,7 +5875,6 @@ class ControlGrid44_EdgeSegment:
 					poles_2dArray[0][2],
 					poles_2dArray[0][3]]
 
-		weights_2dArray = surface.getWeights()
 		fp.Weights = [weights_2dArray[3][0],
 					weights_2dArray[3][1],
 					weights_2dArray[3][2],
@@ -4560,8 +5896,37 @@ class ControlGrid44_EdgeSegment:
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid44_2EdgeSegments:
-	def __init__(self, obj , NL_Surface, NL_Curve_a,NL_Curve_b):
-		''' Add the properties '''
+	def ControlGrid44_2EdgeSegments_Attributes(self, obj, NL_Surface, NL_Curve_a, NL_Curve_b, tolerance, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","NL_Surface","C1 - Inputs","control Grid").NL_Surface = NL_Surface
+		obj.addProperty("App::PropertyLink","NL_Curve_a","C1 - Inputs","control Grid").NL_Curve_a = NL_Curve_a
+		obj.addProperty("App::PropertyLink","NL_Curve_b","C1 - Inputs","control Grid").NL_Curve_b = NL_Curve_b
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the 4 corners").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid44_2EdgeSegments"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
+	def __init__(self, obj , NL_Surface, NL_Curve_a, NL_Curve_b):
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlGrid44_2EdgeSegments class Init\n")
 		obj.addProperty("App::PropertyLink","NL_Surface","ControlGrid44_2EdgeSegments","Base Surface").NL_Surface = NL_Surface
 		obj.addProperty("App::PropertyLink","NL_Curve_a","ControlGrid44_2EdgeSegments","reference Curve a").NL_Curve_a = NL_Curve_a
@@ -4570,26 +5935,97 @@ class ControlGrid44_2EdgeSegments:
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid44_2EdgeSegments","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid44_2EdgeSegments","Weights").Weights
 		obj.Proxy = self
+		'''
+
+		self.ControlGrid44_2EdgeSegments_Attributes(obj, NL_Surface, NL_Curve_a, NL_Curve_b, default_tol, False, latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "NL_Surface"): 
+				old_nl_surface = obj.NL_Surface
+				obj.removeProperty("NL_Surface")
+			if hasattr(obj, "NL_Curve_a"): 
+				old_nl_curve_a = obj.NL_Curve_a
+				obj.removeProperty("NL_Curve_a")
+			if hasattr(obj, "NL_Curve_b"): 
+				old_nl_curve_b = obj.NL_Curve_b
+				obj.removeProperty("NL_Curve_b")
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all  atributes in current version format
+			self.ControlGrid44_2EdgeSegments_Attributes(obj, old_nl_surface, old_nl_curve_a, old_nl_curve_b, old_tolerance, old_reverse, latest_version)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		# we now have a tolerance parameter settable by the user, but no implementation is done to use it. 
+		# # need to choose a scheme for tol vs degen_tol (see below)
+
+		# we now have a reverse parameter settable by the user, but no implementation is done to use it.
+		# there currently is a pole reordering hack to avoid flipping (see below), 
+		# need to review and understand it better before using it as the reverse function
 		
 		# get segmentation parameters
 		cutParamsa = paramsSurface44BorderSegmentCurve(fp.NL_Surface, fp.NL_Curve_a, .001, .001)
 		segdira = cutParamsa[0]
 		s0 = cutParamsa[1]
 		s1 = cutParamsa[2]
-		print ('segdira: ', segdira)
-		print ('s0 ', s0)
-		print ('s1 ', s1)
+		#print ('segdira: ', segdira)
+		#print ('s0 ', s0)
+		#print ('s1 ', s1)
 		# get segmentation parameters
 		cutParamsb = paramsSurface44BorderSegmentCurve(fp.NL_Surface, fp.NL_Curve_b, .001, .001)
 		segdirb = cutParamsb[0]
 		t0 = cutParamsb[1]
 		t1 = cutParamsb[2]
-		print ('segdirb: ', segdirb)
-		print ('t0 ', t0)
-		print ('t1 ', t1)
+		#print ('segdirb: ', segdirb)
+		#print ('t0 ', t0)
+		#print ('t1 ', t1)
 		
 		
 		'''
@@ -4722,9 +6158,59 @@ class ControlGrid44_2EdgeSegments:
 		fp.Legs = drawGrid(fp.Poles, 4)
 		fp.Shape = Part.Shape(fp.Legs)
 
-class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is the logical position
+class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is the logical position, 
+	#							since the input grids are intended to come from surface segmentation
+	def ControlGrid64_2Grid44_Attributes(self, 
+									  	obj, 
+										Grid_0, 
+										Grid_1, 
+										scale_tangent_0, 
+										scale_tangent_1, 
+										scale_inner_0, 
+										scale_inner_1, 
+										autoG3,
+										tolerance, 
+										reverse, 
+										object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Grid_0","C1 - Inputs","first reference 4X4 grid").Grid_0 = Grid_0
+		obj.addProperty("App::PropertyLink","Grid_1","C1 - Inputs","second reference 4X4 grid").Grid_1 = Grid_1
+		obj.addProperty("App::PropertyFloat","scale_tangent_0",
+				  		"C1 - Inputs","first grid tangent scale").scale_tangent_0 = scale_tangent_0
+		obj.addProperty("App::PropertyFloat","scale_tangent_1",
+				  		"C1 - Inputs","second grid tangent scale").scale_tangent_1 = scale_tangent_1
+		obj.addProperty("App::PropertyFloatList","scale_inner_0",
+				  		"C1 - Inputs","first side inner scale").scale_inner_0 = scale_inner_0
+		obj.addProperty("App::PropertyFloatList","scale_inner_1",
+				  		"C1 - Inputs","second side inner scale").scale_inner_1 = scale_inner_1
+		obj.addProperty("App::PropertyBool","autoG3",
+				  		"C1 - Inputs","set 0 for off, 1 for on").autoG3 = autoG3
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the shared edge").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlGrid64_2Grid44"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
 	def __init__(self, obj , Grid_0, Grid_1):
-		''' Add the properties '''
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nControlGrid64_2Grid44 class Init\n")
 		obj.addProperty("App::PropertyLink","Grid_0","ControlGrid64_2Grid44","first reference 4X4 grid").Grid_0 = Grid_0
 		obj.addProperty("App::PropertyLink","Grid_1","ControlGrid64_2Grid44","second reference 4X4 grid").Grid_1 = Grid_1
@@ -4739,11 +6225,110 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid64_2Grid44","Poles").Poles
 		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid64_2Grid44","Weights").Weights
 		obj.Proxy = self
+		'''
+		self.ControlGrid64_2Grid44_Attributes(obj, 
+											Grid_0, 
+											Grid_1, 
+											2.0, 
+											2.0, 
+											[2.0, 2.0, 2.0, 2.0], 
+											[2.0, 2.0, 2.0, 2.0], 
+											False,
+											default_tol, 
+											False, 
+											latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "Grid_0"): 
+				old_Grid_0 = obj.Grid_0
+				obj.removeProperty("Grid_0")
+			if hasattr(obj, "Grid_1"): 
+				old_Grid_1 = obj.Grid_1
+				obj.removeProperty("Grid_1")
+			if hasattr(obj, "scale_tangent_0"): 
+				old_scale_tangent_0 = obj.scale_tangent_0
+				obj.removeProperty("scale_tangent_0")
+			if hasattr(obj, "scale_tangent_1"): 
+				old_scale_tangent_1 = obj.scale_tangent_1
+				obj.removeProperty("scale_tangent_1")
+			if hasattr(obj, "scale_inner_0"): 
+				old_scale_inner_0 = obj.scale_inner_0
+				obj.removeProperty("scale_inner_0")
+			if hasattr(obj, "scale_inner_1"): 
+				old_scale_inner_1 = obj.scale_inner_1
+				obj.removeProperty("scale_inner_1")
+			if hasattr(obj, "autoG3"):
+				if obj.autoG3 == 0 or obj.autoG3 == False:
+					old_autoG3 = False
+				else:
+					old_autoG3 = False
+				obj.removeProperty("autoG3")
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all attributes in current version format
+			self.ControlGrid64_2Grid44_Attributes(obj, 
+												old_Grid_0, 
+												old_Grid_1, 
+												old_scale_tangent_0, 
+												old_scale_tangent_1, 
+												old_scale_inner_0, 
+												old_scale_inner_1, 
+												old_autoG3,
+												old_tolerance, 
+												old_reverse, 
+												latest_version)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
 		# this is the monolithic version. This deserves a future breakdown:
-		# -find seam points
+		# -find seam points (look out for degenerate edges)
 		# -rotate grids to match uv flow
 		# -extract and line up grid rows in pairs
 		# -blend: upgrade, stitch, scale
@@ -4758,18 +6343,21 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		# but future segments may not be. for example when we eventually segment 64s and 66s, which may also include
 		# degenerate grids
 
+		tol = fp.tolerance
+		degen_tol = .000001
+
 		# grid 0
 
-		if (equalVectors(corners_0[0], corners_0[1], .000001)):
+		if (equalVectors(corners_0[0], corners_0[1], degen_tol)):
 			degen_0 = 1
 			degen_0_index = [0, 1]
-		elif (equalVectors(corners_0[1], corners_0[2], .000001)):
+		elif (equalVectors(corners_0[1], corners_0[2], degen_tol)):
 			degen_0 = 1
 			degen_0_index = [1, 2]
-		elif (equalVectors(corners_0[2], corners_0[3], .000001)):
+		elif (equalVectors(corners_0[2], corners_0[3], degen_tol)):
 			degen_0 = 1
 			degen_0_index = [2, 3]
-		elif (equalVectors(corners_0[3], corners_0[0], .000001)):
+		elif (equalVectors(corners_0[3], corners_0[0], degen_tol)):
 			degen_0 = 1
 			degen_0_index = [0,3]
 		else:
@@ -4780,16 +6368,16 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		print ("degen_0_index: ", degen_0_index)
 
 		# grid 1
-		if (equalVectors(corners_1[0], corners_1[1], .000001)):
+		if (equalVectors(corners_1[0], corners_1[1], degen_tol)):
 			degen_1 = 1
 			degen_1_index = [0, 1]
-		elif (equalVectors(corners_1[1], corners_1[2], .000001)):
+		elif (equalVectors(corners_1[1], corners_1[2], degen_tol)):
 			degen_1 = 1
 			degen_1_index = [1, 2]
-		elif (equalVectors(corners_1[2], corners_1[3], .000001)):
+		elif (equalVectors(corners_1[2], corners_1[3], degen_tol)):
 			degen_1 = 1
 			degen_1_index = [2, 3]
-		elif (equalVectors(corners_1[3], corners_1[0], .000001)):
+		elif (equalVectors(corners_1[3], corners_1[0], degen_tol)):
 			degen_1 = 1
 			degen_1_index = [0,3]
 		else:
@@ -4807,7 +6395,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		seam_index_raw_1 = []
 		for i in range(0,4):
 			for j in range(0,4):
-				if equalVectors(corners_0[i],corners_1[j],0.000001):
+				if equalVectors(corners_0[i],corners_1[j], tol):
 					seam_index_raw_0.append(i)
 					seam_index_raw_1.append(j)
 		seam_index_dedupe_0 = [*set(seam_index_raw_0)] # the * unpacks the set into the list
@@ -4818,7 +6406,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		print("seam_index_dedupe_1: ",seam_index_dedupe_1)
 
 		if (len(seam_index_dedupe_0) == 3):
-			# the true seam is the non-degenrate point, and the degenerate point closest to it
+			# the true seam is the non-degenerate point, and the degenerate point closest to it
 			for i in range(0,3):
 				if (seam_index_dedupe_0[i] not in degen_0_index):
 					non_degen_index_0 = i
@@ -4846,7 +6434,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 
 
 		if (len(seam_index_dedupe_1) == 3):
-			# the true seam is the non-degenrate point, and the degenerate point closest to it
+			# the true seam is the non-degenerate point, and the degenerate point closest to it
 			for i in range(0,3):
 				if (seam_index_dedupe_1[i] not in degen_1_index):
 					non_degen_index_1 = i
@@ -4900,7 +6488,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		print ('rotate left: ', rotate_0)
 		print ('rotate right: ', rotate_1)
 
-		# get grid data back into array
+		# get grid data back into array form (currently a 1D list)
 		lin_poles_0 = fp.Grid_0.Poles
 		lin_weights_0 = fp.Grid_0.Weights
 
@@ -4931,7 +6519,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		#print 'poles_0', poles_0
 		#print 'poles_1', poles_1
 
-		# apply rotation correction. vector type gets stripped in numpy
+		# apply rotation correction. vector type gets stripped in numpy!!
 		uv_poles_0_temp = np.rot90(poles_0,rotate_0).tolist()
 		uv_weights_0 = np.rot90(weights_0,rotate_0).tolist()
 		#print ("uv_weights_0 ")
@@ -4968,7 +6556,7 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		#b=Base.Vector(a[0],a[1],a[2])
 
 		# run ControlPoly6_FilletBezier or equivalent internal function on each pair running across the seam
-		if fp.autoG3 == 1:
+		if fp.autoG3 == True:
 			print ("G3 on row_0")
 			row_0 = blendG3_poly_2x4_1x6(uv_poles_0[0],
 										uv_weights_0[0],
@@ -4982,44 +6570,93 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 			blend_weights_0 = row_0[1]
 			
 			print ("G3 on row_1")
-			row_1 = blendG3_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
+			row_1 = blendG3_poly_2x4_1x6(uv_poles_0[1], 
+										uv_weights_0[1], 
+										uv_poles_1[1], 
+										uv_weights_1[1], 
+										fp.scale_tangent_0, 
+										fp.scale_inner_0[1], 
+										fp.scale_inner_1[1], 
+										fp.scale_tangent_1)
 			blend_poles_1 = row_1[0]
 			blend_weights_1 = row_1[1]
 
 			print ("G3 on row_2")
-			row_2 = blendG3_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
+			row_2 = blendG3_poly_2x4_1x6(uv_poles_0[2], 
+										uv_weights_0[2], 
+										uv_poles_1[2], 
+										uv_weights_1[2], 
+										fp.scale_tangent_0, 
+										fp.scale_inner_0[2], 
+										fp.scale_inner_1[2], 
+										fp.scale_tangent_1)
 			blend_poles_2 = row_2[0]
 			blend_weights_2 = row_2[1]
 
 			print ("G3 on row_3")
-			row_3 = blendG3_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
+			row_3 = blendG3_poly_2x4_1x6(uv_poles_0[3], 
+										uv_weights_0[3], 
+										uv_poles_1[3], 
+										uv_weights_1[3], 
+										fp.scale_tangent_0, 
+										fp.scale_inner_0[3], 
+										fp.scale_inner_1[3], 
+										fp.scale_tangent_1)
 			blend_poles_3 = row_3[0]
 			blend_weights_3 = row_3[1]
 			
 			fp.scale_inner_0 = [row_0[2], row_1[2], row_2[2], row_3[2]]
 			fp.scale_inner_1 = [row_0[3], row_1[3], row_2[3], row_3[3]]			
 		
-		if fp.autoG3 == 0:
-			row_0 = blend_poly_2x4_1x6(uv_poles_0[0], uv_weights_0[0], uv_poles_1[0], uv_weights_1[0], fp.scale_tangent_0, fp.scale_inner_0[0], fp.scale_inner_1[0], fp.scale_tangent_1)
+		if fp.autoG3 == False:
+			row_0 = blend_poly_2x4_1x6(uv_poles_0[0], 
+							  		uv_weights_0[0], 
+									uv_poles_1[0], 
+									uv_weights_1[0], 
+									fp.scale_tangent_0, 
+									fp.scale_inner_0[0], 
+									fp.scale_inner_1[0], 
+									fp.scale_tangent_1)
 			blend_poles_0 = row_0[0]
 			blend_weights_0 = row_0[1]
 			#print (blend_weights_0)
 			
 			#print ("uv_weights_0[1]")
 			#print (uv_weights_0[1])
-			row_1 = blend_poly_2x4_1x6(uv_poles_0[1], uv_weights_0[1], uv_poles_1[1], uv_weights_1[1], fp.scale_tangent_0, fp.scale_inner_0[1], fp.scale_inner_1[1], fp.scale_tangent_1)
+			row_1 = blend_poly_2x4_1x6(uv_poles_0[1], 
+							  		uv_weights_0[1], 
+									uv_poles_1[1], 
+									uv_weights_1[1], 
+									fp.scale_tangent_0, 
+									fp.scale_inner_0[1], 
+									fp.scale_inner_1[1], 
+									fp.scale_tangent_1)
 			blend_poles_1 = row_1[0]
 			blend_weights_1 = row_1[1]
 			#print (blend_weights_1)
 			
 			#print ("uv_weights_0[2]")
 			#print (uv_weights_0[2])
-			row_2 = blend_poly_2x4_1x6(uv_poles_0[2], uv_weights_0[2], uv_poles_1[2], uv_weights_1[2], fp.scale_tangent_0, fp.scale_inner_0[2], fp.scale_inner_1[2], fp.scale_tangent_1)
+			row_2 = blend_poly_2x4_1x6(uv_poles_0[2], 
+							  		uv_weights_0[2], 
+									uv_poles_1[2], 
+									uv_weights_1[2], 
+									fp.scale_tangent_0, 
+									fp.scale_inner_0[2], 
+									fp.scale_inner_1[2], 
+									fp.scale_tangent_1)
 			blend_poles_2 = row_2[0]
 			blend_weights_2 = row_2[1]
 			#print (blend_weights_2)
 
-			row_3 = blend_poly_2x4_1x6(uv_poles_0[3], uv_weights_0[3], uv_poles_1[3], uv_weights_1[3], fp.scale_tangent_0, fp.scale_inner_0[3], fp.scale_inner_1[3], fp.scale_tangent_1)
+			row_3 = blend_poly_2x4_1x6(uv_poles_0[3], 
+							  		uv_weights_0[3], 
+									uv_poles_1[3], 
+									uv_weights_1[3], 
+									fp.scale_tangent_0, 
+									fp.scale_inner_0[3], 
+									fp.scale_inner_1[3], 
+									fp.scale_tangent_1)
 			blend_poles_3 = row_3[0]
 			blend_weights_3 = row_3[1]
 			#print (blend_weights_3)
@@ -5027,169 +6664,158 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 		
 		
 		# stack the ControlPoly6s into a 64 grid - poles and weights
-		fp.Poles=[blend_poles_0[0],
-				blend_poles_0[1],
-				blend_poles_0[2],
-				blend_poles_0[3],
-				blend_poles_0[4],
-				blend_poles_0[5],
-				blend_poles_1[0],
-				blend_poles_1[1],
-				blend_poles_1[2],
-				blend_poles_1[3],
-				blend_poles_1[4],
-				blend_poles_1[5],
-				blend_poles_2[0],
-				blend_poles_2[1],
-				blend_poles_2[2],
-				blend_poles_2[3],
-				blend_poles_2[4],
-				blend_poles_2[5],
-				blend_poles_3[0],
-				blend_poles_3[1],
-				blend_poles_3[2],
-				blend_poles_3[3],
-				blend_poles_3[4],
-				blend_poles_3[5]]
 
-		fp.Weights=[blend_weights_0[0],
-				blend_weights_0[1],
-				blend_weights_0[2],
-				blend_weights_0[3],
-				blend_weights_0[4],
-				blend_weights_0[5],
-				blend_weights_1[0],
-				blend_weights_1[1],
-				blend_weights_1[2],
-				blend_weights_1[3],
-				blend_weights_1[4],
-				blend_weights_1[5],
-				blend_weights_2[0],
-				blend_weights_2[1],
-				blend_weights_2[2],
-				blend_weights_2[3],
-				blend_weights_2[4],
-				blend_weights_2[5],
-				blend_weights_3[0],
-				blend_weights_3[1],
-				blend_weights_3[2],
-				blend_weights_3[3],
-				blend_weights_3[4],
-				blend_weights_3[5]]
+		if fp.reverse == False:
+			fp.Poles=[blend_poles_0[0],
+					blend_poles_0[1],
+					blend_poles_0[2],
+					blend_poles_0[3],
+					blend_poles_0[4],
+					blend_poles_0[5],
+					blend_poles_1[0],
+					blend_poles_1[1],
+					blend_poles_1[2],
+					blend_poles_1[3],
+					blend_poles_1[4],
+					blend_poles_1[5],
+					blend_poles_2[0],
+					blend_poles_2[1],
+					blend_poles_2[2],
+					blend_poles_2[3],
+					blend_poles_2[4],
+					blend_poles_2[5],
+					blend_poles_3[0],
+					blend_poles_3[1],
+					blend_poles_3[2],
+					blend_poles_3[3],
+					blend_poles_3[4],
+					blend_poles_3[5]]
+
+			fp.Weights=[blend_weights_0[0],
+					blend_weights_0[1],
+					blend_weights_0[2],
+					blend_weights_0[3],
+					blend_weights_0[4],
+					blend_weights_0[5],
+					blend_weights_1[0],
+					blend_weights_1[1],
+					blend_weights_1[2],
+					blend_weights_1[3],
+					blend_weights_1[4],
+					blend_weights_1[5],
+					blend_weights_2[0],
+					blend_weights_2[1],
+					blend_weights_2[2],
+					blend_weights_2[3],
+					blend_weights_2[4],
+					blend_weights_2[5],
+					blend_weights_3[0],
+					blend_weights_3[1],
+					blend_weights_3[2],
+					blend_weights_3[3],
+					blend_weights_3[4],
+					blend_weights_3[5]]
+			
+		if fp.reverse == True:
+			# keep row positions, reverse columns
+			fp.Poles=[blend_poles_0[5],
+					blend_poles_0[4],
+					blend_poles_0[3],
+					blend_poles_0[2],
+					blend_poles_0[1],
+					blend_poles_0[0],
+					blend_poles_1[5],
+					blend_poles_1[4],
+					blend_poles_1[3],
+					blend_poles_1[2],
+					blend_poles_1[1],
+					blend_poles_1[0],
+					blend_poles_2[5],
+					blend_poles_2[4],
+					blend_poles_2[3],
+					blend_poles_2[2],
+					blend_poles_2[1],
+					blend_poles_2[0],
+					blend_poles_3[5],
+					blend_poles_3[4],
+					blend_poles_3[3],
+					blend_poles_3[2],
+					blend_poles_3[1],
+					blend_poles_3[0]]
+
+			fp.Weights=[blend_weights_0[5],
+					blend_weights_0[4],
+					blend_weights_0[3],
+					blend_weights_0[2],
+					blend_weights_0[1],
+					blend_weights_0[0],
+					blend_weights_1[5],
+					blend_weights_1[4],
+					blend_weights_1[3],
+					blend_weights_1[2],
+					blend_weights_1[1],
+					blend_weights_1[0],
+					blend_weights_2[5],
+					blend_weights_2[4],
+					blend_weights_2[3],
+					blend_weights_2[2],
+					blend_weights_2[1],
+					blend_weights_2[0],
+					blend_weights_3[5],
+					blend_weights_3[4],
+					blend_weights_3[3],
+					blend_weights_3[2],
+					blend_weights_3[1],
+					blend_weights_3[0]]
 
 		# build the leg list for viz
 		fp.Legs = drawGrid(fp.Poles, 6)
 		fp.Shape = Part.Shape(fp.Legs)
 
-class SubGrid33_2Grid64s_old:
-	def __init__(self, obj , Grid_0, Grid_1):
-		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nSubGrid33_2Grid64s class Init\n")
-		obj.addProperty("App::PropertyLink","Grid_0","SubGrid33_2Grid64s","first reference 6X4 grid").Grid_0 = Grid_0
-		obj.addProperty("App::PropertyLink","Grid_1","SubGrid33_2Grid64s","second reference 6X4 grid").Grid_1 = Grid_1
-		obj.addProperty("Part::PropertyGeometryList","Legs","SubGrid33_2Grid64s","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","u_row0_poles","SubGrid33_2Grid64s","u_row0_poles").u_row0_poles
-		obj.addProperty("App::PropertyVectorList","u_row1_poles","SubGrid33_2Grid64s","u_row1_poles").u_row1_poles
-		obj.addProperty("App::PropertyVectorList","v_col0_poles","SubGrid33_2Grid64s","v_col0_poles").v_col0_poles
-		obj.addProperty("App::PropertyVectorList","v_col1_poles","SubGrid33_2Grid64s","v_col1_poles").v_col1_poles
-		obj.addProperty("App::PropertyFloatList","u_row0_weights","SubGrid33_2Grid64s","u_row0_weights").u_row0_weights
-		obj.addProperty("App::PropertyFloatList","u_row1_weights","SubGrid33_2Grid64s","u_row1_weights").u_row1_weights
-		obj.addProperty("App::PropertyFloatList","v_col0_weights","SubGrid33_2Grid64s","v_col0_weights").v_col0_weights
-		obj.addProperty("App::PropertyFloatList","v_col1_weights","SubGrid33_2Grid64s","v_col1_weights").v_col1_weights
-		obj.Proxy = self
-
-
-	def execute(self, fp):
-		'''Do something when doing a recomputation, this method is mandatory'''
-		# outline:
-		# -find shared corner
-		# -set 'u' row - imagine the future surface as uvn (n is normal). 
-		# -set 'v' row - imagine the future surface as uvn (n is normal).
-		# -build a corner focused 33 grid using the same logic as the corner focused 66 grid. 
-		# the $10 question here is whether this even maintains G1? maybe...it has been many steps since the bezier surface was segmented.
-
-		# extract corner points
-		corners_0=[fp.Grid_0.Poles[0],fp.Grid_0.Poles[5],fp.Grid_0.Poles[18],fp.Grid_0.Poles[23]]
-		corners_1=[fp.Grid_1.Poles[0],fp.Grid_1.Poles[5],fp.Grid_1.Poles[18],fp.Grid_1.Poles[23]]
-		# find the common point
-		common = 'not_found_yet'
-		for i in range(0,4):
-			for j in range(0,4):
-				if corners_0[i] == corners_1[j]:
-					common=[i,j]
-
-		if common == 'not_found_yet':
-			print ('common point of grids not found. If this object was working, this is an evaluation error')
-		#print 'common ', common
-		# tested-runs-
-
-		# the two '6s' of each grid should form a V when looking at the future grid
-		# a is the left leg of the V, i.e. common[0] = 0 or 3
-		# b is the right leg of the V i.e. common[1] = 2 or 1
-
-		# check input grid order, swap grids if necessary
-		if (common[0] == 1 or common[0] == 2) and (common[1] == 0 or common[1] == 3):
-			print ('swapping grid order')
-			temp=fp.Grid_0
-			fp.Grid_0=fp.Grid_1
-			fp.Grid_1=temp
-			# get the corners again
-			corners_0=[fp.Grid_0.Poles[0],fp.Grid_0.Poles[5],fp.Grid_0.Poles[18],fp.Grid_0.Poles[23]]
-			corners_1=[fp.Grid_1.Poles[0],fp.Grid_1.Poles[5],fp.Grid_1.Poles[18],fp.Grid_1.Poles[23]]
-			# find common again
-			for i in range(0,4):
-				for j in range(0,4):
-					if corners_0[i] == corners_1[j]:
-						common=[i,j]
-			print ('common ', common)
-
-		if common[0] == 0:
-			fp.u_row0_poles = [fp.Grid_0.Poles[0],fp.Grid_0.Poles[1],fp.Grid_0.Poles[2]]
-			fp.u_row0_weights = [fp.Grid_0.Weights[0],fp.Grid_0.Weights[1],fp.Grid_0.Weights[2]]
-			fp.u_row1_poles = [fp.Grid_0.Poles[6],fp.Grid_0.Poles[7],fp.Grid_0.Poles[8]]
-			fp.u_row1_weights = [fp.Grid_0.Weights[6],fp.Grid_0.Weights[7],fp.Grid_0.Weights[8]]
-
-		if common[0] == 3:
-			fp.u_row0_poles = [fp.Grid_0.Poles[23],fp.Grid_0.Poles[22],fp.Grid_0.Poles[21]]
-			fp.u_row0_weights = [fp.Grid_0.Weights[23],fp.Grid_0.Weights[22],fp.Grid_0.Weights[21]]
-			fp.u_row1_poles = [fp.Grid_0.Poles[17],fp.Grid_0.Poles[16],fp.Grid_0.Poles[15]]
-			fp.u_row1_weights = [fp.Grid_0.Weights[17],fp.Grid_0.Weights[16],fp.Grid_0.Weights[15]]
-
-		if common[1] == 1:
-			fp.v_col0_poles = [fp.Grid_1.Poles[5],fp.Grid_1.Poles[4],fp.Grid_1.Poles[3]]
-			fp.v_col0_weights = [fp.Grid_1.Weights[5],fp.Grid_1.Weights[4],fp.Grid_1.Weights[3]]
-			fp.v_col1_poles = [fp.Grid_1.Poles[11],fp.Grid_1.Poles[10],fp.Grid_1.Poles[9]]
-			fp.v_col1_weights = [fp.Grid_1.Weights[11],fp.Grid_1.Weights[10],fp.Grid_1.Weights[9]]
-
-		if common[1] == 2:
-			fp.v_col0_poles = [fp.Grid_1.Poles[18],fp.Grid_1.Poles[19],fp.Grid_1.Poles[20]]
-			fp.v_col0_weights = [fp.Grid_1.Weights[18],fp.Grid_1.Weights[19],fp.Grid_1.Weights[20]]
-			fp.v_col1_poles = [fp.Grid_1.Poles[12],fp.Grid_1.Poles[13],fp.Grid_1.Poles[14]]
-			fp.v_col1_weights = [fp.Grid_1.Weights[12],fp.Grid_1.Weights[13],fp.Grid_1.Weights[14]]
-
-
-		Legs=[0]*10
-
-		Legs[0]=Part.LineSegment(fp.u_row0_poles[0], fp.u_row0_poles[1])
-		Legs[1]=Part.LineSegment(fp.u_row0_poles[1], fp.u_row0_poles[2])
-
-		Legs[2]=Part.LineSegment(fp.u_row0_poles[0], fp.u_row1_poles[0])
-		Legs[3]=Part.LineSegment(fp.u_row0_poles[1], fp.u_row1_poles[1])
-		Legs[4]=Part.LineSegment(fp.u_row0_poles[2], fp.u_row1_poles[2])
-
-		Legs[5]=Part.LineSegment(fp.v_col0_poles[0], fp.v_col0_poles[1])
-		Legs[6]=Part.LineSegment(fp.v_col0_poles[1], fp.v_col0_poles[2])
-
-		Legs[7]=Part.LineSegment(fp.v_col0_poles[0], fp.v_col1_poles[0])
-		Legs[8]=Part.LineSegment(fp.v_col0_poles[1], fp.v_col1_poles[1])
-		Legs[9]=Part.LineSegment(fp.v_col0_poles[2], fp.v_col1_poles[2])
-
-		fp.Legs=Legs
-		fp.Shape = Part.Shape(fp.Legs)
-
 class SubGrid33_2Grid64:
+
+	def SubGrid33_2Grid64_Attributes(self, 
+								 	obj, 
+									Grid_0, 
+									Grid_1, 
+									adjust_0,
+									adjust_1,
+									tolerance, 
+									reverse,
+									object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Grid_0","C1 - Inputs","first reference 6X4 grid").Grid_0 = Grid_0
+		obj.addProperty("App::PropertyLink","Grid_1","C1 - Inputs","second reference 6X4 grid").Grid_1 = Grid_1
+		obj.addProperty("App::PropertyFloat","adjust_0",
+				  		"C1 - Inputs","first grid tangent scale").adjust_0 = adjust_0
+		obj.addProperty("App::PropertyFloat","adjust_1",
+				  		"C1 - Inputs","second grid tangent scale").adjust_1 = adjust_1
+		obj.addProperty("App::PropertyFloat","tolerance",
+				  		"C1 - Inputs","point-to-point connection tolerance for the shared corner").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse",
+				  		"C1 - Inputs","reverse the surface normal direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "SubGrid33_2Grid64"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
 	def __init__(self, obj , Grid_0, Grid_1):
-		''' Add the properties '''
+		latest_version = "0.01" # must match in onDocumentRestored()
+		
+		# original attribute set before versioning of classes
+		'''
 		FreeCAD.Console.PrintMessage("\nSubGrid33_2Grid64 class Init\n")
 		obj.addProperty("App::PropertyLink","Grid_0","SubGrid33_2Grid64","first reference 6X4 grid").Grid_0 = Grid_0
 		obj.addProperty("App::PropertyLink","Grid_1","SubGrid33_2Grid64","second reference 6X4 grid").Grid_1 = Grid_1
@@ -5200,9 +6826,90 @@ class SubGrid33_2Grid64:
 		obj.addProperty("App::PropertyFloatList","Weights","SubGrid33_2Grid64","Weights").Weights
 
 		obj.Proxy = self
+		'''
+		self.SubGrid33_2Grid64_Attributes(obj, 
+											Grid_0, 
+											Grid_1, 
+											0,
+											0,
+											default_tol, 
+											False, 
+											latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.01" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "Grid_0"): 
+				old_Grid_0 = obj.Grid_0
+				obj.removeProperty("Grid_0")
+			if hasattr(obj, "Grid_1"): 
+				old_Grid_1 = obj.Grid_1
+				obj.removeProperty("Grid_1")
+			if hasattr(obj, "adjust_0"): 
+				old_adjust_0 = obj.adjust_0
+				obj.removeProperty("adjust_0")
+			if hasattr(obj, "adjust_1"): 
+				old_adjust_1 = obj.adjust_1
+				obj.removeProperty("adjust_1")
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all attributes in current version format
+			self.SubGrid33_2Grid64_Attributes(obj, 
+												old_Grid_0, 
+												old_Grid_1, 
+												old_adjust_0, 
+												old_adjust_1, 
+												old_tolerance, 
+												old_reverse, 
+												latest_version)
+			
+		# need to recompute otherwise the poles remain unpopulated
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
 		# outline:
 		# -find shared corner
 		# -set 'u' row - imagine the future surface as uvn (n is normal). 
@@ -5217,14 +6924,20 @@ class SubGrid33_2Grid64:
 		common = 'not_found_yet'
 		for i in range(0,4):
 			for j in range(0,4):
-				if equalVectors(corners_0[i],corners_1[j],0.000001):
-					common=[i,j]
+				if equalVectors(corners_0[i],corners_1[j],fp.tolerance):
+					if common == 'not_found_yet':
+						common=[i,j]
+					else:
+						print("multiple common corners found at the current tolerance. \n reduce tolerance, or improve corner matching")
+						fake_name_to_trigger_error = please_read_message_above
+
 		if common == 'not_found_yet':
-			print ('common point of grids not found. If this object was working previously, this is an evaluation error')
-		print ('common ', common)
+			print ('''common point of grids not found. If this object was working previously, this is an evaluation error. 
+		  			\n if this is a new object, check the corner matching vs tolerance''')
+		#print ('common ', common)
 		# tested-runs-
 
-		# the two 6 point sides of each grid should form a V when looking at the future grid
+		# the two 6P sides of each grid should form a V when looking at the future grid
 		# a is the left leg of the V, i.e. common[0] = 0 or 3
 		# b is the right leg of the V i.e. common[1] = 2 or 1
 
@@ -5240,9 +6953,9 @@ class SubGrid33_2Grid64:
 			# find common again
 			for i in range(0,4):
 				for j in range(0,4):
-					if equalVectors(corners_0[i],corners_1[j],0.000001):
+					if equalVectors(corners_0[i],corners_1[j],fp.tolerance):
 						common=[i,j]
-			print ('common ', common)
+			#print ('common ', common)
 
 		if common[0] == 0:
 			v_col0_poles = [fp.Grid_0.Poles[0],fp.Grid_0.Poles[1],fp.Grid_0.Poles[2]]
@@ -5302,162 +7015,12 @@ class SubGrid33_2Grid64:
 
 		fp.Weights = [w00, w01, w02, w10, w11, w12, w20, w21, w22]
 
-		Legs=[0]*12
+		if fp.reverse == True:
+			# diagonal flip
+			fp.Poles = [p00, p10, p20, p01, p11, p21, p02, p12, p22]
+			fp.Weights = [w00, w10, w20, w01, w11, w21, w02, w12, w22]
 
-		Legs[0]=Part.LineSegment(p00,p01)
-		Legs[1]=Part.LineSegment(p01,p02)
-
-		Legs[2]=Part.LineSegment(p00,p10)
-		Legs[3]=Part.LineSegment(p10,p20)
-
-		Legs[4]=Part.LineSegment(p01,p11)
-		Legs[5]=Part.LineSegment(p02,p12)
-
-		Legs[6]=Part.LineSegment(p10,p11)
-		Legs[7]=Part.LineSegment(p20,p21)
-
-		Legs[8]=Part.LineSegment(p11,p12)
-		Legs[9]=Part.LineSegment(p11,p21)
-
-		Legs[10]=Part.LineSegment(p12,p22)
-		Legs[11]=Part.LineSegment(p21,p22)
-
-		fp.Legs=Legs
-		fp.Shape = Part.Shape(fp.Legs)
-
-class ControlGrid66_4Sub_old:
-	def __init__(self, obj , SubGrid_0, SubGrid_1, SubGrid_2, SubGrid_3):
-		''' Add the properties '''
-		FreeCAD.Console.PrintMessage("\nControlGrid66_4Sub class Init\n")
-		obj.addProperty("App::PropertyLink","SubGrid_0","ControlGrid66_4Sub","first reference 3X3 sub grid").SubGrid_0 = SubGrid_0
-		obj.addProperty("App::PropertyLink","SubGrid_1","ControlGrid66_4Sub","second reference 3X3 sub grid").SubGrid_1 = SubGrid_1
-		obj.addProperty("App::PropertyLink","SubGrid_2","ControlGrid66_4Sub","third reference 3X3 sub grid").SubGrid_2 = SubGrid_2
-		obj.addProperty("App::PropertyLink","SubGrid_3","ControlGrid66_4Sub","fourth reference 3X3 sub grid").SubGrid_3 = SubGrid_3
-		obj.addProperty("Part::PropertyGeometryList","Legs","ControlGrid66_4Sub","control segments").Legs
-		obj.addProperty("App::PropertyVectorList","Poles","ControlGrid66_4Sub","Poles").Poles
-		obj.addProperty("App::PropertyFloatList","Weights","ControlGrid66_4Sub","Weights").Weights
-		obj.Proxy = self
-
-	def execute(self, fp):
-		'''Do something when doing a recomputation, this method is mandatory'''
-		p00 = fp.SubGrid_0.u_row_poles[0]
-		p01 = fp.SubGrid_0.u_row_poles[1]
-		p02 = fp.SubGrid_0.u_row_poles[2]
-		p03 = fp.SubGrid_1.v_col_poles[2]
-		p04 = fp.SubGrid_1.v_col_poles[1]
-		p05 = fp.SubGrid_1.v_col_poles[0]
-
-		p15 = fp.SubGrid_1.u_row_poles[1]
-		p25 = fp.SubGrid_1.u_row_poles[2]
-		p35 = fp.SubGrid_2.v_col_poles[2]
-		p45 = fp.SubGrid_2.v_col_poles[1]
-		p55 = fp.SubGrid_2.v_col_poles[0]
-
-		p54 = fp.SubGrid_2.u_row_poles[1]
-		p53 = fp.SubGrid_2.u_row_poles[2]
-		p52 = fp.SubGrid_3.v_col_poles[2]
-		p51 = fp.SubGrid_3.v_col_poles[1]
-		p50 = fp.SubGrid_3.v_col_poles[0]
-
-		p40 = fp.SubGrid_3.u_row_poles[1]
-		p30 = fp.SubGrid_3.u_row_poles[2]
-		p20 = fp.SubGrid_0.v_col_poles[2]
-		p10 = fp.SubGrid_0.v_col_poles[1]
-
-		p11 = p01 + (p10 - p00)
-		p14 = p04 + (p15 - p05)
-		p41 = p51 + (p40 - p50)
-		p44 = p45 + (p54 - p55)
-		p12 = p02 + (p10 - p00)
-		p13 = p03 + (p15 - p05)
-		p24 = p25 + (p04 - p05)
-		p34 = p35 + (p54 - p55)
-		p42 = p52 + (p40 - p50)
-		p43 = p53 + (p45 - p55)
-		p21 = p20 + (p01 - p00)
-		p31 = p30 + (p51 - p50)
-		p22 = p12 + (p20 - p10)
-		p23 = p13 + (p25 - p15)
-		p32 = p42 + (p30 - p40)
-		p33 = p43 + (p35 - p45)
-		fp.Poles = [p00, p01, p02, p03, p04, p05,
-					p10, p11, p12, p13, p14, p15,
-					p20, p21, p22, p23, p24, p25,
-					p30, p31, p32, p33, p34, p35,
-					p40, p41, p42, p43, p44, p45,
-					p50, p51, p52, p53, p54, p55]
-		w00 = fp.SubGrid_0.u_row_weights[0]
-		w01 = fp.SubGrid_0.u_row_weights[1]
-		w02 = fp.SubGrid_0.u_row_weights[2]
-		w03 = fp.SubGrid_1.v_col_weights[2]
-		w04 = fp.SubGrid_1.v_col_weights[1]
-		w05 = fp.SubGrid_1.v_col_weights[0]
-		w15 = fp.SubGrid_1.u_row_weights[1]
-		w25 = fp.SubGrid_1.u_row_weights[2]
-		w35 = fp.SubGrid_2.v_col_weights[2]
-		w45 = fp.SubGrid_2.v_col_weights[1]
-		w55 = fp.SubGrid_2.v_col_weights[0]
-		w54 = fp.SubGrid_2.u_row_weights[1]
-		w53 = fp.SubGrid_2.u_row_weights[2]
-		w52 = fp.SubGrid_3.v_col_weights[2]
-		w51 = fp.SubGrid_3.v_col_weights[1]
-		w50 = fp.SubGrid_3.v_col_weights[0]
-		w40 = fp.SubGrid_3.u_row_weights[1]
-		w30 = fp.SubGrid_3.u_row_weights[2]
-		w20 = fp.SubGrid_0.v_col_weights[2]
-		w10 = fp.SubGrid_0.v_col_weights[1]
-		# maybe i should average instead of multiply? needs testing.
-		# currently based on the idea all weights are between 0 and 1.
-		# previous used cumulative neighbor multiplication. this drives weights too low.
-		# current method multiplies the two weights along isos to the closest edge
-		w11 = w01*w10
-		w12 = w02*w10 
-		w21 = w01*w20
-		w22 = w02*w20
-		w14 = w04*w15
-		w13 = w03*w15
-		w24 = w04*w25
-		w23 = w03*w25
-		w44 = w45*w54
-		w34 = w35*w54
-		w43 = w54*w45
-		w33 = w35*w53
-		w41 = w40*w51
-		w31 = w30*w51
-		w42 = w52*w40
-		w32 = w30*w52
-
-		fp.Weights = [w00, w01, w02, w03, w04, w05,
-					w10, w11, w12, w13, w14, w15,
-					w20, w21, w22, w23, w24, w25,
-					w30, w31, w32, w33, w34, w35,
-					w40, w41, w42, w43, w44, w45,
-					w50, w51, w52, w53, w54, w55]
-		Legs=[0]*60
-		for i in range(0,5):
-			Legs[i]=Part.LineSegment(fp.Poles[i],fp.Poles[i+1])
-		for i in range(5,10):
-			Legs[i]=Part.LineSegment(fp.Poles[i+1],fp.Poles[i+2])
-		for i in range(10,15):
-			Legs[i]=Part.LineSegment(fp.Poles[i+2],fp.Poles[i+3])
-		for i in range(15,20):
-			Legs[i]=Part.LineSegment(fp.Poles[i+3],fp.Poles[i+4])
-		for i in range(20,25):
-			Legs[i]=Part.LineSegment(fp.Poles[i+4],fp.Poles[i+5])
-		for i in range(25,30):
-			Legs[i]=Part.LineSegment(fp.Poles[i+5],fp.Poles[i+6])
-		for i in range(30,36):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(36,42):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(42,48):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(48,54):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-		for i in range(54,60):
-			Legs[i]=Part.LineSegment(fp.Poles[i-30],fp.Poles[i-24])
-
-		fp.Legs=Legs
+		fp.Legs = drawGrid(fp.Poles, 3)
 		fp.Shape = Part.Shape(fp.Legs)
 
 class ControlGrid66_4Sub:
