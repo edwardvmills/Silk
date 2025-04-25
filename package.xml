@@ -5,7 +5,7 @@
   <version>0.1.6</version>
   <date>2023-09-17</date>
   <maintainer email="@edwardvmills">edwardvmills</maintainer>
-  <license file="LICENSE">GPL-3</license>
+  <license file="LICENSE">GPL-3.0-or-later</license>
   <url type="repository" branch="master">https://github.com/edwardvmills/Silk</url>
   <url type="documentation">http://edwardvmills.github.io/NURBSlib_EVM/</url>
   <url type="documentation">https://github.com/edwardvmills/Silk/wiki</url>
