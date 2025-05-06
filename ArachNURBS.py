@@ -475,6 +475,15 @@ def NURBS_Cubic_64_surf(grid_64):	# given a 6 x 4 control grid, build the cubic
 			i=i+1;
 	return  NURBS_Cubic_64_surf
 
+def isWeightVectorRational(weights, tol):
+	isItTho = True
+	# compare weights 1, 2, 3, 4 to weight 0
+	if ((abs(weights[1]-weights[0] / weights[0]) < tol) and 
+     	(abs(weights[2]-weights[0] / weights[0]) < tol) and 
+		(abs(weights[3]-weights[0] / weights[0]) < tol)):
+		isItTho = False
+	return isItTho
+
 def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, scale_2, scale_3):	
 	# blend two cubic bezier into a 6 point cubic NURBS. this function assumes poles_0 flow into poles_1 without checking.
 	#print ("weights_0 in blend_poly_2x4_1x6")
@@ -508,26 +517,93 @@ def blend_poly_2x4_1x6(poles_0,weights_0, poles_1, weights_1, scale_0, scale_1, 
 	#print ("weights_6_1 in blend_poly_2x4_1x6")
 	#print (weights_6_1)
 
+	''' #bad legacy weight collapse mitigation
 	# check original weights....set == at 1%? 
 	# this code is behaving very strangely.
 	# it failed to reset on a strict comparison (< .001), but resets correctly on a loose comparison.
 	# the numbers under comparison were equal to 8 or more decimals???
+
 	if (((weights_0[0]-weights_0[1] / weights_0[0]).__pow__(2) < .1) and 
      	((weights_0[0]-weights_0[2] / weights_0[0]).__pow__(2) < .1) and 
 		((weights_0[0]-weights_0[3] / weights_0[0]).__pow__(2) < .1)):
 		a = weights_0[0]
 		#print ("a ", a)
 		weights_6_0 = [a,a,a,a,a,a]
-		# print("resetting weights_0")
+		print("resetting weights_0")
 
 	if (((weights_1[0]-weights_1[1] / weights_1[0]).__pow__(2) < .1) and 
-     	((weights_1[0]-weights_1[2] / weights_1[0]).__pow__(2) < .1) and 
-		((weights_1[0]-weights_1[3] / weights_1[0]).__pow__(2) < .1)):
+     	((weights_1[0]-weights_1[2] / weights_1[0]).__pow__(2) <  .1) and 
+		((weights_1[0]-weights_1[3] / weights_1[0]).__pow__(2) <  .1)):
 		b = weights_1[0]
 		#print ("b ", b)
 		weights_6_1 = [b,b,b,b,b,b]
-		# print("resetting weights_1")
-		
+		print("resetting weights_1")
+	'''
+
+	# i've been comparing various input weights against themselves...for 10 years?
+	# i'm supposed to compare output weights against input weights!
+
+	# this is important inside the grid...but absolutely critical along grid edges, or we lose G0 to the input grids
+	# (this function is applied row by row to grids)
+
+	# apparently, for each input curve, i'm comparing the 0th weight to the 1st, 2nd, and third...
+	# all this does is determine if that curve is rational. it says nothing about the output curve...
+	# because it doesn't even LOOK at the output curve weights.
+
+	# so fragements of the original test are interesting, they can help determine if the input is rational
+	# then I should do the same check on the output...
+	# but if the output is collapsed....?
+	# all i can really do with 100% clarity is match the starting (or end) weight so the outer blend edges match the
+	# input curve. the true inner weights, if FreeCAD won't provide...would have to be found by performing the knot 
+	# insertion myself (partial ref here; https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS/NURBS-knot-insert.html)
+	# i donwanna insert my own knots right now :(, but it'll look like this:
+	# implement general knot insertion, but make it N dimensional (N = 4 at least)
+	# https://pages.mtu.edu/~shene/COURSES/cs3621/NOTES/spline/NURBS-knot-insert.html
+	# convert 3D weighted poles into 4D poles (treat as unweighted), do the insertion, convert 4D back to 3D weighted
+
+	# observation: knot insertion tends to make the weights closer to unity
+	# consider the poly4 arc weights
+	# [1.0, 0.7791639316998816, 0.7791639316998816, 1.0]
+	# inserting 1/3 and 1/3 knots yields
+	# [1.0, 0.9263879772332939, 0.8282386135443524, 0.8282386135443522, 0.9263879772332939, 1.0]
+	# resetting all these weights to 1 keeps G0 by luck, as edge weights were 1
+	# it still loses tangency to the underlying arc though, as the first inner points lose rationality to the edge
+
+	# first, let's stop resetting weights arbitrarily!
+	ratioTol = .000000000001
+	weights_0_ratio = isWeightVectorRational(weights_0, ratioTol)
+	weights_1_ratio = isWeightVectorRational(weights_1, ratioTol)
+	#print("weights_0_ratio =", weights_0_ratio)
+	#print("weights_1_ratio =", weights_1_ratio)
+
+	weights_6_0_ratio = isWeightVectorRational(weights_6_0, ratioTol)
+	weights_6_1_ratio = isWeightVectorRational(weights_6_1, ratioTol)
+	#print("weights_6_0_ratio =", weights_6_0_ratio)
+	#print("weights_6_1_ratio =", weights_6_1_ratio)
+
+
+	# now let's see if the error happened
+	if weights_0_ratio == weights_6_0_ratio:
+		#print("first (0) curve rationality status maintained at knot insertion:", weights_6_0_ratio)
+		pass
+	else:
+		print("first (0) curve rationality status lost at knot insertion\n")
+		print("was :",weights_0_ratio, weights_0)
+		print("is now :",weights_6_0_ratio, weights_6_0)
+		print("restoring endpoint weights to re-establish G0")
+		weights_6_0 = [weights_0[0], weights_0[0], weights_0[0], weights_0[3], weights_0[3], weights_0[3],]
+		print("final weights :",weights_6_0)
+
+	if weights_1_ratio == weights_6_1_ratio:
+		# print("second (1) curve rationality status maintained at knot insertion:", weights_6_1_ratio)
+		pass
+	else:
+		print("second (1) curve rationality status lost at knot insertion\n")
+		print("was :",weights_1_ratio, weights_1)
+		print("is now :",weights_6_1_ratio, weights_6_1)
+		print("restoring endpoint weights to re-establish G0")
+		weights_6_1 = [weights_1[0], weights_1[0], weights_1[0], weights_1[3], weights_1[3], weights_1[3],]
+		print("final weights :",weights_6_1)
 
 
 	p0=[poles_6_0[0],weights_6_0[0]]
@@ -1274,6 +1350,155 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 
 #### SECTION 2: PYTHON FEATURE CLASSES - PARAMETRIC LINKING BETWEEN OBJECTS
 
+### stuff that I wish was in FreeCAD, but not really NURBS related
+
+class SilkPose: # alternative to Attachment/MapMode for Placement
+	def SilkPose_Attributes(self, obj, pos_ref, rot_ref, rel_axes, scale, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLinkSub", "position_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define position").position_ref = pos_ref
+		obj.addProperty("App::PropertyLink", "rotation_ref", "C1.1 - ref inputs", "the Object used to define rotation").rotation_ref = rot_ref
+		obj.addProperty("App::PropertyString", "relative_axes", "C1.2 - direct inputs", "the relative orientation to the rotation reference (XY, XZ, or YZ)").relative_axes = rel_axes
+		obj.addProperty("App::PropertyFloat", "symbol_scale", "C1.2 - direct inputs", "the overall size of the 3D symbol").symbol_scale = scale
+		# outputs
+
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "SilkPose"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
+	def __init__(self, obj , refs):
+		latest_version = "0.02" # must match in onDocumentRestored()
+		if len(refs)==1:
+			pos_ref = (refs[0][0], refs[0][1])
+			rot_ref = refs[0][0]
+		if len(refs)==2:
+			pos_ref = (refs[0][0], refs[0][1])
+			rot_ref = refs[1][0]
+		self.SilkPose_Attributes(obj, pos_ref, rot_ref, 'XY', 20, latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.02" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "position_ref"): 
+				old_pos_ref = obj.position_ref
+				obj.removeProperty("position_ref")
+			if hasattr(obj, "rotation_ref"): 
+				old_rot_ref = obj.rotation_ref
+				obj.removeProperty("rotation_ref")
+			if hasattr(obj, "relative_axes"): 
+				old_rel_axes = obj.relative_axes
+				obj.removeProperty("relative_axes")
+			else:
+				old_rel_axes = 'XY'
+			if hasattr(obj, "symbol_scale"): 
+				old_sym_scale = obj.symbol_scale
+				obj.removeProperty("symbol_scale")
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all  atributes in current version format
+			self.SilkPose_Attributes(obj, old_pos_ref, old_rot_ref, old_rel_axes, old_sym_scale, latest_version)
+			
+		# need to recompute otherwise ? remain unpopulated?
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		# build the Pose symbol
+		sym_L = fp.symbol_scale
+		center = Base.Vector(0,0,0)
+		normal = Base.Vector(0,0,1)
+		rx= sym_L/8
+		ry= sym_L/4
+		xstart = Base.Vector(rx,0,0)
+		xend = Base.Vector(sym_L,0,0)
+		ystart = Base.Vector(0,ry,0)
+		yend = Base.Vector(0,sym_L*0.5,0)
+		# prepare the shapes to draw the SilkPose symbol
+		xL=Part.LineSegment(xstart,xend)
+		xC=Part.Circle(center, normal,rx)
+		yL=Part.LineSegment(ystart, yend)
+		yC=Part.Circle(center, normal,ry)
+		#set the polygon legs property
+		symbol=[xL, xC, yL, yC]
+		# define the shape for visualization
+		fp.Shape = Part.Shape(symbol)
+
+		# do the placement stuff
+
+		# set basic orientation relative to reference object
+		if fp.relative_axes == "XY":
+			fp.Placement.Matrix = FreeCAD.Matrix(	1,0,0,0,
+													0,1,0,0,
+													0,0,1,0,
+													0,0,0,1)
+		if fp.relative_axes == "ZX":
+			fp.Placement.Matrix = FreeCAD.Matrix(	0,1,0,0,
+													0,0,1,0,
+													1,0,0,0,
+													0,0,0,1)
+		if fp.relative_axes == "YZ":
+			fp.Placement.Matrix = FreeCAD.Matrix(	0,0,1,0,
+													1,0,0,0,
+													0,1,0,0,
+													0,0,0,1)
+
+		#print("basic fp.Placement = ", fp.Placement)
+		position_ref_string = fp.position_ref[1]
+		#print("position_ref (string) =", position_ref_string)
+		vertex_ref = fp.position_ref[0].getSubObject(fp.position_ref[1])[0]
+		#print("vertex_ref =", vertex_ref)
+		position_ref_vector = vertex_ref.Point
+		#print("position_ref_vector =", position_ref_vector)
+
+		ref_placement = FreeCAD.Placement()
+		ref_placement.Base = position_ref_vector
+		ref_placement.Rotation = fp.rotation_ref.Placement.Rotation
+
+		fp.Placement = ref_placement.multiply(fp.Placement) # wrong angle, correct location
+
+		#fp.Placement = fp.Placement.multiply(ref_placement) # wrong angle, wrong location
+
+		#fp.Placement.Base = position_ref_vector
+		#fp.Placement.Rotation = fp.rotation_ref.Placement.Rotation
+		#print("new fp.Placement = ", fp.Placement)
+        
 ### control polygons (+sketch to input)
 
 default_tol = 0.000001

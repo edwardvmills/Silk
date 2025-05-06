@@ -47,6 +47,43 @@ standardTipFooter = (
 	"\n     Click this icon with nothing selected to see more information \n"
 )
 
+SilkPose_baseTip = (
+	"a pose* symbol with a 3D placement calculated from linked references: long line indicates x axis, short line indicates y axis \n"
+	"used to attach sketches**, with standard 90 degree rotations as an option: XY (default), YZ, or ZX. \n "
+	"* pose means exactly the same thing as FreeCAD Placement. But this is a separate tool, so it gets a separate name. \n"
+	"** it can be used to attach anything - Silk uses it for sketches. \n"
+	"______________________________________________________________________________________________________________________________________ \n"
+	"Usage \n"
+	"Preselect one of the following: \n"
+	" • an object vertex (typically from a sketch) \n"
+	" • a vertex AND a separate document object which has placement (typically a second sketch) \n"
+	"Apply the function \n"
+	"\n"
+	"The new Pose object has its origin at the vertex, and follows the orientation of the second object.\n"
+	"So the first pick controls the translation, and the second pick controls orientation. \n"
+	"\n"
+	"If no second selection is made, the first object, from which the vertex was picked, is treated as the orientation reference). \n"
+	"\n"
+	"Under the data tab for this object, we can change the basic orientation from the default of XY, to ZX, or YZ, of the rotation \n"
+	"reference object. The vertex reference object can be changed, as well as the rotation reference.\n"
+	"We can now attach Silk sketches to this object, and they allow control not available through MapMode \n"
+)
+
+SilkPose_moreInfo = (
+	"______________________________________________________________________________________________________________________________________ \n"
+	"This is a placement method not available from Attachment MapMode \n"
+	"specifically, this tool combines 'translate origin', and Object's XY/XZ/YZ. note that ZX is used instead of XZ (but same idea) \n"
+	"now we can copy/paste large structures, and remap the Base sketch. All relative Nodes, 3L sketches, polys, grids, surfaces...\n"
+	"everything should translate and rotate correctly! \n"
+	"The key is to prepare entire structures with a single, well defined origin object as an orientation reference. When copy pasting, \n"
+	"simply reattach this base object to the new desired location and orientation \n"
+	"\n"
+	"SKETCHING GUIDELINE, NOT PROVEN, BEST GUESS: \n"
+	" -use parallel/perpendicular, and (general) distance constraints. \n"
+	" -avoid horizontal/vertical, and horizontal/vertical dimension constraints. The goal is to help FreeCAD not mangle our sketches \n"
+	" after rotations. Even with completely sepecified axes...i'm not sure FreeCAD won't decide that horizontal is vertical now."
+)
+
 ControlPoly4_baseTip = (
 	"Creates a ControlPoly4 from a variety of inputs: \n"
 	"______________________________________________________________________________________________________________________________________ \n"

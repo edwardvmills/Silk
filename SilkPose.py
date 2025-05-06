@@ -25,30 +25,51 @@ from popup import tipsDialog
 import tooltips
 
 # get strings
-tooltip = (tooltips.AddNewCommand_baseTip + tooltips.standardTipFooter)
-moreInfo = (tooltips.AddNewCommand_baseTip + tooltips.AddNewCommand_moreInfo)
+tooltip = (tooltips.SilkPose_baseTip + tooltips.standardTipFooter)
+moreInfo = (tooltips.SilkPose_baseTip + tooltips.SilkPose_moreInfo)
 
 # Locate Workbench Directory & icon
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
-iconPath = path_Silk_icons + '/AddNewCommand.svg'
+iconPath = path_Silk_icons + '/WIP.svg' # '/SilkPose.svg'
 
 
-class AddNewCommand():
+class SilkPose():
 	def Activated(self):
 		# display extended tooltip window if function was applied with no selection
 		# switch to getSlecetionEx() as needed
-		sel=Gui.Selection.getSelection()
+		sel=Gui.Selection.getSelectionEx()
 		if len(sel)==0:
 			tipsDialog("Silk: ControlPoly4", moreInfo)
 			return		
 		# do other things if there is stuff in the selection
-		a = 0 # replace with functional macro
+		if len(sel)==1:
+			obj_ref = sel[0].Object
+			sub_ref = sel[0].SubElementNames
+			refs = [[obj_ref,sub_ref]]
+
+		if len(sel)==2:
+			obj0_ref = sel[0].Object
+			sub0_ref = sel[0].SubElementNames
+			obj1_ref = sel[1].Object
+			sub1_ref = sel[1].SubElementNames
+			refs = [[obj0_ref,sub0_ref],[obj1_ref, sub1_ref]]
+
+
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SilkPose_000")
+		AN.SilkPose(a,refs)
+		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+		a.ViewObject.LineWidth = 1.00
+		a.ViewObject.LineColor = (0.80,0.00,0.00)
+		a.ViewObject.PointSize = 4.00
+		a.ViewObject.PointColor = (1.00,0.00,0.00)
+		FreeCAD.ActiveDocument.recompute()
+
 
 	def GetResources(self):
 		return {'Pixmap':  iconPath,
-	  			'MenuText': 'AddNewCommand',
+	  			'MenuText': 'SilkPose',
 				'ToolTip': tooltip}
 
-Gui.addCommand('AddNewCommand', AddNewCommand())
+Gui.addCommand('SilkPose', SilkPose())
