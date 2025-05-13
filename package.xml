@@ -2,7 +2,7 @@
 <package format="1">
   <name>Silk workbench</name>
   <description>NURBS Surface modeling tools focused on low degree and seam continuity</description>
-  <version>0.1.7</version>
+  <version>0.1.8</version>
   <date>2023-09-17</date>
   <maintainer email="@edwardvmills">edwardvmills</maintainer>
   <license file="LICENSE">GPL-3.0-or-later</license>

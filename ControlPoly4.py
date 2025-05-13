@@ -48,7 +48,15 @@ class ControlPoly4():
 			else: #if sel[0].GeometryCount==1 or sel[0].GeometryCount==8:
 				mode='FirstElement'
 		elif len(sel)==2:
-			mode='2N'
+			if sel[0].TypeId == 'Sketcher::SketchObject' and sel[1].TypeId == 'Sketcher::SketchObject':
+				mode='2N'
+			else:
+				try:
+					if sel[0].object_type == 'Point_onCurve' and sel[1].object_type == 'Point_onCurve':
+						mode = '2P'
+				except:
+					pass
+
 		else:
 			print ('Selection not recognized, check tooltip')
 			return
@@ -81,6 +89,18 @@ class ControlPoly4():
 			sketch1=Gui.Selection.getSelection()[1]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2N_000")
 			AN.ControlPoly4_2N(a,sketch0,sketch1)
+			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
+			FreeCAD.ActiveDocument.recompute()
+
+		if mode=='2P':
+			Point0=Gui.Selection.getSelection()[0]
+			Point1=Gui.Selection.getSelection()[1]
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2P_000")
+			AN.ControlPoly4_2P(a,Point0,Point1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
 			a.ViewObject.LineColor = (0.00,1.00,1.00)

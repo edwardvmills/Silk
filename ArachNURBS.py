@@ -1645,10 +1645,29 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 
 class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains one line (tangent), 
 	# and one circle (endpoint) located at one end of the line.
+	def ControlPoly4_2N_Attributes(self, obj, sketch0, sketch1, weights, tolerance, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Sketch0","C1 - Inputs","reference Sketch").Sketch0 = sketch0
+		obj.addProperty("App::PropertyLink","Sketch1","C1 - Inputs","reference Sketch").Sketch1 = sketch1
+		obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = weights
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the circle-line in each node").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_2N"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+
 	def __init__(self, obj , sketch0, sketch1):
 		FreeCAD.Console.PrintMessage("\nControlPoly4_2N class Init\n")
 		
-		latest_version = "0.01" # must match in onDocumentRestored()
+		latest_version = "0.02" # must match in onDocumentRestored()
 		
 		# original attribute set before versioning of classes
 		'''
@@ -1660,6 +1679,9 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 		obj.Proxy = self
 		'''
 
+		self.ControlPoly4_2N_Attributes(obj, sketch0, sketch1, [1.0,1.0,1.0,1.0], default_tol, False, latest_version)
+
+		''' # before functionation of attribute creation
 		# current attribute set
 		# inputs
 		obj.addProperty("App::PropertyLink","Sketch0","C1 - Inputs","reference Sketch").Sketch0 = sketch0
@@ -1676,13 +1698,14 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = latest_version
 		obj.setEditorMode("object_version", 1)
 		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
-		obj.setEditorMode("internalName", 1)
+		obj.setEditorMode("internalName", 1)'''
+
 		# mandatory Proxy assignment
 		obj.Proxy = self
 
 	def onDocumentRestored(self, obj):
 		# Migration function to set attributes between object versions. Preserves user data in object.
-		latest_version = "0.01" # must match in __init__
+		latest_version = "0.02" # must match in __init__
 		update = False
 		if not hasattr(obj, "object_version"):
 			print( obj.Name, " has no version attribute. Attribute format will be updated")
@@ -1727,6 +1750,9 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 			if hasattr(obj, "internalName"): 
 				obj.removeProperty("internalName")
 			
+			self.ControlPoly4_2N_Attributes(obj, old_Sketch0, old_Sketch1, old_Weights, old_tolerance, old_reverse, latest_version)
+
+			''' # before functionation of attribute creation
 			#re/create all current version atributes in correct format
 			#this matches __init__, except we use the old values instead of the defaults where they are available
 			# current attribute set
@@ -1746,6 +1772,7 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 			obj.setEditorMode("object_version", 1)
 			obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName = obj.Name
 			obj.setEditorMode("internalName", 1)
+			'''
 
 		# need to recompute otherwise the poles remain unpopulated?
 		obj.recompute()
@@ -1815,6 +1842,138 @@ class ControlPoly4_2N:	# made from 2 node sketches. each node sketch contains on
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
+
+class ControlPoly4_2P:	# made from 2 pointOnCurve objects 
+	def ControlPoly4_2P_Attributes(self, obj, 
+									point0, point1, 
+									scale0, scale1, 
+									scale0_abs, scale1_abs,
+									weights, 
+									tolerance, 
+									reverse, 
+									object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Point0","C1 - Inputs","first reference pointOnCurve object").Point0 = point0
+		obj.addProperty("App::PropertyLink","Point1","C1 - Inputs","second reference pointOnCurve object").Point1 = point1
+		obj.addProperty("App::PropertyFloat","Scale0","C1 - Inputs","Scale start tangent (sum with Scale1 should be less than 3.0 or total length)").Scale0 = scale0
+		obj.addProperty("App::PropertyBool","Scale0_abs","C1 - Inputs","start tangent scale type (False=relative, True=absolute)").Scale0_abs = scale0_abs
+		obj.addProperty("App::PropertyFloat","Scale1","C1 - Inputs","Scale end tangent (sum with Scale0 should be less than 3.0 or total length)").Scale1 = scale1
+		obj.addProperty("App::PropertyBool","Scale1_abs","C1 - Inputs","end tangent scale type (False=relative, True=absolute)").Scale1_abs = scale1_abs
+		obj.addProperty("App::PropertyFloatList","Weights","C1 - Inputs","Weights").Weights = weights
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","no current applcation").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_2P"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+
+	def __init__(self, obj , point0, point1):
+		FreeCAD.Console.PrintMessage("\nControlPoly4_2P class Init\n")
+		latest_version = "0.00" # must match in onDocumentRestored()
+		self.ControlPoly4_2P_Attributes(obj, 
+								  		point0, point1, 
+										1.0, 1.0, 
+										False, False,
+										[1.0,1.0,1.0,1.0], 
+										default_tol, 
+										False, 
+										latest_version)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.00" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+		if update:
+			#capture, then delete original attribute set values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_Point0 = obj.Point0
+			obj.removeProperty("Point0")
+			old_Point1 = obj.Point1
+			obj.removeProperty("Point1")
+			old_Scale0 = obj.Scale0
+			obj.removeProperty("Scale0")
+			old_Scale0_abs = obj.Scale0_abs
+			obj.removeProperty("Scale0_abs")
+			old_Scale1 = obj.Scale1
+			obj.removeProperty("Scale1")
+			old_Scale1_abs = obj.Scale1_abs
+			obj.removeProperty("Scale1_abs")
+			old_Weights = obj.Weights
+			obj.removeProperty("Weights")
+			old_tolerance = obj.tolerance
+			obj.removeProperty("tolerance") 
+			old_reverse = obj.reverse
+			obj.removeProperty("reverse")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+			obj.removeProperty("object_type")
+			obj.removeProperty("object_version")
+			#capturing, then deleting attributes not part of the original set will require testing for their presence
+			self.ControlPoly4_2N_Attributes(obj, 
+								   			old_Point0, old_Point1, 
+											old_Scale0, old_Scale1, 
+											old_Scale0_abs, old_Scale1_abs,
+											old_Weights, 
+											old_tolerance, 
+											old_reverse, 
+											latest_version)
+		# need to recompute otherwise the poles remain unpopulated?
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		if prop == "reverse":
+			fp.Weights = list(reversed(fp.Weights))
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		# process Points
+		p0=fp.Point0.Position
+		p3=fp.Point1.Position
+
+		p03 = p3-p0
+		p30 = p0-p3
+
+		if fp.Scale0_abs == True:
+			p03.normalize()
+		if fp.Scale1_abs == True:
+			p30.normalize()
+
+		p1 = p0+p03*(fp.Scale0 /3.0)
+		p2 = p3+p30*(fp.Scale1 /3.0)
+
+
+		# set the poles
+		if fp.reverse == False:
+			fp.Poles=[p0,p1,p2,p3]
+		else:
+			fp.Poles=[p3,p2,p1,p0]
+		# prepare the polygon
+		Leg0=Part.LineSegment(p0,p1)
+		Leg1=Part.LineSegment(p1,p2)
+		Leg2=Part.LineSegment(p2,p3)
+		#set the polygon legs property
+		fp.Legs=[Leg0, Leg1, Leg2]
+		# define the shape for visualization
+		fp.Shape = Part.Shape(fp.Legs)
+
+
+
 
 class ControlPoly4_FirstElement:	# made from the first element of a single sketch. tested for straight line, circular arc (less than 90 degrees), and elliptic arc. the number of elements in the sketch should not be 3.
 	def __init__(self, obj , sketch):
