@@ -44,21 +44,92 @@ class SilkPose():
 			tipsDialog("Silk: ControlPoly4", moreInfo)
 			return		
 		# do other things if there is stuff in the selection
+
+		# currently works for PR mode
+		# 3P is tricky and interferes witht the current PR mode assignment.
+		# 2 or even three of the clicked points could belong to the same object.
+		# so for  1, 2, or 3 objects in selection, need to figure out how many point were clicked
+		# then assign mode, then assign refs and subrefs
 		if len(sel)==1:
-			obj_ref = sel[0].Object
-			sub_ref = sel[0].SubElementNames
-			refs = [[obj_ref,sub_ref]]
-
+			picked = len(sel[0].PickedPoints)
+			if picked == 1:
+				mode = 'PR'
+				obj_ref = sel[0].Object
+				sub_ref = sel[0].SubElementNames
+				refs = [[obj_ref,sub_ref]]
+			elif picked == 3:
+				# for 'PR' mode i throw all SubelementNames in as the Vertex ref,
+				# then i always use the first SubElement for the 'PR' class vertex value.
+				# now, i need to clearly differentiate the vertices immediately.
+				# once that's sorted out...go back and improve 'PR' mode refs?
+				mode = '3P'
+				obj0_ref = sel[0].Object
+				sub0_ref = sel[0].SubElementNames[0]
+				obj1_ref = sel[0].Object
+				sub1_ref = sel[0].SubElementNames[1]
+				obj2_ref = sel[0].Object
+				sub2_ref = sel[0].SubElementNames[2]
+				refs = [[obj0_ref,sub0_ref], [obj1_ref,sub1_ref], [obj2_ref,sub2_ref]]
+			else:
+				print('SilkPose: if a single object is selected, then either 1 or 3 vertices should be selected from that object')
+				return
 		if len(sel)==2:
+			picked0 = len(sel[0].PickedPoints) # it is mandatory that the first pick be a vertex
+			picked1 = len(sel[1].PickedPoints) # there may be zero picked points here
+			if picked0 == 1 and (picked1 == 0 or picked1 == 1): # two objects, and one or two vertices picked between them
+				mode = 'PR'
+				obj0_ref = sel[0].Object
+				sub0_ref = sel[0].SubElementNames
+				obj1_ref = sel[1].Object
+				sub1_ref = sel[1].SubElementNames
+				refs = [[obj0_ref,sub0_ref],[obj1_ref, sub1_ref]]
+			if picked0+picked1 == 3: # two objects, three vertices picked altogether
+				mode = '3P'
+				# code below always lists refs by first and second selected object.
+				# cannot discern first pick on first object, second pick on secong object, THIRD PICK on FIRST OBJECT.
+				# this is because selection doesn't give a global pick order...only an pick order per object.
+				if picked0 == 1:
+					obj0_ref = sel[0].Object
+					sub0_ref = sel[0].SubElementNames[0]
+				elif picked0 == 2:
+					obj0_ref = sel[0].Object
+					sub0_ref = sel[0].SubElementNames[0]
+					obj1_ref = sel[0].Object
+					sub1_ref = sel[0].SubElementNames[1]
+				if picked1 == 1:
+					obj2_ref = sel[1].Object
+					sub2_ref = sel[1].SubElementNames[0]
+				elif picked1 == 2:
+					obj1_ref = sel[1].Object
+					sub1_ref = sel[1].SubElementNames[0]
+					obj2_ref = sel[1].Object
+					sub2_ref = sel[1].SubElementNames[1]
+				refs = [[obj0_ref,sub0_ref], [obj1_ref,sub1_ref], [obj2_ref,sub2_ref]]
+
+		if len(sel)==3: # three objects selected, need exactly 1 vertex from each
+			mode = '3P'
+			picked0 = len(sel[0].PickedPoints) 
+			picked1 = len(sel[1].PickedPoints)
+			picked2 = len(sel[2].PickedPoints)
+			if picked0 != 1 or picked1 != 1 or picked2 != 1:
+				print('SilkPose: if three objects are selected, there must be exactly one vertex selected in all three')
+				return
 			obj0_ref = sel[0].Object
-			sub0_ref = sel[0].SubElementNames
+			sub0_ref = sel[0].SubElementNames[0]
 			obj1_ref = sel[1].Object
-			sub1_ref = sel[1].SubElementNames
-			refs = [[obj0_ref,sub0_ref],[obj1_ref, sub1_ref]]
+			sub1_ref = sel[1].SubElementNames[0]
+			obj2_ref = sel[2].Object
+			sub2_ref = sel[2].SubElementNames[0]
+			refs = [[obj0_ref,sub0_ref], [obj1_ref,sub1_ref], [obj2_ref,sub2_ref]]
+
+		if mode == 'PR':
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SilkPose_PR_000")
+			AN.SilkPose_PR(a,refs)
+		if mode == '3P':
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SilkPose_3P_000")
+			AN.SilkPose_3P(a,refs)
 
 
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SilkPose_000")
-		AN.SilkPose(a,refs)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
 		a.ViewObject.LineColor = (0.80,0.00,0.00)

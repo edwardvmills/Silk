@@ -63,6 +63,9 @@ print ("importing ArachNURBS")
 ## Right now, the computation of these scripts is ridiculously fast compared
 ## to the time taken to generate the surfaces using the FreeCAD Part.BSplineSurface() function
 
+## global variables
+default_tol = 0.000001
+
 ## direct functions actually used in the Classes / available through the Silk FreeCAD workbench:
 
 def equalVectors(vector0,vector1,tol):	# 3D point equality test
@@ -1352,19 +1355,21 @@ def isect_curve_surf(curve, surf):	# curve / surface intersection point
 
 ### stuff that I wish was in FreeCAD, but not really NURBS related
 
-class SilkPose: # alternative to Attachment/MapMode for Placement
-	def SilkPose_Attributes(self, obj, pos_ref, rot_ref, rel_axes, scale, object_version):
+class SilkPose_PR: # alternative to Attachment/MapMode for Placement - by position reference and rotation reference
+	def SilkPose_PR_Attributes(self, obj, pos_ref, rot_ref, rel_axes, scale, object_version):
 		# current attribute set
 		# inputs
 		obj.addProperty("App::PropertyLinkSub", "position_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define position").position_ref = pos_ref
 		obj.addProperty("App::PropertyLink", "rotation_ref", "C1.1 - ref inputs", "the Object used to define rotation").rotation_ref = rot_ref
-		obj.addProperty("App::PropertyString", "relative_axes", "C1.2 - direct inputs", "the relative orientation to the rotation reference (XY, XZ, or YZ)").relative_axes = rel_axes
+		obj.addProperty("App::PropertyEnumeration", "relative_axes", "C1.2 - direct inputs", 
+				  		"the relative orientation to the rotation reference (XY, XZ, or YZ)").relative_axes = ['XY', 'YZ', 'ZX']
+		obj.relative_axes = rel_axes
 		obj.addProperty("App::PropertyFloat", "symbol_scale", "C1.2 - direct inputs", "the overall size of the 3D symbol").symbol_scale = scale
 		# outputs
 
 		# additional object identifiers
 		obj.addProperty("App::PropertyString", "object_type", 
-				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "SilkPose"
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "SilkPose_PR"
 		obj.setEditorMode("object_type", 1)
 		obj.addProperty("App::PropertyString", "object_version", 
 				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
@@ -1375,20 +1380,20 @@ class SilkPose: # alternative to Attachment/MapMode for Placement
 		return
 
 	def __init__(self, obj , refs):
-		latest_version = "0.02" # must match in onDocumentRestored()
+		latest_version = "0.03" # must match in onDocumentRestored()
 		if len(refs)==1:
 			pos_ref = (refs[0][0], refs[0][1])
 			rot_ref = refs[0][0]
 		if len(refs)==2:
 			pos_ref = (refs[0][0], refs[0][1])
 			rot_ref = refs[1][0]
-		self.SilkPose_Attributes(obj, pos_ref, rot_ref, 'XY', 20, latest_version)
+		self.SilkPose_PR_Attributes(obj, pos_ref, rot_ref, 'XY', 20, latest_version)
 		obj.Proxy = self
 
 	def onDocumentRestored(self, obj):
 		# Migration function to set attributes between object versions. Preserves user data in object.
 		# print("onDocumentRestored() invoked")
-		latest_version = "0.02" # must match in __init__
+		latest_version = "0.03" # must match in __init__
 		update = False
 		if not hasattr(obj, "object_version"):
 			print( obj.Name, " has no version attribute. Attribute format will be updated")
@@ -1423,7 +1428,7 @@ class SilkPose: # alternative to Attachment/MapMode for Placement
 				obj.removeProperty("internalName")
 			
 			#re/create all  atributes in current version format
-			self.SilkPose_Attributes(obj, old_pos_ref, old_rot_ref, old_rel_axes, old_sym_scale, latest_version)
+			self.SilkPose_PR_Attributes(obj, old_pos_ref, old_rot_ref, old_rel_axes, old_sym_scale, latest_version)
 			
 		# need to recompute otherwise ? remain unpopulated?
 		obj.recompute()
@@ -1450,7 +1455,7 @@ class SilkPose: # alternative to Attachment/MapMode for Placement
 		xend = Base.Vector(sym_L,0,0)
 		ystart = Base.Vector(0,ry,0)
 		yend = Base.Vector(0,sym_L*0.5,0)
-		# prepare the shapes to draw the SilkPose symbol
+		# prepare the shapes to draw the SilkPose_PR symbol
 		xL=Part.LineSegment(xstart,xend)
 		xC=Part.Circle(center, normal,rx)
 		yL=Part.LineSegment(ystart, yend)
@@ -1480,8 +1485,10 @@ class SilkPose: # alternative to Attachment/MapMode for Placement
 													0,0,0,1)
 
 		#print("basic fp.Placement = ", fp.Placement)
-		position_ref_string = fp.position_ref[1]
+
+		#position_ref_string = fp.position_ref[1]
 		#print("position_ref (string) =", position_ref_string)
+
 		vertex_ref = fp.position_ref[0].getSubObject(fp.position_ref[1])[0]
 		#print("vertex_ref =", vertex_ref)
 		position_ref_vector = vertex_ref.Point
@@ -1498,10 +1505,174 @@ class SilkPose: # alternative to Attachment/MapMode for Placement
 		#fp.Placement.Base = position_ref_vector
 		#fp.Placement.Rotation = fp.rotation_ref.Placement.Rotation
 		#print("new fp.Placement = ", fp.Placement)
-        
-### control polygons (+sketch to input)
 
-default_tol = 0.000001
+class SilkPose_3P: # alternative to Attachment/MapMode for Placement - by three points
+	def SilkPose_3P_Attributes(self, obj, O_ref, X_ref, Y_ref, flip_X, flip_Y, rel_axes, scale, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLinkSub", "O_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define origin").O_ref = O_ref
+		obj.addProperty("App::PropertyLinkSub", "X_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define x direction").X_ref = X_ref
+		obj.addProperty("App::PropertyLinkSub", "Y_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define y direction").Y_ref = Y_ref
+		obj.addProperty("App::PropertyBool", "flip_X", "C1.2 - direct inputs", "reverse x direction").flip_X = flip_X
+		obj.addProperty("App::PropertyBool", "flip_Y", "C1.2 - direct inputs", "reverse y direction").flip_X = flip_Y
+		obj.addProperty("App::PropertyEnumeration", "relative_axes", "C1.2 - direct inputs", 
+				  		"the relative orientation to the rotation reference (XY, XZ, or YZ)").relative_axes = ['XY', 'YZ', 'ZX']
+		obj.relative_axes = rel_axes
+		obj.addProperty("App::PropertyFloat", "symbol_scale", "C1.2 - direct inputs", "the overall size of the 3D symbol").symbol_scale = scale
+		# outputs
+
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", 
+				  		"C3 - Identifiers", "the workbench class used to create this object").object_type = "SilkPose_3P"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", 
+				  		"C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", 
+				  		"C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+		return
+
+	def __init__(self, obj , refs):
+		latest_version = "0.03" # must match in onDocumentRestored()
+		O_ref = (refs[0][0], refs[0][1])
+		X_ref = (refs[1][0], refs[1][1])
+		Y_ref = (refs[2][0], refs[2][1])
+		self.SilkPose_3P_Attributes(obj, O_ref, X_ref, Y_ref, False, False,'XY', 20, latest_version)
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		# print("onDocumentRestored() invoked")
+		latest_version = "0.03" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update == True:
+			# capture, then delete attribute values in user input fields
+			# deleting is done because we may be changing the format of pre-existing attributes
+			if hasattr(obj, "O_ref"): 
+				old_O_ref = obj.O_ref
+				obj.removeProperty("O_ref")
+			if hasattr(obj, "X_ref"): 
+				old_X_ref = obj.X_ref
+				obj.removeProperty("X_ref")
+			if hasattr(obj, "Y_ref"): 
+				old_Y_ref = obj.Y_ref
+				obj.removeProperty("Y_ref")
+			if hasattr(obj, "flip_X"): 
+				old_flip_X = obj.flip_X
+				obj.removeProperty("flip_X")
+			if hasattr(obj, "flip_Y"): 
+				old_flip_Y = obj.flip_Y
+				obj.removeProperty("flip_Y")
+			if hasattr(obj, "relative_axes"): 
+				old_rel_axes = obj.relative_axes
+				obj.removeProperty("relative_axes")
+			if hasattr(obj, "symbol_scale"): 
+				old_sym_scale = obj.symbol_scale
+				obj.removeProperty("symbol_scale")
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all  atributes in current version format
+			self.SilkPose_3P_Attributes(obj, old_O_ref, old_X_ref, old_Y_ref, old_flip_X, old_flip_Y, old_rel_axes, old_sym_scale, latest_version)
+			
+		# need to recompute otherwise ? remain unpopulated?
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# print("onChanged invoked")
+		if prop == "reverse":
+			fp.recompute()
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		
+		# build the Pose symbol
+		sym_L = fp.symbol_scale
+		center = Base.Vector(0,0,0)
+		normal = Base.Vector(0,0,1)
+		rx= sym_L/8
+		ry= sym_L/4
+		xstart = Base.Vector(rx,0,0)
+		xend = Base.Vector(sym_L,0,0)
+		ystart = Base.Vector(0,ry,0)
+		yend = Base.Vector(0,sym_L*0.5,0)
+		# prepare the shapes to draw the SilkPose_PR symbol
+		xL=Part.LineSegment(xstart,xend)
+		xC=Part.Circle(center, normal,rx)
+		yL=Part.LineSegment(ystart, yend)
+		yC=Part.Circle(center, normal,ry)
+		#set the polygon legs property
+		symbol=[xL, xC, yL, yC]
+		# define the shape for visualization
+		fp.Shape = Part.Shape(symbol)
+
+		# do the placement stuff
+
+		# set basic orientation relative to reference object
+		if fp.relative_axes == "XY":
+			fp.Placement.Matrix = FreeCAD.Matrix(	1,0,0,0,
+													0,1,0,0,
+													0,0,1,0,
+													0,0,0,1)
+		if fp.relative_axes == "ZX":
+			fp.Placement.Matrix = FreeCAD.Matrix(	0,1,0,0,
+													0,0,1,0,
+													1,0,0,0,
+													0,0,0,1)
+		if fp.relative_axes == "YZ":
+			fp.Placement.Matrix = FreeCAD.Matrix(	0,0,1,0,
+													1,0,0,0,
+													0,1,0,0,
+													0,0,0,1)
+
+		origin_ref = fp.O_ref[0].getSubObject(fp.O_ref[1])[0].Point
+		X_ref = fp.X_ref[0].getSubObject(fp.X_ref[1])[0].Point
+		Y_ref = fp.Y_ref[0].getSubObject(fp.Y_ref[1])[0].Point
+
+		X = (X_ref-origin_ref).normalize()
+		if fp.flip_X == True:
+			X = -X
+		yish = (Y_ref-origin_ref).normalize()
+		if equalVectors(X, yish, default_tol):
+			print('SilkPose_3P: the three selected points are too close to forming a line. cannot determine orthogonal vectors. ')
+			return
+		Y = (yish - yish.dot(X) * X).normalize()
+		if fp.flip_Y == True:
+			Y = -Y
+
+		Z = X.cross(Y)
+
+		matrix3P = FreeCAD.Matrix(	X.x, Y.x, Z.x, 0,
+									X.y, Y.y, Z.y, 0,
+									X.z, Y.z, Z.z, 0,
+									0,	0,	0,	1)
+
+		ref_placement_translation = FreeCAD.Placement()
+		ref_placement_translation.Base = origin_ref
+
+		ref_placement_rotation = FreeCAD.Placement()
+		ref_placement_rotation.Matrix = matrix3P
+
+		fp.Placement = ref_placement_translation.multiply(ref_placement_rotation.multiply(fp.Placement)) 
+     
+### control polygons (+sketch to input)
 
 class ControlPoly4_3L:	# made from a single sketch containing 3 line objects connected end to end
 	def __init__(self, obj , sketch):
@@ -1971,9 +2142,6 @@ class ControlPoly4_2P:	# made from 2 pointOnCurve objects
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
-
-
-
 
 class ControlPoly4_FirstElement:	# made from the first element of a single sketch. tested for straight line, circular arc (less than 90 degrees), and elliptic arc. the number of elements in the sketch should not be 3.
 	def __init__(self, obj , sketch):
