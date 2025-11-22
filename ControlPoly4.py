@@ -54,9 +54,14 @@ class ControlPoly4():
 					# any other number of geometry elements will only consider the first element (in the geometry listing)
 					mode='FirstElement'
 			else:
-				# is it a ControlGrid44_4?
+				# is it a ControlGrid44_X?
+				ControlGrid44_types = ['ControlGrid44_2EdgeSegments',
+					  				'ControlGrid44_EdgeSegment',
+									'ControlGrid44_flow',
+									'ControlGrid44_Rotate',
+									'ControlGrid44_4']
 				try:
-					if sel[0].Object.object_type == 'ControlGrid44_4':
+					if sel[0].Object.object_type in ControlGrid44_types:
 						mode = 'GridEdge'
 				except:
 					pass

@@ -84,8 +84,6 @@ def VectorIndex(list, vector):
 			print('VectorIndex: no match found at default tolerance (.000001)')
 	return result 
 	
-
-
 def polyFromLineSet(lines, tol): # build a control polygon from a list of line segments
 	# input parameter 'lines' format = 
 	# [[startpoint0, endpoint0], [startpoint1, endpoint1],[startpoint2, endpoint2],...]
@@ -2314,6 +2312,180 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
+
+class ControlPoly4_GridEdge:	# extract a ControlPoly4 from the edge of a ControlGrid44 - maybe also from Grid64?
+	# this is used on grids not directly defined by edge control polygons (and therefor these polygons are not 
+	# directly available). surface segmentation grids for example.
+	def ControlPoly4_GridEdge_Attributes(self, obj, grid, edge, tolerance, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Grid","C1 - Inputs","reference grid").Grid = grid
+		obj.addProperty("App::PropertyInteger","Edge","C1 - Inputs","selected grid edge (0 to 3)").Edge = edge
+		# I can't think of any reason to have a tolerance for this type of poly...but keep for now
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","not ucrrently in use").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the pole sequence").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = [1.0,1.0,1.0,1.0]
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_GridEdge"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+	
+	def __init__(self, obj , grid, edge):
+		FreeCAD.Console.PrintMessage("\nControlPoly4_GridEdge class Init\n")
+
+		latest_version = "0.01" # must match in onDocumentRestored()
+		self.ControlPoly4_GridEdge_Attributes(obj, grid, edge, default_tol, False, latest_version)
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.01" # must match in __init__
+		update = False
+		
+		if not obj.object_version == latest_version:
+			print(obj.Name, " is out of date. Attribute format will be updated")
+			update = True
+
+		if update:
+			# capturing, then deleting versioned attributes requires testing for their presence
+			# inputs
+			if hasattr(obj, "Grid"):
+				old_Grid = obj.Grid
+				obj.removeProperty("Grid")
+
+			if hasattr(obj, "Edge"):
+				old_Edge = obj.Edge
+				obj.removeProperty("Edge")
+			
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+				obj.removeProperty("tolerance")
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+				obj.removeProperty("reverse")
+			#outputs
+			if hasattr(obj, "Poles"):
+				obj.removeProperty("Poles")
+
+			if hasattr(obj, "Weights"):	
+				obj.removeProperty("Weights")
+
+			if hasattr(obj, "Legs"):
+				obj.removeProperty("Legs")
+			# identifiers
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			#re/create all current version atributes in correct format
+			self.ControlPoly4_GridEdge_Attributes(obj, old_Grid, old_Edge, old_tolerance, old_reverse, latest_version)
+
+		# need to recompute otherwise the poles remain unpopulated?
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		# 2025-11-19 note: not sure if this is needed here or could just be in execute
+		# the actual sequence of 'document restored', 'changed', and 'execute in FreeCAD appears
+		# not to be deterministic
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+		#print("onChanged() invoked")
+		#if prop == "reverse":
+			#print("onChanged() --> reverse invoked")
+			# even though the weights come from the input grid, the output polygon can be reversed
+			# so the extracted weights must be reversed as well.
+			# this probably belongs in execute()
+			# fp.Weights = list(reversed(fp.Weights))
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		# print("execute() invoked")
+		if 'Restore' in fp.State:
+			# print("Restore in fp.state")
+			return  # or do some special thing
+
+		grid_poles = fp.Grid.Poles
+		
+		grid_weights = fp.Grid.Weights
+
+		if fp.Edge == 0:
+			poles = [grid_poles[0],
+					grid_poles[1],
+					grid_poles[2],
+					grid_poles[3]]
+			
+			Weights = [grid_weights[0],
+					grid_weights[1],
+					grid_weights[2],
+					grid_weights[3]]
+
+		if fp.Edge == 1:
+			poles = [grid_poles[3],
+					grid_poles[7],
+					grid_poles[11],
+					grid_poles[15]]
+			
+			Weights = [grid_weights[3],
+					grid_weights[7],
+					grid_weights[11],
+					grid_weights[15]]
+			
+		if fp.Edge == 2:
+			poles = [grid_poles[12],
+					grid_poles[13],
+					grid_poles[14],
+					grid_poles[15]]
+			
+			Weights = [grid_weights[12],
+					grid_weights[13],
+					grid_weights[14],
+					grid_weights[15]]
+			
+		if fp.Edge == 3:
+			poles = [grid_poles[0],
+					grid_poles[4],
+					grid_poles[8],
+					grid_poles[12]]
+			
+			Weights = [grid_weights[0],
+					grid_weights[4],
+					grid_weights[8],
+					grid_weights[12]]
+
+		if fp.reverse == False:
+			fp.Poles = [poles[0], poles[1], poles[2], poles[3]]
+			fp.Weights = [Weights[0], Weights[1], Weights[2], Weights[3]]
+		else:
+			fp.Poles = [poles[3], poles[2], poles[1], poles[0]]
+			fp.Weights = [Weights[3], Weights[2], Weights[1], Weights[0]]
+
+		# prepare the lines to draw the polyline
+		Leg0=Part.LineSegment(fp.Poles[0],fp.Poles[1])
+		Leg1=Part.LineSegment(fp.Poles[1],fp.Poles[2])
+		Leg2=Part.LineSegment(fp.Poles[2],fp.Poles[3])
+		#set the polygon legs property
+		fp.Legs=[Leg0, Leg1, Leg2]
+		# define the shape for visualization
+		fp.Shape = Part.Shape(fp.Legs)
+
 
 class ControlPoly6_5L:	# made from a single sketch containing 5 line objects connected end to end
 	def __init__(self, obj , sketch):
