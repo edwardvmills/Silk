@@ -1,4 +1,5 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileNotice: Part of the Silk addon.
 
 from FreeCAD import Gui
 from importlib import reload

@@ -1,6 +1,7 @@
 # SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileNotice: Part of the Silk addon.
 
-#    This file is part of Silk
+
 #    (c) Edward Mills 2023
 #    edwardvmills@gmail.com
 #    With significant contributions from github member @wandrewkeech, who led this tooltip documentation effort.
