@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 # starting from https://wiki.freecad.org/Macro_MessageBox
 # for basic pop up window
 

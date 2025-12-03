@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 #    This file is part of Silk
 #    (c) Edward Mills 2023
 #    edwardvmills@gmail.com

@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 import Part
 import FreeCAD
 from FreeCAD import Base

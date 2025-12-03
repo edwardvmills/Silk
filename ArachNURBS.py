@@ -1,3 +1,5 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+
 #    ArachNURBS
 #    (c) Edward Mills 2016-2024
 #    edwardvmills@gmail.com
