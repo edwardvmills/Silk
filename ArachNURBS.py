@@ -2249,7 +2249,7 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 		sketch = fp.Sketch
 		geom = fp.Sketch.Geometry
 		# print('processing contents of sketch for ControlPoly4_FirstElement: ', fp.Label)
-		geoTypes = [[],[],[]]
+		geoTypes = [[],[],[],[]]
 		for i in range(0, geom.__len__()):
 			if sketch.getConstruction(i) == False:
 				# print(i, geom[i])
@@ -2259,10 +2259,13 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 				if geom[i].TypeId =='Part::GeomArcOfCircle':
 					# print('found arcOfCircle at', i)
 					geoTypes[1].append(i)
+				if geom[i].TypeId =='Part::GeomArcOfEllipse':
+					print('found arcOfEllipse at', i)
+					geoTypes[2].append(i)
 				if geom[i].TypeId =='Part::GeomBSplineCurve':
 					# print('found BSplineCurce at', i)
 					if geom[i].Degree == 3 and geom[i].NbPoles == 4:
-						geoTypes[2].append(i)
+						geoTypes[3].append(i)
 					else:
 						print('found BSplineCurce ', i, 'is not of the correct type')
 				# unhandled types:
@@ -2270,11 +2273,14 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 				# ...
 
 		# print(geoTypes)
-		if geoTypes[2].__len__() > 0 :
+		if geoTypes[3].__len__() > 0 :
 			# the sketch has at least one spline, grab the first one
+			ElemNurbs = geom[geoTypes[3][0]].toNurbs()
+		elif geoTypes[2].__len__() > 0:
+			# the sketch has at least one arc of ellipse, grab the first one
 			ElemNurbs = geom[geoTypes[2][0]].toNurbs()
 		elif geoTypes[1].__len__() > 0:
-			# the sketch has at least one arc, grab the first one
+			# the sketch has at least one arc of circle, grab the first one
 			ElemNurbs = geom[geoTypes[1][0]].toNurbs()
 		elif geoTypes[0].__len__() > 0:
 			# the sketch has at least one line segment, grab the first one
