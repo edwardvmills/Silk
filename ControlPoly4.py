@@ -47,11 +47,23 @@ class ControlPoly4():
 			# one object selected for input
 			if sel[0].Object.TypeId == 'Sketcher::SketchObject':
 				# which is a sketch
-				if sel[0].Object.GeometryCount==3:
-					# which contains exactly 3 geometry elements - let's assume they are lines -
+				sketch = sel[0].Object
+				geom = sel[0].Object.Geometry
+				geom_count = geom.__len__()
+				# does the sketch contain three visible objects, which are line segments?
+				visible_count = 0
+				visible_line_count = 0
+				for i in range(0, geom_count):
+					if sketch.getConstruction(i) == False:
+						visible_count = visible_count + 1
+						if geom[i].TypeId =='Part::GeomLineSegment':
+							visible_line_count = visible_line_count + 1
+				if visible_line_count==3 and visible_count==visible_line_count:
 					mode='3L'
-				else: #if sel[0].GeometryCount==1 or sel[0].GeometryCount==8:
-					# any other number of geometry elements will only consider the first element (in the geometry listing)
+				else: 
+					# anything except 3 visible lines will only consider the first 
+					# 'priority' element in the geometry listing
+					# the downstream function will prioritize sketch geometry by type
 					mode='FirstElement'
 			else:
 				# is it a ControlGrid44_X?
