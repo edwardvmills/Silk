@@ -1759,6 +1759,8 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 
 	def execute(self, fp):
 		'''Do something when doing a recomputation, this method is mandatory'''
+
+		'''
 		# get all points on first three lines...error check later
 		p00s=fp.Sketch.Geometry[0].StartPoint
 		p01s=fp.Sketch.Geometry[0].EndPoint
@@ -1766,6 +1768,42 @@ class ControlPoly4_3L:	# made from a single sketch containing 3 line objects con
 		p11s=fp.Sketch.Geometry[1].EndPoint
 		p20s=fp.Sketch.Geometry[2].StartPoint
 		p21s=fp.Sketch.Geometry[2].EndPoint
+		'''
+		# now with geometry check!
+		geom = fp.Sketch.Geometry
+		geom_count = geom.__len__()
+		# does the sketch contain three visible objects, which are line segments?
+		visible_count = 0
+		visible_line_count = 0
+		valid_3L = False
+		for i in range(0, geom_count):
+			if fp.Sketch.getConstruction(i) == False:
+				visible_count = visible_count + 1
+				if geom[i].TypeId =='Part::GeomLineSegment':
+					visible_line_count = visible_line_count + 1
+		if visible_line_count==3 and visible_count==visible_line_count:
+			valid_3L = True
+		if valid_3L == False:
+			print("the sketch this ControlPoly4 refers to must contain exactly 3 visible lines")
+			fake_name_to_trigger_error = please_read_message_above
+		
+		# identify the three visible line segments
+		# to skip the hidden geometry
+		indices_3L = [None, None, None]
+		found = 0
+		for i in range(0, geom_count):
+			if fp.Sketch.getConstruction(i) == False and geom[i].TypeId =='Part::GeomLineSegment':
+				indices_3L[found] = i
+				found = found + 1
+
+		p00s=geom[indices_3L[0]].StartPoint
+		p01s=geom[indices_3L[0]].EndPoint
+		p10s=geom[indices_3L[1]].StartPoint
+		p11s=geom[indices_3L[1]].EndPoint
+		p20s=geom[indices_3L[2]].StartPoint
+		p21s=geom[indices_3L[2]].EndPoint
+
+
 		# to world
 		mat=fp.Sketch.Placement.toMatrix()
 		p00=mat.multiply(p00s)
