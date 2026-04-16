@@ -36,7 +36,7 @@ class SubGrid33_2Grid64():
 		Grid_a=Gui.Selection.getSelection()[0] 
 		Grid_b=Gui.Selection.getSelection()[1]
 
-		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid33_2Grid64")
+		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","SubGrid33_2Grid64_000")
 		AN.SubGrid33_2Grid64(a,Grid_a,Grid_b)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
