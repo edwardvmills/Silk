@@ -34,7 +34,7 @@ moreInfo = "work in progress" #(Silk_tooltips.ControlGrid64_Surf44_baseTip + Sil
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
-iconPath = path_Silk_icons + '/WIP.svg'
+iconPath = path_Silk_icons + '/ControlGrid64_Surf44.svg'
 
 class ControlGrid64_Surf44():
 	def Activated(self):

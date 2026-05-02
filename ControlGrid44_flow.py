@@ -33,7 +33,7 @@ moreInfo = (Silk_tooltips.ControlGrid44_flow_baseTip + Silk_tooltips.ControlGrid
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
-iconPath = path_Silk_icons + '/WIP.svg'
+iconPath = path_Silk_icons + '/ControlGrid44_flow.svg'
 
 class ControlGrid44_flow():
 	def Activated(self):

@@ -32,7 +32,7 @@ moreInfo = (Silk_tooltips.SilkPose_baseTip + Silk_tooltips.SilkPose_moreInfo)
 import os, Silk_dummy
 path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
-iconPath = path_Silk_icons + '/WIP.svg' # '/SilkPose.svg'
+iconPath = path_Silk_icons + '/SilkPose.svg'
 
 
 class SilkPose():

@@ -29,7 +29,6 @@ class Silk (Workbench):
 	def Initialize(self):
 		"This function is executed when FreeCAD starts"
 		import ArachNURBS
-		import SilkPose
 		import ControlPoly4
 		import CubicCurve_4
 		import Point_onCurve
@@ -56,6 +55,7 @@ class Silk (Workbench):
 		import ControlGridNStar66
 		import CubicNStarSurface_NStar66
 		import StarTrim_CubicNStar
+		import SilkPose
 		import Reload_Silk
 
 		# A list of command names created by the imports above
@@ -85,8 +85,8 @@ class Silk (Workbench):
 					"ControlGridNStar66",
 					"CubicNStarSurface_NStar66",
 					"StarTrim_CubicNStar",
-					"Reload_Silk",
-					"SilkPose"] 
+					"SilkPose",
+					"Reload_Silk"] 
 					
 		
 		self.appendToolbar("Silk Commands",self.list) # creates a new toolbar with your commands

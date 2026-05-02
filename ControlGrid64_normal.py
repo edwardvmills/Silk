@@ -92,7 +92,7 @@ class ControlGrid64_normal():
 		tooltip = (
 			"ControlGrid64_normal")
 
-		iconpath = path_Silk_icons + '/WIP.svg'
+		iconpath = path_Silk_icons + '/ControlGrid64_normal.svg'
 		return {'Pixmap' :  iconpath, 'MenuText': 'ControlGrid64_normal', 'ToolTip': tooltip}
 
 Gui.addCommand('ControlGrid64_normal', ControlGrid64_normal())
