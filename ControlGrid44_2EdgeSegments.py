@@ -50,9 +50,9 @@ class ControlGrid44_2EdgeSegments():
 		AN.ControlGrid44_2EdgeSegments(a,surface,curve_a,curve_b)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
-		a.ViewObject.LineColor = (0.67,1.00,1.00)
-		a.ViewObject.PointSize = 4.00
-		a.ViewObject.PointColor = (0.00,0.33,1.00)
+		a.ViewObject.LineColor = (0.0,170/255,255/255)
+		a.ViewObject.PointSize = 2.00
+		a.ViewObject.PointColor = (0.0,85/255,255/255)
 		FreeCAD.ActiveDocument.recompute()
 	
 	def GetResources(self):

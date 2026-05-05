@@ -51,7 +51,7 @@ class Point_onCurve():
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve_000")
 		AN.Point_onCurve(a,AN_Curve, u)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
-		a.ViewObject.PointSize = 5.00
+		a.ViewObject.PointSize = 8.00
 		a.ViewObject.PointColor = (1.00,0.00,0.00)
 		FreeCAD.ActiveDocument.recompute()
 			
