@@ -36,6 +36,46 @@ path_Silk = os.path.dirname(Silk_dummy.__file__)
 path_Silk_icons =  os.path.join( path_Silk, 'Resources', 'Icons')
 iconPath = path_Silk_icons + '/ControlPoly4.svg'
 
+def is3L(sketch):
+	geom = sketch.Geometry
+	geom_count = geom.__len__()
+	# does the sketch contain three visible objects, which are line segments?
+	visible_count = 0
+	visible_line_count = 0
+	for i in range(0, geom_count):
+		if sketch.getConstruction(i) == False:
+			visible_count = visible_count + 1
+			if geom[i].TypeId =='Part::GeomLineSegment':
+				visible_line_count = visible_line_count + 1
+	if visible_line_count==3 and visible_count==visible_line_count:
+		return True
+	else:
+		return False
+	
+def isGrid44(obj):
+	ControlGrid44_types = ['ControlGrid44_2EdgeSegments',
+							'ControlGrid44_EdgeSegment',
+							'ControlGrid44_flow',
+							'ControlGrid44_Rotate',
+							'ControlGrid44_4']
+	try:
+		if obj.object_type in ControlGrid44_types:
+			return True
+	except:
+		return False
+
+def isControlPoly4(obj):
+	ControlPoly4_types = ['ControlPoly4_3L',
+							'ControlPoly4_2N',
+							'ControlPoly4_2P',
+							'ControlPoly4_FirstElement',
+							'ControlPoly4_GridEdge']
+	try:
+		if obj.object_type in ControlPoly4_types:
+			return True
+	except:
+		return False
+
 class ControlPoly4():
 	def Activated(self):
 		sel=Gui.Selection.getSelectionEx()
@@ -48,38 +88,17 @@ class ControlPoly4():
 			if sel[0].Object.TypeId == 'Sketcher::SketchObject':
 				# which is a sketch
 				sketch = sel[0].Object
-				geom = sel[0].Object.Geometry
-				geom_count = geom.__len__()
-				# does the sketch contain three visible objects, which are line segments?
-				visible_count = 0
-				visible_line_count = 0
-				for i in range(0, geom_count):
-					if sketch.getConstruction(i) == False:
-						visible_count = visible_count + 1
-						if geom[i].TypeId =='Part::GeomLineSegment':
-							visible_line_count = visible_line_count + 1
-				if visible_line_count==3 and visible_count==visible_line_count:
-					mode='3L'
+				if is3L(sketch):
+					mode='3L'				
 				else: 
 					# anything except 3 visible lines will only consider the first 
 					# 'priority' element in the geometry listing
 					# the downstream function will prioritize sketch geometry by type
 					mode='FirstElement'
 			else:
-				# is it a ControlGrid44_X?
-				ControlGrid44_types = ['ControlGrid44_2EdgeSegments',
-					  				'ControlGrid44_EdgeSegment',
-									'ControlGrid44_flow',
-									'ControlGrid44_Rotate',
-									'ControlGrid44_4']
-				try:
-					if sel[0].Object.object_type in ControlGrid44_types:
-						mode = 'GridEdge'
-				except:
-					pass
-
-				if mode == 'GridEdge':
-
+				obj=sel[0].Object
+				if isGrid44(obj):
+					mode = 'GridEdge'				
 					poles = sel[0].Object.Poles
 					edge0p = [1,2]
 					edge1p = [7,11]
@@ -134,15 +153,19 @@ class ControlPoly4():
 						return
 					# print("SelectedEdge index = ", SelectedEdge)
 		elif len(sel)==2:
+			# two sketches
 			if sel[0].Object.TypeId == 'Sketcher::SketchObject' and sel[1].Object.TypeId == 'Sketcher::SketchObject':
 				mode='2N'
+			# two ControlPoly4s
+			elif isControlPoly4(sel[0].Object) ==  True and isControlPoly4(sel[1].Object) ==  True:
+				mode='2X4P'
+			# last chance, two PointonCurves
 			else:
 				try:
 					if sel[0].Object.object_type == 'Point_onCurve' and sel[1].Object.object_type == 'Point_onCurve':
 						mode = '2P'
 				except:
 					pass
-
 		else:
 			print ('Selection not recognized, check tooltip')
 			return
@@ -182,12 +205,23 @@ class ControlPoly4():
 			a.ViewObject.PointColor = (0.00,0.00,1.00)
 			FreeCAD.ActiveDocument.recompute()
 			
-
 		if mode=='2N':
 			sketch0=Gui.Selection.getSelection()[0]
 			sketch1=Gui.Selection.getSelection()[1]
 			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2N_000")
 			AN.ControlPoly4_2N(a,sketch0,sketch1)
+			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+			a.ViewObject.LineWidth = 1.00
+			a.ViewObject.LineColor = (0.00,1.00,1.00)
+			a.ViewObject.PointSize = 4.00
+			a.ViewObject.PointColor = (0.00,0.00,1.00)
+			FreeCAD.ActiveDocument.recompute()
+
+		if mode=='2X4P':
+			poly4_0=Gui.Selection.getSelection()[0]
+			poly4_1=Gui.Selection.getSelection()[1]
+			a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_2X4P_000")
+			AN.ControlPoly4_2X4P(a,poly4_0,poly4_1)
 			a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 			a.ViewObject.LineWidth = 1.00
 			a.ViewObject.LineColor = (0.00,1.00,1.00)

@@ -2357,6 +2357,174 @@ class ControlPoly4_FirstElement:	# made from the first element of a single sketc
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
+class ControlPoly4_2X4P:# made by composing two existing ControlPoly4s
+
+	def ControlPoly4_2X4P_Attributes(self, obj, poly4_0, poly4_1, weights, tolerance, reverse, object_version):
+		# current attribute set
+		# inputs
+		obj.addProperty("App::PropertyLink","Poly4_0","C1 - Inputs","reference Sketch").Poly4_0 = poly4_0
+		obj.addProperty("App::PropertyLink","Poly4_1","C1 - Inputs","reference Sketch").Poly4_1 = poly4_1
+		obj.addProperty("App::PropertyFloat","tolerance","C1 - Inputs","point-to-point connection tolerance for the circle-line in each node").tolerance = tolerance
+		obj.addProperty("App::PropertyBool","reverse","C1 - Inputs","reverse the parameter direction").reverse = reverse
+		# outputs
+		obj.addProperty("App::PropertyVectorList","Poles","C2 - Outputs","Poles").Poles
+		obj.addProperty("App::PropertyFloatList","Weights","C2 - Outputs","Weights").Weights = weights
+		obj.addProperty("Part::PropertyGeometryList","Legs","C2 - Outputs","control segments").Legs
+		# additional object identifiers
+		obj.addProperty("App::PropertyString", "object_type", "C3 - Identifiers", "the workbench class used to create this object").object_type = "ControlPoly4_2X4P"
+		obj.setEditorMode("object_type", 1)
+		obj.addProperty("App::PropertyString", "object_version", "C3 - Identifiers", "the class version of this object").object_version = object_version
+		obj.setEditorMode("object_version", 1)
+		obj.addProperty("App::PropertyString", "internalName", "C3 - Identifiers", "the permanent internal FreeCAD name for this object").internalName= obj.Name
+		obj.setEditorMode("internalName", 1)
+
+	def __init__(self, obj , poly4_0, poly4_1):
+		FreeCAD.Console.PrintMessage("\nControlPoly4_2X4P class Init\n")
+		
+		latest_version = "0.02" # must match in onDocumentRestored()
+		
+		self.ControlPoly4_2X4P_Attributes(obj, poly4_0, poly4_1, [1.0,1.0,1.0,1.0], default_tol, False, latest_version)
+
+		# mandatory Proxy assignment
+		obj.Proxy = self
+
+	def onDocumentRestored(self, obj):
+		# Migration function to set attributes between object versions. Preserves user data in object.
+		latest_version = "0.02" # must match in __init__
+		update = False
+		if not hasattr(obj, "object_version"):
+			print( obj.Name, " has no version attribute. Attribute format will be updated")
+			update = True
+		else:
+			if not obj.object_version == latest_version:
+				print(obj.Name, " is out of date. Attribute format will be updated")
+				update = True
+
+		if update:
+			#capture, then delete original attribute values in user input fields
+			#deleting is done because we may be changing the format of pre-existing attributes
+			old_Poly4_0 = obj.Poly4_0
+			obj.removeProperty("Poly4_0")
+			old_Poly4_1 = obj.Poly4_1
+			obj.removeProperty("Poly4_1")
+			obj.removeProperty("Weights")
+			obj.removeProperty("Legs")
+			obj.removeProperty("Poles")
+
+			#capturing, then deleting versioned attributes will require testing for their presence
+			if hasattr(obj, "tolerance"): 
+				old_tolerance = obj.tolerance
+				obj.removeProperty("tolerance")
+			else:
+				old_tolerance = default_tol
+				obj.removeProperty("tolerance")
+
+			if hasattr(obj, "reverse"): 
+				old_reverse = obj.reverse
+				obj.removeProperty("reverse")
+			else:
+				old_reverse = False
+				obj.removeProperty("reverse")
+
+			if hasattr(obj, "object_type"):
+				obj.removeProperty("object_type")
+			if hasattr(obj, "object_version"): 
+				obj.removeProperty("object_version")
+			# the internal name should not be changing. this will be used for a check.
+			if hasattr(obj, "internalName"): 
+				obj.removeProperty("internalName")
+			
+			self.ControlPoly4_2X4P_Attributes(obj, old_Poly4_0, old_Poly4_1, [1.0,1.0,1.0,1.0], old_tolerance, old_reverse, latest_version)
+		# need to recompute otherwise the poles remain unpopulated?
+		obj.recompute()
+
+	def onChanged(self, fp, prop):
+		if prop == "reverse":
+			fp.Weights = list(reversed(fp.Weights))
+
+	def execute(self, fp):
+		'''Do something when doing a recomputation, this method is mandatory'''
+		# process Poly4_0
+		if fp.Poly4_0.object_type == 'ControlPoly4_3L':
+			xy_sketch = fp.Poly4_0.Sketch
+		elif fp.Poly4_0.object_type == 'ControlPoly4_2N':
+			xy_sketch = fp.Poly4_0.Sketch0
+		elif fp.Poly4_0.object_type == 'ControlPoly4_FirstElement':
+			xy_sketch = fp.Poly4_0.Sketch
+		else:
+			message = "the first ControPoly4 must be sketch based: 3L, 2P, or FirstElement"
+			print (fp.Name, ", labeled ", fp.Label , "\n", \
+				message, "\n")
+			fake_name_to_trigger_error = please_read_message_above
+			return
+		
+		# i need to:
+		# get xy values for all poles of Poly4_0 in xy_sketch local coords
+		# get z values for all poles of Poly4_1 in xy_sketch local coords
+		# compose the xyz of all poles in xy_sketch local coords
+		# transform from xy_sketch local coords to world
+
+		# or work directly in 3D?
+		# get points from both poly4s		
+		p0_0_raw = fp.Poly4_0.Poles[0]
+		p0_1_raw = fp.Poly4_0.Poles[1]
+		p0_2_raw = fp.Poly4_0.Poles[2]
+		p0_3_raw = fp.Poly4_0.Poles[3]
+
+		p1_0_raw = fp.Poly4_1.Poles[0]
+		p1_1_raw = fp.Poly4_1.Poles[1]
+		p1_2_raw = fp.Poly4_1.Poles[2]
+		p1_3_raw = fp.Poly4_1.Poles[3]
+
+		# let's get the details of the xy_sketch placement
+		xy_plc = xy_sketch.Placement
+		xy_origin = xy_plc.Base
+
+		xy_mat = xy_plc.Matrix
+		xy_xVector = xy_mat.row(0)
+		xy_yVector = xy_mat.row(1)
+		xy_zVector = xy_mat.row(2)
+		
+		# force the first poly4 onto the plane (in case it is a 2N poly4)
+		p0_0_toPlane = (p0_0_raw-xy_origin).dot(xy_zVector)
+		p0_1_toPlane = (p0_1_raw-xy_origin).dot(xy_zVector)
+		p0_2_toPlane = (p0_2_raw-xy_origin).dot(xy_zVector)
+		p0_3_toPlane = (p0_3_raw-xy_origin).dot(xy_zVector)
+
+		p0_0_onPlane = p0_0_raw - xy_zVector*p0_0_toPlane
+		p0_1_onPlane = p0_1_raw - xy_zVector*p0_1_toPlane
+		p0_2_onPlane = p0_2_raw - xy_zVector*p0_2_toPlane
+		p0_3_onPlane = p0_3_raw - xy_zVector*p0_3_toPlane
+
+		# get the z values from second poly
+		p1_0_toPlane = (p1_0_raw-xy_origin).dot(xy_zVector)
+		p1_1_toPlane = (p1_1_raw-xy_origin).dot(xy_zVector)
+		p1_2_toPlane = (p1_2_raw-xy_origin).dot(xy_zVector)
+		p1_3_toPlane = (p1_3_raw-xy_origin).dot(xy_zVector)
+
+		# move poly4_0 along the Z
+		p0 = p0_0_onPlane + xy_zVector * p1_0_toPlane
+		p1 = p0_1_onPlane + xy_zVector * p1_1_toPlane
+		p2 = p0_2_onPlane + xy_zVector * p1_2_toPlane
+		p3 = p0_3_onPlane + xy_zVector * p1_3_toPlane
+		
+
+		# set the poles
+		if fp.reverse == False:
+			fp.Poles=[p0,p1,p2,p3]
+		else:
+			fp.Poles=[p3,p2,p1,p0]
+		# prepare the polygon
+		Leg0=Part.LineSegment(p0,p1)
+		Leg1=Part.LineSegment(p1,p2)
+		Leg2=Part.LineSegment(p2,p3)
+		#set the polygon legs property
+		fp.Legs=[Leg0, Leg1, Leg2]
+		# define the shape for visualization
+		fp.Shape = Part.Shape(fp.Legs)
+
+
+
 class ControlPoly4_GridEdge:	# extract a ControlPoly4 from the edge of a ControlGrid44 - maybe also from Grid64?
 	# this is used on grids not directly defined by edge control polygons (and therefor these polygons are not 
 	# directly available). surface segmentation grids for example.
