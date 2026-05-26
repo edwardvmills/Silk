@@ -7294,11 +7294,13 @@ class ControlGrid64_2Grid44:  # surfaces not strictly used as input, but this is
 				old_scale_inner_1 = obj.scale_inner_1
 				obj.removeProperty("scale_inner_1")
 			if hasattr(obj, "autoG3"):
-				if obj.autoG3 == 0 or obj.autoG3 == False:
-					old_autoG3 = False
+				if obj.autoG3 == 1 or obj.autoG3 == True:
+					old_autoG3 = True
 				else:
 					old_autoG3 = False
 				obj.removeProperty("autoG3")
+			else:
+				old_autoG3 = False
 			if hasattr(obj, "tolerance"): 
 				old_tolerance = obj.tolerance
 				obj.removeProperty("tolerance")
@@ -9063,6 +9065,8 @@ class ControlGridNStar66_NSub:
 
 		if fp.N == 3:
 			scale = 0.75 # scaled down 75% to spread out center this works quite well for triangles actually
+		if fp.N == 4:
+			scale = 1 # i just added the case N = 4, i haven't looked at this function in years
 		if fp.N == 5:
 			scale = 1.25 # this is a mess. a single factor doesn't do it. oh well, moving on.
 		if fp.N == 6:
