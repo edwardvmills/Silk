@@ -2452,7 +2452,7 @@ class ControlPoly4_2X4P:# made by composing two existing ControlPoly4s
 		elif fp.Poly4_0.object_type == 'ControlPoly4_FirstElement':
 			xy_sketch = fp.Poly4_0.Sketch
 		else:
-			message = "the first ControPoly4 must be sketch based: 3L, 2P, or FirstElement"
+			message = "the first ControPoly4 must be sketch based: 3L, 2N, or FirstElement"
 			print (fp.Name, ", labeled ", fp.Label , "\n", \
 				message, "\n")
 			fake_name_to_trigger_error = please_read_message_above
@@ -2480,16 +2480,29 @@ class ControlPoly4_2X4P:# made by composing two existing ControlPoly4s
 		xy_plc = xy_sketch.Placement
 		xy_origin = xy_plc.Base
 
+		# hilariously bad Placement Matrix interpretation.
+		''' 
 		xy_mat = xy_plc.Matrix
 		xy_xVector = xy_mat.row(0)
 		xy_yVector = xy_mat.row(1)
 		xy_zVector = xy_mat.row(2)
+		'''
+		# i dont care about how the matirx works, i'll just use it.
+		xy_mat = xy_plc.Matrix
+		# project the world Z vector by the matrix, subtract the local origin, that's the local z vector
+		xy_zVector = xy_mat.multiply(Base.Vector(0,0,1))-xy_origin
+
+		print("xy_zVector",xy_zVector)
 		
 		# force the first poly4 onto the plane (in case it is a 2N poly4)
 		p0_0_toPlane = (p0_0_raw-xy_origin).dot(xy_zVector)
+		print("p0_0_toPlane",p0_0_toPlane)
 		p0_1_toPlane = (p0_1_raw-xy_origin).dot(xy_zVector)
+		print("p0_1_toPlane",p0_1_toPlane)
 		p0_2_toPlane = (p0_2_raw-xy_origin).dot(xy_zVector)
+		print("p0_2_toPlane",p0_2_toPlane)
 		p0_3_toPlane = (p0_3_raw-xy_origin).dot(xy_zVector)
+		print("p0_3_toPlane",p0_3_toPlane)
 
 		p0_0_onPlane = p0_0_raw - xy_zVector*p0_0_toPlane
 		p0_1_onPlane = p0_1_raw - xy_zVector*p0_1_toPlane
@@ -2501,23 +2514,22 @@ class ControlPoly4_2X4P:# made by composing two existing ControlPoly4s
 		p1_1_toPlane = (p1_1_raw-xy_origin).dot(xy_zVector)
 		p1_2_toPlane = (p1_2_raw-xy_origin).dot(xy_zVector)
 		p1_3_toPlane = (p1_3_raw-xy_origin).dot(xy_zVector)
-
-		# move poly4_0 along the Z
-		p0 = p0_0_onPlane + xy_zVector * p1_0_toPlane
-		p1 = p0_1_onPlane + xy_zVector * p1_1_toPlane
-		p2 = p0_2_onPlane + xy_zVector * p1_2_toPlane
-		p3 = p0_3_onPlane + xy_zVector * p1_3_toPlane
 		
+		# move poly4_0 along the Z
+		p0w = p0_0_onPlane + xy_zVector * p1_0_toPlane
+		p1w = p0_1_onPlane + xy_zVector * p1_1_toPlane
+		p2w = p0_2_onPlane + xy_zVector * p1_2_toPlane
+		p3w = p0_3_onPlane + xy_zVector * p1_3_toPlane
 
 		# set the poles
 		if fp.reverse == False:
-			fp.Poles=[p0,p1,p2,p3]
+			fp.Poles=[p0w,p1w,p2w,p3w]
 		else:
-			fp.Poles=[p3,p2,p1,p0]
+			fp.Poles=[p3w,p2w,p1w,p0w]
 		# prepare the polygon
-		Leg0=Part.LineSegment(p0,p1)
-		Leg1=Part.LineSegment(p1,p2)
-		Leg2=Part.LineSegment(p2,p3)
+		Leg0=Part.LineSegment(p0w,p1w)
+		Leg1=Part.LineSegment(p1w,p2w)
+		Leg2=Part.LineSegment(p2w,p3w)
 		#set the polygon legs property
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
