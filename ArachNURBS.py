@@ -1486,18 +1486,19 @@ class SilkPose_PR: # alternative to Attachment/MapMode for Placement - by positi
 		#print("new fp.Placement = ", fp.Placement)
 
 class SilkPose_3P: # alternative to Attachment/MapMode for Placement - by three points
-	def SilkPose_3P_Attributes(self, obj, O_ref, X_ref, Y_ref, flip_X, flip_Y, rel_axes, scale, object_version):
+	def SilkPose_3P_Attributes(self, obj, O_ref, X_ref, Y_ref, swap_XY, flip_X, flip_Y, rel_axes, scale, object_version):
 		# current attribute set
 		# inputs
 		obj.addProperty("App::PropertyLinkSub", "O_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define origin").O_ref = O_ref
 		obj.addProperty("App::PropertyLinkSub", "X_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define x direction").X_ref = X_ref
 		obj.addProperty("App::PropertyLinkSub", "Y_ref", "C1.1 - ref inputs", "the subObject (vertex) used to define y direction").Y_ref = Y_ref
-		obj.addProperty("App::PropertyBool", "flip_X", "C1.2 - direct inputs", "reverse x direction").flip_X = flip_X
-		obj.addProperty("App::PropertyBool", "flip_Y", "C1.2 - direct inputs", "reverse y direction").flip_X = flip_Y
-		obj.addProperty("App::PropertyEnumeration", "relative_axes", "C1.2 - direct inputs", 
+		obj.addProperty("App::PropertyBool", "swap_XY", "C1.2 - direct inputs", "swap X and Y references").swap_XY = swap_XY
+		obj.addProperty("App::PropertyBool", "flip_X", "C1.3 - direct inputs", "reverse x direction").flip_X = flip_X
+		obj.addProperty("App::PropertyBool", "flip_Y", "C1.3 - direct inputs", "reverse y direction").flip_Y = flip_Y
+		obj.addProperty("App::PropertyEnumeration", "relative_axes", "C1.3 - direct inputs", 
 				  		"the relative orientation to the rotation reference (XY, XZ, or YZ)").relative_axes = ['XY', 'YZ', 'ZX']
 		obj.relative_axes = rel_axes
-		obj.addProperty("App::PropertyFloat", "symbol_scale", "C1.2 - direct inputs", "the overall size of the 3D symbol").symbol_scale = scale
+		obj.addProperty("App::PropertyFloat", "symbol_scale", "C1.4 - direct inputs", "the overall size of the 3D symbol").symbol_scale = scale
 		# outputs
 
 		# additional object identifiers
@@ -1513,17 +1514,17 @@ class SilkPose_3P: # alternative to Attachment/MapMode for Placement - by three 
 		return
 
 	def __init__(self, obj , refs):
-		latest_version = "0.03" # must match in onDocumentRestored()
+		latest_version = "0.04" # must match in onDocumentRestored()
 		O_ref = (refs[0][0], refs[0][1])
 		X_ref = (refs[1][0], refs[1][1])
 		Y_ref = (refs[2][0], refs[2][1])
-		self.SilkPose_3P_Attributes(obj, O_ref, X_ref, Y_ref, False, False,'XY', 20, latest_version)
+		self.SilkPose_3P_Attributes(obj, O_ref, X_ref, Y_ref, False, False, False,'XY', 20, latest_version)
 		obj.Proxy = self
 
 	def onDocumentRestored(self, obj):
 		# Migration function to set attributes between object versions. Preserves user data in object.
 		# print("onDocumentRestored() invoked")
-		latest_version = "0.03" # must match in __init__
+		latest_version = "0.04" # must match in __init__
 		update = False
 		if not hasattr(obj, "object_version"):
 			print( obj.Name, " has no version attribute. Attribute format will be updated")
@@ -1545,6 +1546,11 @@ class SilkPose_3P: # alternative to Attachment/MapMode for Placement - by three 
 			if hasattr(obj, "Y_ref"): 
 				old_Y_ref = obj.Y_ref
 				obj.removeProperty("Y_ref")
+			if hasattr(obj, "swap_XY"): 
+				old_swap_XY = obj.swap_XY
+				obj.removeProperty("swap_XY")
+			else:
+				old_swap_XY = False
 			if hasattr(obj, "flip_X"): 
 				old_flip_X = obj.flip_X
 				obj.removeProperty("flip_X")
@@ -1565,14 +1571,15 @@ class SilkPose_3P: # alternative to Attachment/MapMode for Placement - by three 
 				obj.removeProperty("internalName")
 			
 			#re/create all  atributes in current version format
-			self.SilkPose_3P_Attributes(obj, old_O_ref, old_X_ref, old_Y_ref, old_flip_X, old_flip_Y, old_rel_axes, old_sym_scale, latest_version)
+			self.SilkPose_3P_Attributes(obj, old_O_ref, old_X_ref, old_Y_ref, old_swap_XY, old_flip_X, old_flip_Y, old_rel_axes, old_sym_scale, latest_version)
+			print(obj.Name, " attribute format updated")
 			
 		# need to recompute otherwise ? remain unpopulated?
 		obj.recompute()
 
 	def onChanged(self, fp, prop):
 		# print("onChanged invoked")
-		if prop == "reverse":
+		if prop == "swap_XY":
 			fp.recompute()
 
 	def execute(self, fp):
@@ -1622,13 +1629,19 @@ class SilkPose_3P: # alternative to Attachment/MapMode for Placement - by three 
 													0,0,0,1)
 
 		origin_ref = fp.O_ref[0].getSubObject(fp.O_ref[1])[0].Point
-		X_ref = fp.X_ref[0].getSubObject(fp.X_ref[1])[0].Point
-		Y_ref = fp.Y_ref[0].getSubObject(fp.Y_ref[1])[0].Point
 
-		X = (X_ref-origin_ref).normalize()
+		if fp.swap_XY == False:
+			X_raw = fp.X_ref[0].getSubObject(fp.X_ref[1])[0].Point
+			Y_raw = fp.Y_ref[0].getSubObject(fp.Y_ref[1])[0].Point
+
+		if fp.swap_XY == True:
+			X_raw = fp.Y_ref[0].getSubObject(fp.Y_ref[1])[0].Point
+			Y_raw = fp.X_ref[0].getSubObject(fp.X_ref[1])[0].Point
+
+		X = (X_raw-origin_ref).normalize()
 		if fp.flip_X == True:
 			X = -X
-		yish = (Y_ref-origin_ref).normalize()
+		yish = (Y_raw-origin_ref).normalize()
 		if equalVectors(X, yish, default_tol):
 			print('SilkPose_3P: the three selected points are too close to forming a line. cannot determine orthogonal vectors. ')
 			return
