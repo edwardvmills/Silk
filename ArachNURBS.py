@@ -2548,8 +2548,6 @@ class ControlPoly4_2X4P:# made by composing two existing ControlPoly4s
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
 
-
-
 class ControlPoly4_GridEdge:	# extract a ControlPoly4 from the edge of a ControlGrid44 - maybe also from Grid64?
 	# this is used on grids not directly defined by edge control polygons (and therefor these polygons are not 
 	# directly available). surface segmentation grids for example.
@@ -2722,7 +2720,6 @@ class ControlPoly4_GridEdge:	# extract a ControlPoly4 from the edge of a Control
 		fp.Legs=[Leg0, Leg1, Leg2]
 		# define the shape for visualization
 		fp.Shape = Part.Shape(fp.Legs)
-
 
 class ControlPoly6_5L:	# made from a single sketch containing 5 line objects connected end to end
 	def __init__(self, obj , sketch):
@@ -9018,8 +9015,33 @@ class ControlGridNStar66_NSub:
 		return 0
 
 	def StarDiag3_Sub(self, fp, Sub_i):
-		fp.StarGrid[Sub_i][21][0] = fp.StarGrid[Sub_i][20][0] + fp.StarGrid[Sub_i][15][0] - fp.StarGrid[Sub_i][14][0]
+		# original was just a full parallelogram
+		#fp.StarGrid[Sub_i][21][0] = fp.StarGrid[Sub_i][20][0] + fp.StarGrid[Sub_i][15][0] - fp.StarGrid[Sub_i][14][0]
 
+		inside_corner = fp.StarGrid[Sub_i][14][0]
+		next_u = fp.StarGrid[Sub_i][15][0]
+		next_v = fp.StarGrid[Sub_i][20][0]
+
+		blind_u = next_u - inside_corner
+		blind_v = next_v - inside_corner
+
+		
+		u_rescale = (next_v - fp.StarGrid[Sub_i][19][0]).Length / (inside_corner - fp.StarGrid[Sub_i][13][0]).Length
+		v_rescale = (next_u - fp.StarGrid[Sub_i][9][0]).Length / (inside_corner - fp.StarGrid[Sub_i][8][0]).Length
+
+		scaled_u = blind_u * u_rescale
+		scaled_v = blind_v * v_rescale
+
+		p33_u = next_v + scaled_u
+		p33_v = next_u + scaled_v
+
+		p33 = 0.5 * (p33_u + p33_v)
+		# try using the scale as inverse weights
+		p33 = (p33_u * v_rescale + p33_v * u_rescale) / (v_rescale + u_rescale)
+
+
+		fp.StarGrid[Sub_i][21][0] = p33
+		
 		# control leg visualization
 		Legs_Diag3 = [0,0]
 		Legs_Diag3[0] = Part.LineSegment(fp.StarGrid[Sub_i][15][0], fp.StarGrid[Sub_i][21][0])
@@ -9036,17 +9058,36 @@ class ControlGridNStar66_NSub:
 		return 0
 
 	def StarRow3_2Sub(self, fp, Sub_0_i, Sub_1_i):
-		# prepare seam point
-		Mid_p2 = fp.StarGrid[Sub_0_i][17][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0])
+		# current seam point
+		Mid_p2 = fp.StarGrid[Sub_0_i][17][0]
+
+		# current guides
+		left_v = fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]
+		right_u = fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0]
+
+		# prepare next seam point
+		Mid_p3 = Mid_p2 + 0.5 * (left_v + right_u)
 
 		# apply seam point locally
-		fp.StarGrid[Sub_0_i][23][0] = Mid_p2
-		fp.StarGrid[Sub_1_i][33][0] = Mid_p2
+		fp.StarGrid[Sub_0_i][23][0] = Mid_p3
+		fp.StarGrid[Sub_1_i][33][0] = Mid_p3
 
 		# average to seam neighbor locally
-		fp.StarGrid[Sub_0_i][22][0] = fp.StarGrid[Sub_0_i][16][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_0_i][23][0]-fp.StarGrid[Sub_0_i][17][0])
-		fp.StarGrid[Sub_1_i][27][0] = fp.StarGrid[Sub_1_i][26][0] + 0.5 * (fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0]+fp.StarGrid[Sub_1_i][33][0]-fp.StarGrid[Sub_1_i][32][0])
+		#fp.StarGrid[Sub_0_i][22][0] = fp.StarGrid[Sub_0_i][16][0] + 0.5 * (fp.StarGrid[Sub_0_i][21][0]-fp.StarGrid[Sub_0_i][15][0]+fp.StarGrid[Sub_0_i][23][0]-fp.StarGrid[Sub_0_i][17][0])
+		#fp.StarGrid[Sub_1_i][27][0] = fp.StarGrid[Sub_1_i][26][0] + 0.5 * (fp.StarGrid[Sub_1_i][21][0]-fp.StarGrid[Sub_1_i][20][0]+fp.StarGrid[Sub_1_i][33][0]-fp.StarGrid[Sub_1_i][32][0])
 
+		center_guide = Mid_p3 - Mid_p2
+
+		seam_w_0 = (fp.StarGrid[Sub_0_i][17][0]-fp.StarGrid[Sub_0_i][16][0]).Length
+		inner_w_0 = (fp.StarGrid[Sub_0_i][16][0]-fp.StarGrid[Sub_0_i][15][0]).Length
+
+		seam_w_1 = (fp.StarGrid[Sub_0_i][32][0]-fp.StarGrid[Sub_0_i][26][0]).Length
+		inner_w_1 = (fp.StarGrid[Sub_0_i][26][0]-fp.StarGrid[Sub_0_i][20][0]).Length
+
+		
+		fp.StarGrid[Sub_0_i][22][0] = fp.StarGrid[Sub_0_i][16][0] + 1/(seam_w_0 + inner_w_0) * (left_v * seam_w_0 + center_guide * inner_w_0)
+		fp.StarGrid[Sub_1_i][27][0] = fp.StarGrid[Sub_1_i][26][0] + 1/(seam_w_1 + inner_w_1) * (right_u * seam_w_1 + center_guide * inner_w_1)
+		
 		Legs_Row3 = []
 		Legs_Row3_i = [[[16,22],[17,23],[21,22],[22,23]],[[21,27],[26,27],[27,33]]]
 		for i in Legs_Row3_i[0]:
@@ -9075,21 +9116,29 @@ class ControlGridNStar66_NSub:
 		u_28_i = fp.StarGrid[Sub_i][22][0] - fp.StarGrid[Sub_i][21][0]
 		v_28_i = fp.StarGrid[Sub_i][27][0] - fp.StarGrid[Sub_i][21][0]
 
+		'''
 		u_28_prev_i = fp.StarGrid[Sub_prev_i][27][0] - fp.StarGrid[Sub_prev_i][21][0]
 		v_28_next_i = fp.StarGrid[Sub_next_i][22][0] - fp.StarGrid[Sub_next_i][21][0]
-
 		scaled_u_28_i = u_28_i * ( 1 +  ( u_28_prev_i.Length - u_28_i.Length ) / ( 3.0 * u_28_i.Length ) )
 		scaled_v_28_i = v_28_i * ( 1 +  ( v_28_next_i.Length - v_28_i.Length ) / ( 3.0 * v_28_i.Length ) )
-
-		Sub_28_raw = fp.StarGrid[Sub_i][21][0] + scaled_u_28_i +scaled_v_28_i
+		'''
+		
+		# last four lines above make no sense.
+		# scaled_u_28_i should consider v_28_prev_i, not u_28_prev_i.
+		# scaled_v_28_i should consider u_28_next_i, not v_28_next_i.
+		u_28_next_i = fp.StarGrid[Sub_next_i][27][0] - fp.StarGrid[Sub_next_i][21][0]
+		v_28_prev_i = fp.StarGrid[Sub_prev_i][22][0] - fp.StarGrid[Sub_prev_i][21][0]
+		u_28_i_norm = Base.Vector(u_28_i).normalize()
+		v_28_i_norm = Base.Vector(v_28_i).normalize()
+		scaled_u_28_i = u_28_i * ( 1 + ( v_28_prev_i.dot(u_28_i_norm) - u_28_i.Length ) / u_28_i.Length  )
+		scaled_v_28_i = v_28_i * ( 1 + ( u_28_next_i.dot(v_28_i_norm) - v_28_i.Length ) / v_28_i.Length  )
 
 		# scaling factor. based on N? 
 		# no. need to fix this. the scaling factor needs to achieve alignment between neighboring subgrids if they align,
 		# and a smooth rotation if they do not align.
 		# something...something...angle in the normal or maybe tangent plane. something...(1-cos()) factor.
-
 		if fp.N == 3:
-			scale = 0.75 # scaled down 75% to spread out center this works quite well for triangles actually
+			scale = .75 # scaled down 75% to spread out center this works quite well for triangles actually
 		if fp.N == 4:
 			scale = 1 # i just added the case N = 4, i haven't looked at this function in years
 		if fp.N == 5:
@@ -9097,6 +9146,12 @@ class ControlGridNStar66_NSub:
 		if fp.N == 6:
 			scale = 1.5
 
+		# Sub_28_raw = fp.StarGrid[Sub_i][21][0] + scaled_u_28_i +scaled_v_28_i
+		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (u_28_i + v_28_i)
+
+		fp.StarGrid[Sub_i][28][0] = Sub_28_scaled
+		
+		'''
 		Sub_28_scaled = fp.StarGrid[Sub_i][21][0] + scale * (Sub_28_raw - fp.StarGrid[Sub_i][21][0])
 
 		Plane_prev = Part.Plane(fp.StarGrid[Sub_i][33][0],fp.StarGrid[Sub_i][23][0],fp.StarGrid[Sub_prev_i][33][0])
@@ -9109,6 +9164,8 @@ class ControlGridNStar66_NSub:
 		Sub_28_next_proj = Plane_next.value(Sub_28_next_param[0],Sub_28_next_param[1])
 
 		fp.StarGrid[Sub_i][28][0] = 0.5 * Sub_28_scaled + 0.25 * (Sub_28_prev_proj + Sub_28_next_proj) 
+		'''
+
 		# best first round result for N=3, bad for recursion. N=5 is distorted in the center
 		
 		# fp.StarGrid[Sub_i][28][0] = 0.0 * Sub_28_scaled + 0.5 * (Sub_28_prev_proj + Sub_28_next_proj) 
