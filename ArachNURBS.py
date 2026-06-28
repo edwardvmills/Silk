@@ -6631,7 +6631,8 @@ class CubicSurface_64:
 #	00 01 02 03
 #
 # this will be annoying to rewrite.
-#
+# 2026-06-28
+# actually, i don't know if can store a 2D array of vectors in my featurepython objects' attributes
 
 #### surface derived objects (+surf to input)
 
