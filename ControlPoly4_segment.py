@@ -37,18 +37,79 @@ iconPath = path_Silk_icons + '/ControlPoly4_segment.svg'
 
 class ControlPoly4_segment():
 	def Activated(self):
-		sel=Gui.Selection.getSelection()
-		if len(sel)==0:
+		selx=Gui.Selection.getSelectionEx()
+		Pick=selx[0].PickedPoints[0]
+		if len(selx)==0:
 			tipsDialog("Silk: ControlPoly4_segment", moreInfo)
 			return
+
+		elif len(selx)==1:
+			# auto point selection mode
+			# print("selx =", selx[0].Object)
+			try:
+				selType = selx[0].Object.object_type
+				# print(selType)
+			except:
+				print("single object in selection does not have the 'object_type' property")
+				return
+			if selType != 'CubicCurve_4':
+				print("for single input, the selection must be a CubicCurve_4 object")
+				return
+			AN_Curve=selx[0].Object 	# this is a resilient link to the underlying object
+			u=AN_Curve.Shape.Curve.parameter(Pick)
+			# print("picked point = ", Pick, " param = ", u)
+			below = None
+			above = None
+			uBelow = 0.0
+			uAbove = 1.0
+			if AN_Curve.Poly.object_type == 'ControlPoly4_segment':
+				below = AN_Curve.Poly.Point_onCurve_0
+				above = AN_Curve.Poly.Point_onCurve_1
+			CurveInList  = AN_Curve.InList
+			if len(CurveInList) == 0:
+				print("there is no cutting point defined on this curve")
+				return
+			for i in CurveInList:
+				try:
+					InType = i.object_type
+					if InType == 'Point_onCurve':
+						if i.u < u and i.u > uBelow:
+							below = i
+							uBelow = i.u
+						if i.u > u and i.u < uAbove:
+							above = i
+							uAbove = i.u
+				except:
+					pass
+			if below == None:
+				below = FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve_000")
+				AN.Point_onCurve(below,AN_Curve, 0)
+				below.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+				below.ViewObject.PointSize = 8.00
+				below.ViewObject.PointColor = (0.00,0.00,0.00)
+			if above == None:
+				above =FreeCAD.ActiveDocument.addObject("Part::FeaturePython","Point_onCurve_000")
+				AN.Point_onCurve(above,AN_Curve, 1)
+				above.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
+				above.ViewObject.PointSize = 8.00
+				above.ViewObject.PointColor = (0.00,0.00,0.00)
+			# print("below :", below, ", ", uBelow)
+			# print("above :", above, ", ", uAbove)
+			Point_onCurve_0 = below	# this is a resilient link to the underlying object
+			Point_onCurve_1 = above	# this is a resilient link to the underlying object			
 		
-		selx=Gui.Selection.getSelectionEx()
-		NL_Curve=selx[0].Object			# this is a resilient link to the underlying object
-		Point_onCurve_0=selx[1].Object	# this is a resilient link to the underlying object
-		Point_onCurve_1=selx[2].Object	# this is a resilient link to the underlying object
+		elif len(selx)==3:
+			#selx=Gui.Selection.getSelectionEx()
+			AN_Curve=selx[0].Object			# this is a resilient link to the underlying object
+			Point_onCurve_0=selx[1].Object	# this is a resilient link to the underlying object
+			Point_onCurve_1=selx[2].Object	# this is a resilient link to the underlying object
+
+		else:
+			print("ControlPoly4_segment: selection input not recognized")
+			return
 
 		a=FreeCAD.ActiveDocument.addObject("Part::FeaturePython","ControlPoly4_segment_000")
-		AN.ControlPoly4_segment(a,NL_Curve, Point_onCurve_0, Point_onCurve_1)
+		AN.ControlPoly4_segment(a,AN_Curve, Point_onCurve_0, Point_onCurve_1)
 		a.ViewObject.Proxy=0 # just set it to something different from None (this assignment is needed to run an internal notification)
 		a.ViewObject.LineWidth = 1.00
 		a.ViewObject.LineColor = (0.00,1.00,1.00)
