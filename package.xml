@@ -2,7 +2,7 @@
 <package format="1" xmlns="https://wiki.freecad.org/Package_Metadata">
   <name>Silk workbench</name>
   <description>NURBS Surface modeling tools focused on low degree and seam continuity</description>
-  <version>0.3.9</version>
+  <version>0.4.0</version>
   <date>2026-06-11</date>
 
   <author email="@edwardvmills">edwardvmills</author>
