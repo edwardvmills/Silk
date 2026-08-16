@@ -38,7 +38,10 @@ iconPath = path_Silk_icons + '/ControlPoly4_segment.svg'
 class ControlPoly4_segment():
 	def Activated(self):
 		selx=Gui.Selection.getSelectionEx()
-		Pick=selx[0].PickedPoints[0]
+		try:
+			Pick=selx[0].PickedPoints[0]
+		except:
+			pass
 		if len(selx)==0:
 			tipsDialog("Silk: ControlPoly4_segment", moreInfo)
 			return
@@ -73,10 +76,10 @@ class ControlPoly4_segment():
 				try:
 					InType = i.object_type
 					if InType == 'Point_onCurve':
-						if i.u < u and i.u > uBelow:
+						if i.u < u and i.u >= uBelow:
 							below = i
 							uBelow = i.u
-						if i.u > u and i.u < uAbove:
+						if i.u > u and i.u <= uAbove:
 							above = i
 							uAbove = i.u
 				except:
