@@ -1,26 +1,33 @@
-#    ArachNURBS
-#    (c) Edward Mills 2016-2024
-#    edwardvmills@gmail.com
-#    
-#    ArachNURBS is a library of functions and classes to manipulate NURBS
-#    curves, surfaces, and the associated control polygons and grids.
-#    ArachNURBS is built on top FreeCAD's standard NURBS functions.
-#
-#    This program is free software: you can redistribute it and/or modify
-#    it under the terms of the GNU General Public License as published by
-#    the Free Software Foundation, either version 3 of the License, or
-#    (at your option) any later version.
-#
-#    This program is distributed in the hope that it will be useful,
-#    but WITHOUT ANY WARRANTY; without even the implied warranty of
-#    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-#    GNU General Public License for more details.
-#
-#    You should have received a copy of the GNU General Public License
-#    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-#
-#
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileNotice: Part of the Silk addon.
 
+################################################################################
+#                                                                              #
+#   (c) 2016 Edward Mills <edwardvmills@gmail.com>                             #
+#                                                                              #
+#   Silk is free software: you can redistribute it and/or modify it            #
+#   under the terms of the GNU General Public License as published by          #
+#   the Free Software Foundation, either version 3 of the License, or          #
+#   (at your option) any later version.                                        #
+#                                                                              #
+#   This program is distributed in the hope that it will be useful,            #
+#   but WITHOUT ANY WARRANTY; without even the implied warranty of             #
+#   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.                       #
+#                                                                              #
+#   See the GNU General Public License for more details.                       #
+#                                                                              #
+#   You should have received a copy of the GNU General Public License          #
+#   along with this program. If not, see <http://www.gnu.org/licenses/>.       #
+#                                                                              #
+################################################################################
+
+
+'''
+ArachNURBS is a library of functions and classes to manipulate NURBS
+curves, surfaces, and the associated control polygons and grids.
+ArachNURBS is built on top FreeCAD's standard NURBS functions.
+'''
+  
 from __future__ import division # allows floating point division from integers
 import Part
 import FreeCAD
