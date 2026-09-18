@@ -1,3 +1,6 @@
+# SPDX-License-Identifier: GPL-3.0-or-later
+# SPDX-FileNotice: Part of the Silk addon.
+
 # starting from https://wiki.freecad.org/Macro_MessageBox
 # for basic pop up window
 
